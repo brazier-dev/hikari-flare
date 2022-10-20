@@ -6,6 +6,7 @@ import nox
 
 SCRIPT_DIRS = ["flare"]
 
+
 def poetry_session(
     callback: typing.Callable[[nox.Session], None]
 ) -> typing.Callable[[nox.Session], None]:
@@ -19,7 +20,9 @@ def poetry_session(
     return inner
 
 
-def pip_session(*args: str, name: str | None = None) -> typing.Callable[[nox.Session], None]:
+def pip_session(
+    *args: str, name: str | None = None
+) -> typing.Callable[[nox.Session], None]:
     def inner(callback: typing.Callable[[nox.Session], None]):
         @nox.session(name=name or callback.__name__)
         def inner(session: nox.Session):
