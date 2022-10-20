@@ -5,7 +5,7 @@ description = "A component manager for hikari."
 authors = ["Lunarmagpie <bambolambo0@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "hikari_flare"}]
+packages = [{include = "flare"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
