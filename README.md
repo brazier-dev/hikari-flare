@@ -37,3 +37,24 @@ async def cmd(ctx: crescent.Context, n: int) -> None:
 
 bot.run()
 ```
+
+## Converters
+
+Converters allow you to serialize and deserialize types.
+Here in an example of an int converter.
+
+Converters for `int`, `str`, `typing.Literal`, and `enum.Enum` are built in.
+
+```python
+class IntConverter(Converter[int]):
+    def to_str(self, obj: int) -> str:
+        return str(obj)
+
+    def from_str(self, obj: str) -> int:
+        return int(obj)
+
+flare.add_converter(
+    int,          # The typehint this converter is used for.
+    IntConverter  # The converter class.
+)
+```
