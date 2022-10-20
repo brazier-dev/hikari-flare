@@ -1,57 +1,76 @@
+from __future__ import annotations
+
 import abc
 import hikari
-import typing
+import typing as t
 import sigparse
 
-from flare.handle_resp import _components
-from flare import typedefs
+from flare.handle_resp import components
 from flare import id
 
-ButtonSelf = typing.TypeVar("ButtonSelf", bound="button")
+if t.TYPE_CHECKING:
+    from flare import context
+
+P = t.ParamSpec("P")
 
 
-class Component(abc.ABC):
+class Component(abc.ABC, t.Generic[P]):
     @abc.abstractmethod
-    def build(self, __action_row: hikari.api.ActionRowBuilder | None = None, **kwargs: typing.Any) -> hikari.api.ActionRowBuilder:
+    def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
+        ...
+
+    @abc.abstractmethod
+    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
         ...
 
 
-class button(Component):
-    def __init__(self, *, label: str, style: hikari.ButtonStyle, cookie: str | None = None) -> None:
-        self.callback: typedefs.ComponentCallbackT | None = None
+class button:
+    def __init__(
+        self,
+        label: str,
+        style: hikari.ButtonStyle,
+        cookie: str | None = None,
+    ) -> None:
         self.label = label
         self.style = style
         self.cookie = cookie
 
-        self._args: dict[str, sigparse.Parameter] | None = None
+    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> Button[P]:
+        return Button(
+            callback=callback,
+            label=self.label,
+            style=self.style,
+            cookie=self.cookie,
+        )
 
-    @property
-    def args(self) -> dict[str, typing.Any]:
-        assert self._args is not None
-        return self._args
-
-    def __call__(self: ButtonSelf, callback: typedefs.ComponentCallbackT) -> ButtonSelf:
+class Button(Component[P]):
+    def __init__(
+        self, *,
+        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
+        label: str,
+        style: hikari.ButtonStyle,
+        cookie: str | None,
+    ) -> None:
         self.callback = callback
+        self.label = label
+        self.style = style
+        self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
 
-        self._args = {
-            param.name:param.annotation for param in sigparse.sigparse(callback)[1:]
+        self.args = {
+            param.name: param.annotation for param in sigparse.sigparse(callback)[1:]
         }
+        components[self.cookie] = self
 
-        if not self.cookie:
-            self.cookie = f"{callback.__name__}.{callback.__module__}"
 
-        _components[self.cookie] = self
-
-        return self
-
-    def build(self, __action_row: hikari.api.ActionRowBuilder | None = None, **kwargs: typing.Any) -> hikari.api.ActionRowBuilder:
-        if not __action_row:
-            __action_row = hikari.impl.ActionRowBuilder()
-
-        assert self.cookie
+    def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
+        # if not __action_row:
+        __action_row = hikari.impl.ActionRowBuilder()
         _id = id.serialize(self.cookie, self.args, kwargs)
 
         __action_row.add_button(
             self.style, _id
         ).set_label(self.label).add_to_container()
         return __action_row
+
+    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
+        ...
