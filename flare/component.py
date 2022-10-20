@@ -5,20 +5,24 @@ import hikari
 import typing as t
 import sigparse
 
-from flare.handle_resp import _components
+from flare.handle_resp import components
 from flare import id
 
 if t.TYPE_CHECKING:
     from flare import context
 
 P = t.ParamSpec("P")
-ButtonSelf = t.TypeVar("ButtonSelf", bound="Button[t.Any]")
 
 
-class Component(abc.ABC):
+class Component(abc.ABC, t.Generic[P]):
     @abc.abstractmethod
-    def build(self, __action_row: hikari.api.ActionRowBuilder | None = None, **kwargs: t.Any) -> hikari.api.ActionRowBuilder:
+    def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         ...
+
+    @abc.abstractmethod
+    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
+        ...
+
 
 class button:
     def __init__(
@@ -39,7 +43,7 @@ class button:
             cookie=self.cookie,
         )
 
-class Button(t.Generic[P]):
+class Button(Component[P]):
     def __init__(
         self, *,
         callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
@@ -55,7 +59,7 @@ class Button(t.Generic[P]):
         self.args = {
             param.name: param.annotation for param in sigparse.sigparse(callback)[1:]
         }
-        _components[self.cookie] = self
+        components[self.cookie] = self
 
 
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:

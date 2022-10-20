@@ -16,7 +16,12 @@ sigparse = "^2.0.0"
 black = "^22.10.0"
 nox = "^2022.8.7"
 flake8 = "^5.0.4"
-mypy = "^0.982"
+pyright = "^1.1.276"
+
+[tool.pyright]
+include = ["flare"]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"
 
 [tool.mypy]
 strict = true
