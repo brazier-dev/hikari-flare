@@ -1,12 +1,12 @@
 name: pytest
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   pytest:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        python-version: [ '3.10', '3.11-dev' ]
+        python-version: [ '3.10' ]
         os: [ ubuntu ]
       fail-fast: false
 
