@@ -3,7 +3,7 @@ import typing
 
 SEP = "\x01"
 ESC = "\\"
-ESC_SEP = "\\\x00"
+ESC_SEP = "\\\x01"
 NULL = "\x00"
 ESC_NULL = "\\\x00"
 
@@ -24,7 +24,7 @@ def split_on_sep(s: str) -> list[str]:
         else:
             out[-1] += [char]
 
-    return [''.join(row) for row in out]
+    return [''.join(row).replace(ESC_SEP, SEP) for row in out]
 
 def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[str, dict[str, typing.Any]]:
     cookie, *args = split_on_sep(id)
