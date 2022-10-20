@@ -1,6 +1,6 @@
 # Flare
 
-Stateless component manager for hikari.
+Stateless component manager for hikari with type-safe API.
 
 
 # Example
@@ -24,8 +24,6 @@ async def test_button(
         response_type=hikari.ResponseType.MESSAGE_CREATE
     )
 
-    # A planned feature is `ctx.update_state` to update the state of a button.
-
 bot = crescent.Bot("...")
 flare.install(bot)
 
@@ -34,7 +32,6 @@ flare.install(bot)
 async def cmd(ctx: crescent.Context, n: int) -> None:
     await ctx.respond(components=[
         # Set custom state here.
-        # NOTE: This isn't type safe.
         test_button.build(number=5)
     ])
 
