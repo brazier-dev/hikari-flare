@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 import typing
 from flare import converters
+
+if typing.TYPE_CHECKING:
+    from flare import component
 
 SEP = "\x01"
 ESC = "\\"
@@ -33,12 +38,24 @@ def split_on_sep(s: str) -> list[str]:
     return ["".join(row).replace(ESC_SEP, SEP) for row in out]
 
 
+def _cast_kwargs(
+    kwargs: dict[str, typing.Any], types: dict[str, typing.Any]
+) -> dict[str, typing.Any]:
+    ret: dict[str, typing.Any] = {}
+    for k, v in kwargs.items():
+        cast_to = types[k]
+        ret[k] = converters.get_converter(cast_to).from_str(v)
+
+    return ret
+
+
 def deserialize(
     id: str, map: dict[str, typing.Any]
-) -> tuple[str, dict[str, typing.Any]]:
+) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
     cookie, *args = split_on_sep(id)
 
-    types = map[cookie].args
+    component_ = map[cookie]
+    types = component_.args
 
     transformed_args: dict[str, typing.Any] = {}
 
@@ -47,4 +64,4 @@ def deserialize(
             arg = arg.replace(ESC_NULL, NULL)
             transformed_args[k] = arg
 
-    return (cookie, transformed_args)
+    return (component_, _cast_kwargs(transformed_args, component_.args))

@@ -6,7 +6,7 @@ import typing as t
 import sigparse
 
 from flare.handle_resp import components
-from flare import id
+from flare import serde
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -17,6 +17,13 @@ P = t.ParamSpec("P")
 class Component(abc.ABC, t.Generic[P]):
     @abc.abstractmethod
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def callback(
+        self,
+    ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         ...
 
     @abc.abstractmethod
@@ -57,7 +64,7 @@ class Button(Component[P]):
         style: hikari.ButtonStyle,
         cookie: str | None,
     ) -> None:
-        self.callback = callback
+        self._callback = callback
         self.label = label
         self.style = style
         self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
@@ -67,10 +74,16 @@ class Button(Component[P]):
         }
         components[self.cookie] = self
 
+    @property
+    def callback(
+        self,
+    ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
+        return self._callback
+
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         # if not __action_row:
         __action_row = hikari.impl.ActionRowBuilder()
-        _id = id.serialize(self.cookie, self.args, kwargs)
+        _id = serde.serialize(self.cookie, self.args, kwargs)
 
         __action_row.add_button(self.style, _id).set_label(
             self.label
