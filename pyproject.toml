@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "hikari-flare"
+version = "0.1.0"
+description = "A component manager for hikari."
+authors = ["Lunarmagpie <bambolambo0@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "hikari_flare"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+hikari = "^2.0.0.dev111"
+sigparse = "^2.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+nox = "^2022.8.7"
+flake8 = "^5.0.4"
+mypy = "^0.982"
+
+[tool.mypy]
+strict = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
