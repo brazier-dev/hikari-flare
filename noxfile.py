@@ -56,4 +56,4 @@ def pyright(session: nox.Session) -> None:
 
 @poetry_session
 def pytest(session: nox.Session) -> None:
-    session.run("poetry", "run", "pytest", "tests", "--cov=flare/")
+    session.run("poetry", "run", "pytest", "tests")
