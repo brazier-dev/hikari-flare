@@ -43,7 +43,6 @@ class button:
             cookie=self.cookie,
         )
 
-
 class Button(Component[P]):
     def __init__(
         self, *,

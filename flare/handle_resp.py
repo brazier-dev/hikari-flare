@@ -38,7 +38,6 @@ def _get_left(obj: typing.Any) -> typing.Any:
     return typing.get_args(obj)[0]
 
 def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
-    print(kwargs)
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types.get(k)
