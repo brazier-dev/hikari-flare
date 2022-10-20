@@ -1,6 +1,7 @@
 import dataclasses
-import hikari
 import typing
+
+import hikari
 
 Self = typing.TypeVar("Self")
 

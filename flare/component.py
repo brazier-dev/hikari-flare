@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import abc
-import hikari
 import typing as t
+
+import hikari
 import sigparse
 
-from flare.handle_resp import components
 from flare import serde
+from flare.handle_resp import components
 
 if t.TYPE_CHECKING:
     from flare import context

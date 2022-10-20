@@ -3,6 +3,7 @@ import enum
 import inspect
 import types
 import typing
+
 from flare import exceptions
 
 T = typing.TypeVar("T")
@@ -36,7 +37,8 @@ def _any_issubclass(t: typing.Any, cls: typing.Any) -> bool:
 
 
 def _is_union(obj: typing.Any) -> bool:
-    return typing.get_origin(obj) is types.UnionType
+    origin = typing.get_origin(obj)
+    return origin is types.UnionType or origin is typing.Union
 
 
 def _get_left(obj: typing.Any) -> typing.Any:

@@ -1,7 +1,9 @@
-import hikari
-from flare.context import Context
 import typing
+
+import hikari
+
 from flare import serde
+from flare.context import Context
 
 _bot = None
 

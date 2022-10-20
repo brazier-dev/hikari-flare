@@ -1,9 +1,9 @@
 import typing
 
-from flare.handle_resp import install
-from flare.context import Context
 from flare.component import button
+from flare.context import Context
 from flare.converters import Converter, add_converter
+from flare.handle_resp import install
 
 __all__: typing.Sequence[str] = (
     "install",

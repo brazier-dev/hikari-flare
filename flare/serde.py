@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+
 from flare import converters
 
 if typing.TYPE_CHECKING:
