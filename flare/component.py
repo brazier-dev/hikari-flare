@@ -61,7 +61,6 @@ class Button(Component[P]):
         }
         components[self.cookie] = self
 
-
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         # if not __action_row:
         __action_row = hikari.impl.ActionRowBuilder()
