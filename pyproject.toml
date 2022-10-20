@@ -12,7 +12,7 @@ python = "^3.10"
 hikari = "^2.0.0.dev111"
 sigparse = "^2.0.0"
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.dev-dependencies]
 black = "^22.10.0"
 nox = "^2022.8.7"
 codespell = "^2.2.2"
