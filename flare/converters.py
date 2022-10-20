@@ -3,6 +3,7 @@ import enum
 import inspect
 import types
 import typing
+
 from flare import exceptions
 
 T = typing.TypeVar("T")

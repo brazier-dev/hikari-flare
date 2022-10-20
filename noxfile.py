@@ -4,7 +4,6 @@ import typing
 
 import nox
 
-
 SCRIPT_DIRS = ["flare"]
 
 def poetry_session(
