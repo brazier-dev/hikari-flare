@@ -13,10 +13,10 @@ def serialize(
 ) -> str:
     out = f"{cookie}{SEP}"
 
-    for k in types.keys():
+    for k, v in types.items():
         val = kwargs.get(k)
-        converter = converters.get_converter(type(val))
-        out += f"{converter.to_str(val).replace(SEP, ESC_SEP)}{SEP}"
+        converter = converters.get_converter(v)
+        out += f"{(converter.to_str(val) if val else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
 

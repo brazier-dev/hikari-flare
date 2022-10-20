@@ -1,6 +1,7 @@
 import abc
 import enum
 import inspect
+import types
 import typing
 from flare import exceptions
 
@@ -34,8 +35,23 @@ def _any_issubclass(t: typing.Any, cls: typing.Any) -> bool:
     return issubclass(t, cls)
 
 
+def _is_union(obj: typing.Any) -> bool:
+    return typing.get_origin(obj) is types.UnionType
+
+
+def _get_left(obj: typing.Any) -> typing.Any:
+    if not _is_union(obj):
+        return obj
+    return typing.get_args(obj)[0]
+
+
 def get_converter(t: typing.Any) -> Converter[typing.Any]:
-    converter = _converters.get(t)
+    origin = _get_left(t)
+
+    if origin_ := typing.get_origin(origin):
+        origin = origin_
+
+    converter = _converters.get(origin)
 
     if converter:
         return converter(t)
@@ -45,7 +61,7 @@ def get_converter(t: typing.Any) -> Converter[typing.Any]:
             return v(t)
 
     raise exceptions.ConverterError(
-        f"Could not find converter for type `{t.__name__}`."
+        f"Could not find converter for type `{getattr(t, '__name__', t)}`."
     )
 
 
@@ -75,4 +91,5 @@ class EnumConverter(Converter[enum.Enum]):
 
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
+add_converter(typing.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
