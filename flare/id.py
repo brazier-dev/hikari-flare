@@ -1,6 +1,5 @@
 import typing
 
-
 SEP = "\x01"
 ESC = "\\"
 ESC_SEP = "\\\x01"
