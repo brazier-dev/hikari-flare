@@ -1,7 +1,7 @@
 import hikari
 from flare.context import Context
 import typing
-from flare import id
+from flare import serde
 from flare import converters
 
 _bot = None
@@ -24,7 +24,7 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
     if typing.TYPE_CHECKING:
         assert isinstance(event.interaction, hikari.ComponentInteraction)
 
-    cookie, kwargs = id.deserialize(event.interaction.custom_id, components)
+    cookie, kwargs = serde.deserialize(event.interaction.custom_id, components)
     component = components[cookie]
 
     ctx = Context(

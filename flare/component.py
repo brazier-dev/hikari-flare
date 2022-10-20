@@ -6,7 +6,7 @@ import typing as t
 import sigparse
 
 from flare.handle_resp import components
-from flare import id
+from flare import serde
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -70,7 +70,7 @@ class Button(Component[P]):
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         # if not __action_row:
         __action_row = hikari.impl.ActionRowBuilder()
-        _id = id.serialize(self.cookie, self.args, kwargs)
+        _id = serde.serialize(self.cookie, self.args, kwargs)
 
         __action_row.add_button(self.style, _id).set_label(
             self.label
