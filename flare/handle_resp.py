@@ -29,20 +29,21 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
 
     await component.callback(ctx, **_cast_kwargs(kwargs, component.args))
 
-def _is_union(obj: typing.Any):
+def _is_union(obj: typing.Any) -> bool:
     return hasattr(obj, "__args__")
 
-def _get_left(obj: typing.Any):
+def _get_left(obj: typing.Any) -> typing.Any:
     if not _is_union(obj):
         return obj
     return typing.get_args(obj)[0]
 
-
 def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    print(kwargs)
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types.get(k)
-        if cast_to and v:
+
+        if cast_to:
             ret[k] = _get_left(cast_to)(v)
         else:
             ret[k] = v
