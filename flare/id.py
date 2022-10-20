@@ -10,7 +10,8 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
     out = f"{cookie}{SEP}"
 
     for k in types.keys():
-        out += f"{str(kwargs.get(k) or NULL).replace(SEP, ESC_SEP)}{SEP}"
+        val = kwargs.get(k)
+        out += f"{str(val if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
 
