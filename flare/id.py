@@ -1,4 +1,5 @@
 import typing
+from flare.converters import converters
 
 SEP = "\x01"
 ESC = "\\"
@@ -11,7 +12,10 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
 
     for k in types.keys():
         val = kwargs.get(k)
-        out += f"{str(val if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
+
+        converter = converters[type(val)]
+
+        out += f"{converter.to_str(val if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
 

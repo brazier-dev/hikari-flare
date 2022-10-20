@@ -2,6 +2,7 @@ import hikari
 from flare.context import Context
 import typing
 from flare import id
+from flare import converters
 
 _bot = None
 
@@ -43,7 +44,7 @@ def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) ->
         cast_to = types.get(k)
 
         if cast_to:
-            ret[k] = _get_left(cast_to)(v)
+            ret[k] = converters.converters[_get_left(cast_to)].from_str(v)
         else:
             ret[k] = v
 
