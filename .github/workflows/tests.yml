@@ -6,7 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        python-version: [ '3.10', '3.11' ]
+        python-version: [ '3.10', '3.11-dev' ]
         os: [ ubuntu, windows, macos ]
       fail-fast: false
 
