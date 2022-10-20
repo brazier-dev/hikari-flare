@@ -1,5 +1,6 @@
 name: pytest
-on: [push, pull_request]
+on: [push]
+
 jobs:
   pytest:
     runs-on: ${{ matrix.os }}-latest
