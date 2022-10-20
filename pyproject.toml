@@ -20,12 +20,10 @@ pyright = "^1.1.276"
 
 [tool.pyright]
 include = ["flare"]
+exclude = ["tests"]
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
 reportImportCycles = false
-
-[tool.mypy]
-strict = true
 
 [build-system]
 requires = ["poetry-core"]
