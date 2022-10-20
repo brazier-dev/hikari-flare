@@ -22,6 +22,7 @@ pyright = "^1.1.276"
 include = ["flare"]
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
+reportImportCycles = false
 
 [tool.mypy]
 strict = true
