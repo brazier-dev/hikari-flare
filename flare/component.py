@@ -43,6 +43,7 @@ class button:
             cookie=self.cookie,
         )
 
+
 class Button(Component[P]):
     def __init__(
         self, *,
@@ -60,7 +61,6 @@ class Button(Component[P]):
             param.name: param.annotation for param in sigparse.sigparse(callback)[1:]
         }
         components[self.cookie] = self
-
 
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         # if not __action_row:
