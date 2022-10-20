@@ -1,4 +1,5 @@
 import typing
+from flare import converters
 
 SEP = "\x01"
 ESC = "\\"
@@ -6,14 +7,19 @@ ESC_SEP = "\\\x01"
 NULL = "\x00"
 ESC_NULL = "\\\x00"
 
-def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
+
+def serialize(
+    cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]
+) -> str:
     out = f"{cookie}{SEP}"
 
-    for k in types.keys():
+    for k, v in types.items():
         val = kwargs.get(k)
-        out += f"{str(val if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
+        converter = converters.get_converter(v)
+        out += f"{(converter.to_str(val) if val else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
+
 
 def split_on_sep(s: str) -> list[str]:
     out: list[list[str]] = [[s[0]]]
@@ -24,9 +30,12 @@ def split_on_sep(s: str) -> list[str]:
         else:
             out[-1] += [char]
 
-    return [''.join(row).replace(ESC_SEP, SEP) for row in out]
+    return ["".join(row).replace(ESC_SEP, SEP) for row in out]
 
-def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[str, dict[str, typing.Any]]:
+
+def deserialize(
+    id: str, map: dict[str, typing.Any]
+) -> tuple[str, dict[str, typing.Any]]:
     cookie, *args = split_on_sep(id)
 
     types = map[cookie].args

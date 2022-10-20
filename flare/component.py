@@ -20,7 +20,9 @@ class Component(abc.ABC, t.Generic[P]):
         ...
 
     @abc.abstractmethod
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
+    async def update_state(
+        self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs
+    ) -> None:
         ...
 
 
@@ -35,7 +37,9 @@ class button:
         self.style = style
         self.cookie = cookie
 
-    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> Button[P]:
+    def __call__(
+        self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]
+    ) -> Button[P]:
         return Button(
             callback=callback,
             label=self.label,
@@ -43,9 +47,11 @@ class button:
             cookie=self.cookie,
         )
 
+
 class Button(Component[P]):
     def __init__(
-        self, *,
+        self,
+        *,
         callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
         label: str,
         style: hikari.ButtonStyle,
@@ -66,10 +72,12 @@ class Button(Component[P]):
         __action_row = hikari.impl.ActionRowBuilder()
         _id = id.serialize(self.cookie, self.args, kwargs)
 
-        __action_row.add_button(
-            self.style, _id
-        ).set_label(self.label).add_to_container()
+        __action_row.add_button(self.style, _id).set_label(
+            self.label
+        ).add_to_container()
         return __action_row
 
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
+    async def update_state(
+        self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs
+    ) -> None:
         ...
