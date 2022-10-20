@@ -19,6 +19,13 @@ class Component(abc.ABC, t.Generic[P]):
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         ...
 
+    @property
+    @abc.abstractmethod
+    def callback(
+        self,
+    ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
+        ...
+
     @abc.abstractmethod
     async def update_state(
         self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs
@@ -57,7 +64,7 @@ class Button(Component[P]):
         style: hikari.ButtonStyle,
         cookie: str | None,
     ) -> None:
-        self.callback = callback
+        self._callback = callback
         self.label = label
         self.style = style
         self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
@@ -66,6 +73,12 @@ class Button(Component[P]):
             param.name: param.annotation for param in sigparse.sigparse(callback)[1:]
         }
         components[self.cookie] = self
+
+    @property
+    def callback(
+        self,
+    ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
+        return self._callback
 
     def build(self, *_: P.args, **kwargs: P.kwargs) -> hikari.api.ActionRowBuilder:
         # if not __action_row:
