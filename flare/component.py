@@ -258,6 +258,12 @@ class SelectMenu(Component[P]):
         else:
             raise ComponentError("Expected one or more options for select menu. Got zero.")
 
+        if len(self.options) > 25:
+            raise ComponentError("Cannot create a select menu with more than 25 options.")
+
+        if self.placeholder and len(self.placeholder) > 100:
+            raise ComponentError("Placeholder text must be shorter than 100 characters.")
+
         if self.min_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater min options than options.")
         if self.max_values > len(self.options):
