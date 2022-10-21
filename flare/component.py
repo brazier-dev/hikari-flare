@@ -98,12 +98,12 @@ class button:
         label: str | None,
         emoji: hikari.Emoji | str | None,
         style: hikari.ButtonStyle,
-        is_disabled: bool = False,
+        disabled: bool = False,
         cookie: str | None = None,
     ) -> None:
         self.label = label
         self.emoji = emoji
-        self.is_disabled = is_disabled
+        self.disabled = disabled
         self.style = style
         self.cookie = cookie
 
@@ -112,7 +112,7 @@ class button:
             callback=callback,
             label=self.label,
             emoji=self.emoji,
-            is_disabled=self.is_disabled,
+            disabled=self.disabled,
             style=self.style,
             cookie=self.cookie,
         )
@@ -126,14 +126,14 @@ class Button(Component[P]):
         label: str | None,
         emoji: hikari.Emoji | str | None,
         style: hikari.ButtonStyle,
-        is_disabled: bool = False,
+        disabled: bool = False,
         cookie: str | None,
     ) -> None:
         super().__init__(cookie, callback)
         self.label = label
         self.emoji = emoji
         self.style = style
-        self.is_disabled = is_disabled
+        self.disabled = disabled
 
         if isinstance(self.emoji, str):
             self.emoji = hikari.Emoji.parse(self.emoji)
@@ -157,7 +157,7 @@ class Button(Component[P]):
         if self.emoji:
             button.set_emoji(self.emoji)
 
-        button.set_is_disabled(self.is_disabled)
+        button.set_is_disabled(self.disabled)
 
         button.add_to_container()
 
