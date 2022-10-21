@@ -91,7 +91,7 @@ def _get_left(obj: t.Any) -> t.Any:
     return t.get_args(obj)[0]
 
 
-def _get_converter(t: t.Any) -> Converter[t.Any]:  # type: ignore reportUnusedFunction
+def get_converter(t: t.Any) -> Converter[t.Any]:
     """
     Return the converter used for a certain type hint. If a Union is passed,
     the left side of the Union will be used to find the converter.
