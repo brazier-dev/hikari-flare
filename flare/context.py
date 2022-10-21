@@ -1,9 +1,11 @@
 import dataclasses
-import typing
+import typing as t
 
 import hikari
 
-Self = typing.TypeVar("Self")
+Self = t.TypeVar("Self")
+
+__all__: t.Final[t.Sequence[str]] = ("Context",)
 
 
 @dataclasses.dataclass

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from flare import converters
+from flare.converters import get_converter
 
 if typing.TYPE_CHECKING:
     from flare import component
+
+__all__: typing.Final[typing.Sequence[str]] = ("serialize", "deserialize")
 
 SEP = "\x01"
 ESC = "\\"
@@ -31,7 +33,7 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
 
     for k, v in types.items():
         val = kwargs.get(k)
-        converter = converters.get_converter(v)
+        converter = get_converter(v)
         out += (
             f"{(converter.to_str(val).replace(NULL, ESC_NULL) if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
         )
@@ -55,7 +57,7 @@ def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) ->
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types[k]
-        ret[k] = converters.get_converter(cast_to).from_str(v)
+        ret[k] = get_converter(cast_to).from_str(v)
 
     return ret
 

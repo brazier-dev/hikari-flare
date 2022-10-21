@@ -11,6 +11,18 @@ class ConverterError(Exception):
     """Exception raised when there is a error with converters."""
 
 
+class ComponentError(FlareException):
+    """Exception raised when there is a error with components."""
+
+
+class MissingRequiredParameterError(ComponentError):
+    """Exception raised when a required parameter (or parameters) for a component is missing."""
+
+
+class RowMaxWidthError(ComponentError):
+    """Exception raised when a row exceeds the maximum width."""
+
+
 # MIT License
 #
 # Copyright (c) 2022-present Lunarmagpie
