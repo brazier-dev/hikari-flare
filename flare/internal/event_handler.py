@@ -1,20 +1,35 @@
-import typing
+import typing as t
 
-from flare.component import button
+import hikari
+
 from flare.context import Context
-from flare.converters import Converter
-from flare.converters import add_converter
-from flare.internal import install
+from flare.internal import serde
 
-__all__: typing.Sequence[str] = (
-    "install",
-    "Context",
-    "button",
-    "Converter",
-    "add_converter",
-)
+__all__: t.Final[t.Sequence[str]] = ("install",)
 
-__version__ = "0.1.0"
+
+def install(bot: hikari.EventManagerAware) -> None:
+    bot.event_manager.subscribe(hikari.InteractionCreateEvent, _on_inter)
+
+
+components: dict[str, t.Any] = {}
+
+
+async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
+    """
+    Function called to respond to an interaction.
+    """
+    assert isinstance(event.interaction, hikari.ComponentInteraction)
+
+    component, kwargs = serde.deserialize(event.interaction.custom_id, components)
+
+    ctx = Context(
+        interaction=event.interaction,
+        author=event.interaction.user,
+    )
+
+    await component.callback(ctx, **kwargs)
+
 
 # MIT License
 #

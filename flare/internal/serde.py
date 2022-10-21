@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from flare import converters
+from flare.converters import _get_converter  # type: ignore reportPrivateUsage
 
 if typing.TYPE_CHECKING:
     from flare import component
+
+__all__: typing.Final[typing.Sequence[str]] = ("serialize", "deserialize")
 
 SEP = "\x01"
 ESC = "\\"
@@ -14,9 +16,7 @@ NULL = "\x00"
 ESC_NULL = "\\\x00"
 
 
-def serialize(
-    cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]
-) -> str:
+def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
     """
     Encode a custom_id for a component.
 
@@ -33,7 +33,7 @@ def serialize(
 
     for k, v in types.items():
         val = kwargs.get(k)
-        converter = converters.get_converter(v)
+        converter = _get_converter(v)  # type: ignore reportPrivateUsage
         out += f"{(converter.to_str(val) if val else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
@@ -51,20 +51,18 @@ def split_on_sep(s: str) -> list[str]:
     return ["".join(row).replace(ESC_SEP, SEP) for row in out]
 
 
-def _cast_kwargs(
-    kwargs: dict[str, typing.Any], types: dict[str, typing.Any]
-) -> dict[str, typing.Any]:
+def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types[k]
-        ret[k] = converters.get_converter(cast_to).from_str(v)
+        ret[k] = _get_converter(cast_to).from_str(v)  # type: ignore reportPrivateUsage
 
     return ret
 
 
 def deserialize(
     id: str, map: dict[str, typing.Any]
-) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
+) -> tuple[component.Component[typing.Any, typing.Any], dict[str, typing.Any]]:
     """
     Decode a custom_id for a component.
 
