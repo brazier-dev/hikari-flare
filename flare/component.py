@@ -17,7 +17,6 @@ P = t.ParamSpec("P")
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "button", "Button")
 
-
 Self = t.TypeVar("Self", bound="Component[...]")
 
 
@@ -179,8 +178,9 @@ class select:
             Wheather the button is diabled.
         cookie:
             An identifier to use for the select menu. A custom cookie can be
-            supplied so a shorter one is used in serializing and deserializing.    
+            supplied so a shorter one is used in serializing and deserializing.
     """
+
     def __init__(
         self,
         options: t.Sequence[tuple[str, str] | str] | None = None,
