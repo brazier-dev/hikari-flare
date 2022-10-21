@@ -175,7 +175,7 @@ class select:
         placeholder:
             Placeholder text when no option is selected.
         disabled:
-            Wheather the button is diabled.
+            Whether the button is disabled.
         cookie:
             An identifier to use for the select menu. A custom cookie can be
             supplied so a shorter one is used in serializing and deserializing.
