@@ -11,7 +11,7 @@ from .component import Component
 P = t.ParamSpec("P")
 
 
-class Row(hikari.api.ActionRowBuilder, t.MutableSequence[Component[P]]):
+class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[P]]):
     def __init__(self, *components: Component[P]) -> None:
         if (width := sum(component.width for component in components)) > 5:
             raise FlareException(f"Row only has space for a combined width of 5 components, got {width}.")
@@ -50,3 +50,6 @@ class Row(hikari.api.ActionRowBuilder, t.MutableSequence[Component[P]]):
             component.build(row)
 
         return row.build()
+
+    def insert(self, index: int, value: Component[P]) -> None:
+        return self._components.insert(index, value)
