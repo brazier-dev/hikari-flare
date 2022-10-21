@@ -162,6 +162,25 @@ class Button(Component[P]):
 
 
 class select:
+    """
+    A select menu message component.
+
+    Args:
+        options:
+            An array of options for the select menu. This must be provided when
+            the class is created or using `SelectMenu.set_options`.
+        min_vales:
+            The minimum amount of values a user must select.
+        max_values:
+            The maximum amount of values a user must select.
+        placeholder:
+            Placeholder text when no option is selected.
+        disabled:
+            Wheather the button is diabled.
+        cookie:
+            An identifier to use for the select menu. A custom cookie can be
+            supplied so a shorter one is used in serializing and deserializing.    
+    """
     def __init__(
         self,
         options: t.Sequence[tuple[str, str] | str] | None = None,
