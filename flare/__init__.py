@@ -2,8 +2,7 @@ import typing
 
 from flare.component import button
 from flare.context import Context
-from flare.converters import Converter
-from flare.converters import add_converter
+from flare.converters import Converter, add_converter
 from flare.internal import install
 
 __all__: typing.Sequence[str] = (

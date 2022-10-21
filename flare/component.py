@@ -6,8 +6,7 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.internal import handle_response
-from flare.internal import serde
+from flare.internal import handle_response, serde
 
 if t.TYPE_CHECKING:
     from flare import context

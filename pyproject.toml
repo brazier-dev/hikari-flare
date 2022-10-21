@@ -1,15 +1,14 @@
 [tool.pyright]
-include            = ["flare"]
-exclude            = ["tests"]
-pythonVersion      = "3.10"
-typeCheckingMode   = "strict"
+include = ["flare"]
+exclude = ["tests"]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"
 reportImportCycles = false
 
 [tool.black]
-line-length     = 120
-target-version  = ["py310"]
-include         = ".*py$"
+line-length = 120
+target-version = ["py310"]
+include = ".*py$"
 
 [tool.isort]
 profile = "black"
-force_single_line = true

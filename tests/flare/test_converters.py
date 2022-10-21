@@ -1,4 +1,5 @@
 import typing
+
 from flare.converters import _get_left, _is_union
 
 
