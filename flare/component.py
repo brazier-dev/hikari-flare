@@ -8,8 +8,7 @@ import hikari
 import sigparse
 
 from flare.exceptions import FlareException
-from flare.internal import event_handler
-from flare.internal import serde
+from flare.internal import event_handler, serde
 
 if t.TYPE_CHECKING:
     from flare import context

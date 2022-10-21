@@ -12,6 +12,7 @@ def test_is_union():
     assert _is_union(typing.Union[int, str])
     assert not _is_union(int)
 
+
 # MIT License
 #
 # Copyright (c) 2022-present Lunarmagpie
