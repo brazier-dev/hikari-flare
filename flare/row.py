@@ -16,6 +16,12 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
 
         self._components = list(components)
 
+    def __check_width(self, value: Component[...]):
+        if (width := sum(component.width for component in self._components) + value.width) > 5:
+            raise RowMaxWidthError(
+                f"Row only has space for a combined width of 5 components, with added component it would be {width}."
+            )
+
     @t.overload
     def __getitem__(self, value: int) -> Component[...]:
         ...
@@ -31,11 +37,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
         return len(self._components)
 
     def __setitem__(self, key: int, value: Component[...]) -> None:
-        if (width := sum(component.width for component in self._components) + value.width) > 5:
-            raise RowMaxWidthError(
-                f"Row only has space for a combined width of 5 components, with added component it would be {width}."
-            )
-
+        self.__check_width(value)
         self._components[key] = value
 
     def __delitem__(self, key: int) -> None:
@@ -50,4 +52,5 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
         return row.build()
 
     def insert(self, index: int, value: Component[...]) -> None:
-        self._components[index] = value
+        self.__check_width(value)
+        self._components.insert(index, value)

@@ -53,9 +53,8 @@ class Component(abc.ABC, t.Generic[P]):
         The custom ID of the component.
         """
         if self._custom_id is None:
-            raise MissingRequiredParameterError(
-                f"Component received no parameters when it has {len(self.args)}. Did you forget to call `with_params()`?"
-            )
+            raise Exception
+            # self._custom_id = serde.serialize(self.cookie, self.args, {})
         return self._custom_id
 
     @property
