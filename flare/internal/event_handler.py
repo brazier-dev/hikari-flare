@@ -19,6 +19,9 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
     """
     Function called to respond to an interaction.
     """
+    if event.interaction.type != hikari.InteractionType.MESSAGE_COMPONENT:
+        return
+
     assert isinstance(event.interaction, hikari.ComponentInteraction)
 
     component, kwargs = serde.deserialize(event.interaction.custom_id, components)

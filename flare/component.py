@@ -34,8 +34,8 @@ class Component(abc.ABC, t.Generic[P]):
 
         self.args = {param.name: param.annotation for param in sigparse.sigparse(callback)[1:]}
 
+        # If no args were passed, calling with_params isn't necessary to construct custom_id
         if not self.args:
-            # If no args were passed, calling with_params isn't necessary to construct custom_id
             self._custom_id = self.cookie
 
         event_handler.components[self.cookie] = self
@@ -53,8 +53,9 @@ class Component(abc.ABC, t.Generic[P]):
         The custom ID of the component.
         """
         if self._custom_id is None:
-            raise Exception
-            # self._custom_id = serde.serialize(self.cookie, self.args, {})
+            raise MissingRequiredParameterError(
+                f"Component received no parameters when it has {len(self.args)}. Did you forget to call `with_params()`?"
+            )
         return self._custom_id
 
     @property
