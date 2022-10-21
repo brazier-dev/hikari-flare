@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.exceptions import FlareException
+from flare.exceptions import RowMaxWidthError
 
 from .component import Component
 
@@ -12,8 +12,7 @@ from .component import Component
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
     def __init__(self, *components: Component[...]) -> None:
         if (width := sum(component.width for component in components)) > 5:
-            raise FlareException(
-                f"Row only has space for a combined width of 5 components, got {width}.")
+            raise RowMaxWidthError(f"Row only has space for a combined width of 5 components, got {width}.")
 
         self._components = list(components)
 
@@ -33,7 +32,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
 
     def __setitem__(self, key: int, value: Component[...]) -> None:
         if (width := sum(component.width for component in self._components) + value.width) > 5:
-            raise FlareException(
+            raise RowMaxWidthError(
                 f"Row only has space for a combined width of 5 components, with added component it would be {width}."
             )
 
