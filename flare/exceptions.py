@@ -7,6 +7,9 @@ class FlareException(Exception):
     """Base exception class for all flare exceptions."""
 
 
+class SerializerError(FlareException):
+    """An exception raised when a serializer fails to serialize or deserialize."""
+
 class ConverterError(Exception):
     """Exception raised when there is a error with converters."""
 

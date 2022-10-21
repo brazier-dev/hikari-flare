@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from flare.converters import get_converter
+from flare.exceptions import SerializerError
 
 if typing.TYPE_CHECKING:
     from flare import component
@@ -38,7 +39,10 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
             f"{(converter.to_str(val).replace(NULL, ESC_NULL) if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
         )
 
-    return out[:-1]
+    out = out[:-1]
+    if len(out) > 100:
+        raise SerializerError(f"Custom ID is too long for cookie {cookie}, try reducing the number of state parameters your component takes.\nReceived length: {len(out)}, max length is 100.")
+    return out
 
 
 def split_on_sep(s: str) -> list[str]:
@@ -74,8 +78,11 @@ def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[component.Componen
     """
     cookie, *args = split_on_sep(id)
 
-    component_ = map[cookie]
-    types = component_.args
+    component = map.get(cookie)
+    if component is None:
+        raise SerializerError(f"Unknown cookie: {cookie}")
+
+    types = component.args
 
     transformed_args: dict[str, typing.Any] = {}
 
@@ -84,4 +91,4 @@ def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[component.Componen
             arg = arg.replace(ESC_NULL, NULL)
             transformed_args[k] = arg
 
-    return (component_, _cast_kwargs(transformed_args, component_.args))
+    return (component, _cast_kwargs(transformed_args, component.args))

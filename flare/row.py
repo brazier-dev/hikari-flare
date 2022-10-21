@@ -6,7 +6,7 @@ import hikari
 
 from flare.exceptions import RowMaxWidthError
 
-from .component import Component
+from .component import Component, Button
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
@@ -42,6 +42,32 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
 
     def __delitem__(self, key: int) -> None:
         del self._components[key]
+
+    @classmethod
+    def from_message(cls, message: hikari.Message) -> t.MutableSequence[Row]:
+        """Create a row from a message's components.
+
+        Parameters
+        ----------
+        message : hikari.Message
+            The message to create the row from.
+
+        Returns
+        -------
+        Row
+            The created rows from the message's components.
+        """
+        rows: list[Row] = []
+
+        for i, action_row in enumerate(message.components):
+            assert isinstance(action_row, hikari.ActionRowComponent)
+
+            for component in action_row.components:
+                if isinstance(component, hikari.ButtonComponent) and (button := Button.from_partial(component)): # type: ignore
+                    rows[i].append(button) if len(rows)-1 >= i else rows.append(cls()) and rows[i].append(button) # type: ignore
+            
+        return rows
+        
 
     def build(self) -> t.MutableMapping[str, t.Any]:
         row = hikari.impl.ActionRowBuilder()

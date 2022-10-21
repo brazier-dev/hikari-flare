@@ -7,13 +7,15 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import ComponentError, MissingRequiredParameterError
+from flare.exceptions import ComponentError, MissingRequiredParameterError, SerializerError
 from flare.internal import event_handler, serde
+from flare.internal.event_handler import components as _components
 
 if t.TYPE_CHECKING:
     from flare import context
 
 P = t.ParamSpec("P")
+ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "button", "Button")
 
@@ -64,10 +66,15 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    def set(self, *_: P.args, **values: P.kwargs) -> Component[P]:
+    def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = serde.serialize(self.cookie, self.args, values)
         return new
+
+    @abc.abstractmethod
+    @classmethod
+    def from_partial(cls: type[ComponentT], partial: hikari.PartialComponent) -> ComponentT | None:
+        ...
 
     @abc.abstractmethod
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
@@ -160,6 +167,25 @@ class Button(Component[P]):
         button.set_is_disabled(self.disabled)
 
         button.add_to_container()
+
+    @classmethod
+    def from_partial(cls, partial: hikari.PartialComponent) -> Button[P] | None:
+        if not partial.type == hikari.ComponentType.BUTTON:
+            raise TypeError("Partial component is not a button.")
+        assert isinstance(partial, hikari.ButtonComponent)
+
+        if not partial.custom_id:
+            raise ValueError("Partial component is missing custom_id.")
+        try:
+            component, kwargs = serde.deserialize(partial.custom_id, _components)
+        except SerializerError:
+            return None
+        
+        assert isinstance(component, cls)
+        component = component.set(**kwargs) # type: ignore reportGeneralTypeIssues
+        return component
+
+
 
     async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
         ...

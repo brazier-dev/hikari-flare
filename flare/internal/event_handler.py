@@ -3,6 +3,7 @@ import typing as t
 import hikari
 
 from flare.context import Context
+from flare.exceptions import SerializerError
 from flare.internal import serde
 
 __all__: t.Final[t.Sequence[str]] = ("install",)
@@ -22,7 +23,10 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
     if not isinstance(event.interaction, hikari.ComponentInteraction):
         return
 
-    component, kwargs = serde.deserialize(event.interaction.custom_id, components)
+    try:
+        component, kwargs = serde.deserialize(event.interaction.custom_id, components)
+    except SerializerError:
+        return
 
     ctx = Context(
         interaction=event.interaction,
