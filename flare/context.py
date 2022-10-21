@@ -138,8 +138,7 @@ class InteractionResponse:
 
 
 class Context:
-    """An abstract base class for context
-    objects that proxying a Discord interaction."""
+    """A context object proxying a Discord interaction."""
 
     __slots__ = ("_interaction", "_responses", "_issued_response")
 
