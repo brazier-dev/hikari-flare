@@ -2,23 +2,21 @@ import typing
 
 import hikari
 
-from flare import serde
 from flare.context import Context
-
-_bot = None
+from flare.internal import serde
 
 
 def install(bot: hikari.GatewayBot) -> None:
-    global _bot
-    _bot = bot
-
-    _bot.subscribe(hikari.InteractionCreateEvent, _on_inter)
+    bot.subscribe(hikari.InteractionCreateEvent, _on_inter)
 
 
 components: dict[str, typing.Any] = {}
 
 
 async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
+    """
+    Function called to respond to an interaction.
+    """
     if event.interaction.type is not hikari.InteractionType.MESSAGE_COMPONENT:
         return
 

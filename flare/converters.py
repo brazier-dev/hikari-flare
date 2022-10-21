@@ -10,6 +10,38 @@ T = typing.TypeVar("T")
 
 
 class Converter(abc.ABC, typing.Generic[T]):
+    """
+    Converters are used to convert types between a python object and string.
+
+    ```python
+    import flare
+    import hikari
+
+    class IntConverter(flare.Converter[int]):
+        def to_str(self, obj: int) -> str:
+            return str(obj)
+
+        def from_str(self, obj: str) -> int:
+            return int(obj)
+
+    flare.add_converter(int, IntConverter)
+
+    @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
+    async def button(
+        ctx: flare.Context,
+        # `IntConverter` will be used to serialize and deserialize this kwarg.
+        number: int,
+    ):
+        ...
+    ```
+
+    Attributes:
+        type:
+            The type that is currently being serialized/deserialized. This will be
+            different than the generic type if a subclass of the generic type is being
+            serialized/deserialized.
+    """
+
     def __init__(self, type: T) -> None:
         super().__init__()
         self.type = type
@@ -27,6 +59,10 @@ _converters: dict[typing.Any, type[Converter[typing.Any]]] = {}
 
 
 def add_converter(t: typing.Any, converter: type[Converter[typing.Any]]) -> None:
+    """
+    Set a converter to be used for a certain type hint and the subclasses of the
+    type hint.
+    """
     _converters[t] = converter
 
 
@@ -48,6 +84,10 @@ def _get_left(obj: typing.Any) -> typing.Any:
 
 
 def get_converter(t: typing.Any) -> Converter[typing.Any]:
+    """Internal
+    Return the converter used for a certain type hint. If a Union is passed,
+    the left side of the Union will be used to find the converter.
+    """
     origin = _get_left(t)
 
     if origin_ := typing.get_origin(origin):
