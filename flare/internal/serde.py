@@ -17,6 +17,18 @@ ESC_NULL = "\\\x00"
 def serialize(
     cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]
 ) -> str:
+    """
+    Encode a custom_id for a component.
+
+    Args:
+        cookie:
+            A unique identifier for the button.
+        types:
+            A dictionary of argument names to argument type hints. The type hint
+            is used to encode a value to a string.
+        kwargs:
+            Values that the user passes to save state.
+    """
     out = f"{cookie}{SEP}"
 
     for k, v in types.items():
@@ -53,6 +65,15 @@ def _cast_kwargs(
 def deserialize(
     id: str, map: dict[str, typing.Any]
 ) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
+    """
+    Decode a custom_id for a button.
+
+    Args:
+        id:
+            The custom_id of the button.
+        map:
+            A dictionary of cookies to components.
+    """
     cookie, *args = split_on_sep(id)
 
     component_ = map[cookie]
