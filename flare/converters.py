@@ -29,7 +29,7 @@ class Converter(abc.ABC, typing.Generic[T]):
     @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
     async def button(
         ctx: flare.Context,
-        # The `IntConverter` will be used to serialize and deserialize this kwarg.
+        # `IntConverter` will be used to serialize and deserialize this kwarg.
         number: int,
     ):
         ...

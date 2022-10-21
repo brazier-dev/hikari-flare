@@ -22,7 +22,7 @@ def serialize(
 
     Args:
         cookie:
-            A unique identifier for the button.
+            A unique identifier for the component.
         types:
             A dictionary of argument names to argument type hints. The type hint
             is used to encode a value to a string.
@@ -66,11 +66,11 @@ def deserialize(
     id: str, map: dict[str, typing.Any]
 ) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
     """
-    Decode a custom_id for a button.
+    Decode a custom_id for a component.
 
     Args:
         id:
-            The custom_id of the button.
+            The custom_id of the component.
         map:
             A dictionary of cookies to components.
     """
