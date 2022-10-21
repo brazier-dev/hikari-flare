@@ -7,7 +7,10 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError, FlareException
+from flare.exceptions import (
+    ComponentError,
+    MissingRequiredParameterError,
+)
 from flare.internal import event_handler, serde
 
 if t.TYPE_CHECKING:
@@ -144,10 +147,10 @@ class Button(Component[P]):
         """
 
         if self.style == hikari.ButtonStyle.LINK:
-            raise FlareException("Link buttons are not supported.")
+            raise ComponentError("Link buttons are not supported.")
 
         if not self.label and not self.emoji:
-            raise FlareException("Label and emoji cannot both be empty for button component.")
+            raise ComponentError("Label and emoji cannot both be empty for button component.")
 
         button = action_row.add_button(self.style, self.custom_id)
 
