@@ -33,8 +33,8 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
 
     for k, v in types.items():
         val = kwargs.get(k)
-        converter = _get_converter(v)  # type: ignore reportPrivateUsage
-        out += f"{(converter.to_str(val) if val else NULL).replace(SEP, ESC_SEP)}{SEP}"
+        converter = _get_converter(v)
+        out += f"{(converter.to_str(val).replace(NULL, ESC_NULL) if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
 
@@ -60,9 +60,7 @@ def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) ->
     return ret
 
 
-def deserialize(
-    id: str, map: dict[str, typing.Any]
-) -> tuple[component.Component[typing.Any, typing.Any], dict[str, typing.Any]]:
+def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
     """
     Decode a custom_id for a component.
 

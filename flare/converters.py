@@ -115,7 +115,7 @@ def _get_converter(t: t.Any) -> Converter[t.Any]:  # type: ignore reportUnusedFu
 
 class IntConverter(Converter[int]):
     def to_str(self, obj: int) -> str:
-        byte_length = obj.bit_length() // 8
+        byte_length = obj.bit_length() // 8 + 1
         return obj.to_bytes(byte_length, "little").decode("utf-8")
 
     def from_str(self, obj: str) -> int:
