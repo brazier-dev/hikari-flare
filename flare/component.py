@@ -7,10 +7,7 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import (
-    ComponentError,
-    MissingRequiredParameterError,
-)
+from flare.exceptions import ComponentError, MissingRequiredParameterError
 from flare.internal import event_handler, serde
 
 if t.TYPE_CHECKING:
