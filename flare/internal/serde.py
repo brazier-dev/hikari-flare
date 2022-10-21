@@ -34,7 +34,7 @@ def serialize(
     for k, v in types.items():
         val = kwargs.get(k)
         converter = converters.get_converter(v)
-        out += f"{(converter.to_str(val) if val else NULL).replace(SEP, ESC_SEP)}{SEP}"
+        out += f"{(converter.to_str(val).replace(NULL, ESC_NULL) if val is not None else NULL).replace(SEP, ESC_SEP)}{SEP}"
 
     return out[:-1]
 
