@@ -18,6 +18,9 @@ P = t.ParamSpec("P")
 __all__: t.Final[t.Sequence[str]] = ("Component", "button", "Button")
 
 
+Self = t.TypeVar("Self", bound="Component[...]")
+
+
 class Component(abc.ABC, t.Generic[P]):
     """
     An abstract class that all components derive from.
@@ -64,7 +67,7 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    def set(self, *_: P.args, **values: P.kwargs) -> Component[P]:
+    def set(self: Self, *_: P.args, **values: P.kwargs) -> Self:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = serde.serialize(self.cookie, self.args, values)
         return new
@@ -72,10 +75,6 @@ class Component(abc.ABC, t.Generic[P]):
     @abc.abstractmethod
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """Build and append a flare component to a hikari action row."""
-        ...
-
-    @abc.abstractmethod
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
         ...
 
 
@@ -161,8 +160,88 @@ class Button(Component[P]):
 
         button.add_to_container()
 
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
-        ...
+
+class select:
+    def __init__(
+        self,
+        options: t.Sequence[tuple[str, str] | str] | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool = False,
+        cookie: str | None = None,
+    ) -> None:
+        self.cookie = cookie
+        self.options = options
+        self.min_values = min_values
+        self.max_values = max_values
+        self.placeholder = placeholder
+        self.disabled = disabled
+
+    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> SelectMenu[P]:
+        return SelectMenu(
+            cookie=self.cookie,
+            callback=callback,
+            options=self.options,
+            min_values=self.min_values,
+            max_values=self.max_values,
+            placeholder=self.placeholder,
+            disabled=self.disabled,
+        )
+
+
+class SelectMenu(Component[P]):
+    def __init__(
+        self,
+        cookie: str | None,
+        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
+        options: t.Sequence[tuple[str, str] | str] | None,
+        min_values: int,
+        max_values: int,
+        placeholder: hikari.UndefinedOr[str],
+        disabled: bool,
+    ) -> None:
+        super().__init__(cookie, callback)
+        self.options = options
+        self.min_values = min_values
+        self.max_values = max_values
+        self.placeholder = placeholder
+        self.disabled = disabled
+
+    @property
+    def width(self) -> int:
+        """
+        The width of the component.
+        """
+        return 5
+
+    def set(self, *_: P.args, **values: P.kwargs) -> SelectMenu[P]:
+        s = super().set(*_, **values)
+        # The options array should be different for clones.
+        s.options = copy.copy(self.options)
+        return s
+
+    def set_options(self, *options: tuple[str, str] | str) -> None:
+        self.options = options
+
+    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+        """
+        Build the select menu into the passed in action row.
+        """
+        select = action_row.add_select_menu(self.custom_id)
+        select.set_max_values(self.max_values)
+        select.set_min_values(self.min_values)
+        select.set_placeholder(self.placeholder)
+        select.set_is_disabled(self.disabled)
+        if self.options:
+            for option in self.options:
+                if isinstance(option, str):
+                    select.add_option(option, option).add_to_menu()
+                else:
+                    select.add_option(*option).add_to_menu()
+        else:
+            raise ComponentError("Expected one or more options for select menu. Got zero.")
+        select.add_to_container()
 
 
 # MIT License
