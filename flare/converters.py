@@ -91,12 +91,12 @@ def _get_left(obj: t.Any) -> t.Any:
     return t.get_args(obj)[0]
 
 
-def get_converter(t: t.Any) -> Converter[t.Any]:
+def get_converter(type_: t.Any) -> Converter[t.Any]:
     """
     Return the converter used for a certain type hint. If a Union is passed,
     the left side of the Union will be used to find the converter.
     """
-    origin = _get_left(t)
+    origin = _get_left(type_)
 
     if origin_ := t.get_origin(origin):
         origin = origin_
@@ -104,13 +104,13 @@ def get_converter(t: t.Any) -> Converter[t.Any]:
     converter = _converters.get(origin)
 
     if converter:
-        return converter(t)
+        return converter(type_)
 
     for k, v in _converters.items():
-        if _any_issubclass(t, k):
-            return v(t)
+        if _any_issubclass(type_, k):
+            return v(type_)
 
-    raise exceptions.ConverterError(f"Could not find converter for type `{getattr(t, '__name__', t)}`.")
+    raise exceptions.ConverterError(f"Could not find converter for type `{getattr(type_, '__name__', type_)}`.")
 
 
 class IntConverter(Converter[int]):

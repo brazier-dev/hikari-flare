@@ -260,8 +260,8 @@ class SelectMenu(Component[P]):
 
         if self.min_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater min options than options.")
-        if self.max_values < len(self.options):
-            raise ComponentError("Cannot create a select menu with less max options than options.")
+        if self.max_values > len(self.options):
+            raise ComponentError("Cannot create a select menu with greater max options than options.")
 
         select.set_min_values(self.min_values)
         select.set_max_values(self.max_values)
