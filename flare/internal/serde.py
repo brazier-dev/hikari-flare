@@ -14,9 +14,7 @@ NULL = "\x00"
 ESC_NULL = "\\\x00"
 
 
-def serialize(
-    cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]
-) -> str:
+def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
     """
     Encode a custom_id for a component.
 
@@ -51,9 +49,7 @@ def split_on_sep(s: str) -> list[str]:
     return ["".join(row).replace(ESC_SEP, SEP) for row in out]
 
 
-def _cast_kwargs(
-    kwargs: dict[str, typing.Any], types: dict[str, typing.Any]
-) -> dict[str, typing.Any]:
+def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types[k]
@@ -62,9 +58,7 @@ def _cast_kwargs(
     return ret
 
 
-def deserialize(
-    id: str, map: dict[str, typing.Any]
-) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
+def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
     """
     Decode a custom_id for a component.
 
