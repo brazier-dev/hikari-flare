@@ -1,8 +1,8 @@
 [tool.pyright]
-include            = ["flare"]
-exclude            = ["tests"]
-pythonVersion      = "3.10"
-typeCheckingMode   = "strict"
+include = ["flare"]
+exclude = ["tests"]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"
 reportImportCycles = false
 
 [tool.black]
