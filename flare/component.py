@@ -7,7 +7,7 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import FlareException
+from flare.exceptions import MissingRequiredParameterError, FlareException
 from flare.internal import event_handler, serde
 
 if t.TYPE_CHECKING:
@@ -53,7 +53,7 @@ class Component(abc.ABC, t.Generic[P]):
         The custom ID of the component.
         """
         if self._custom_id is None:
-            raise FlareException(
+            raise MissingRequiredParameterError(
                 f"Component received no parameters when it has {len(self.args)}. Did you forget to call `with_params()`?"
             )
         return self._custom_id
@@ -65,7 +65,7 @@ class Component(abc.ABC, t.Generic[P]):
         return self._callback
 
     def with_params(self, *_: P.args, **values: P.kwargs) -> Component[P]:
-        new = copy.deepcopy(self)  # Create new instance with params set
+        new = copy.copy(self)  # Create new instance with params set
         new._custom_id = serde.serialize(self.cookie, self.args, values)
         return new
 
