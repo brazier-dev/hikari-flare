@@ -2,8 +2,8 @@ import typing
 
 import hikari
 
-from flare.internal import serde
 from flare.context import Context
+from flare.internal import serde
 
 
 def install(bot: hikari.GatewayBot) -> None:

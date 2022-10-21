@@ -41,6 +41,7 @@ class Converter(abc.ABC, typing.Generic[T]):
             different than the generic type if a subclass of the generic type is being
             serialized/deserialized.
     """
+
     def __init__(self, type: T) -> None:
         super().__init__()
         self.type = type

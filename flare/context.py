@@ -11,5 +11,6 @@ class Context:
     """
     Flare context.
     """
+
     interaction: hikari.ComponentInteraction
     author: hikari.User
