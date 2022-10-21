@@ -67,7 +67,7 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    def with_params(self, *_: P.args, **values: P.kwargs) -> Component[P]:
+    def set(self, *_: P.args, **values: P.kwargs) -> Component[P]:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = serde.serialize(self.cookie, self.args, values)
         return new

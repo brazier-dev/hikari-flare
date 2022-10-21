@@ -8,31 +8,30 @@ from flare.exceptions import FlareException
 
 from .component import Component
 
-P = t.ParamSpec("P")
 
-
-class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[P]]):
-    def __init__(self, *components: Component[P]) -> None:
+class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
+    def __init__(self, *components: Component[...]) -> None:
         if (width := sum(component.width for component in components)) > 5:
-            raise FlareException(f"Row only has space for a combined width of 5 components, got {width}.")
+            raise FlareException(
+                f"Row only has space for a combined width of 5 components, got {width}.")
 
         self._components = list(components)
 
     @t.overload
-    def __getitem__(self, value: int) -> Component[P]:
+    def __getitem__(self, value: int) -> Component[...]:
         ...
 
     @t.overload
-    def __getitem__(self, value: slice) -> t.Sequence[Component[P]]:
+    def __getitem__(self, value: slice) -> t.Sequence[Component[...]]:
         ...
 
-    def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component[P], t.Sequence[Component[P]]]:
+    def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component[...], t.Sequence[Component[...]]]:
         return self._components[value]
 
     def __len__(self) -> int:
         return len(self._components)
 
-    def __setitem__(self, key: int, value: Component[P]) -> None:
+    def __setitem__(self, key: int, value: Component[...]) -> None:
         if (width := sum(component.width for component in self._components) + value.width) > 5:
             raise FlareException(
                 f"Row only has space for a combined width of 5 components, with added component it would be {width}."
@@ -51,5 +50,5 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[P]]):
 
         return row.build()
 
-    def insert(self, index: int, value: Component[P]) -> None:
-        return self._components.insert(index, value)
+    def insert(self, index: int, value: Component[...]) -> None:
+        self._components[index] = value
