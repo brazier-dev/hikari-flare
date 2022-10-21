@@ -229,10 +229,7 @@ class SelectMenu(Component[P]):
         Build the select menu into the passed in action row.
         """
         select = action_row.add_select_menu(self.custom_id)
-        select.set_max_values(self.max_values)
-        select.set_min_values(self.min_values)
-        select.set_placeholder(self.placeholder)
-        select.set_is_disabled(self.disabled)
+
         if self.options:
             for option in self.options:
                 if isinstance(option, str):
@@ -241,6 +238,16 @@ class SelectMenu(Component[P]):
                     select.add_option(*option).add_to_menu()
         else:
             raise ComponentError("Expected one or more options for select menu. Got zero.")
+
+        if self.min_values > len(self.options):
+            raise ComponentError("Cannot create a select menu with greater min options than options.")
+        if self.max_values < len(self.options):
+            raise ComponentError("Cannot create a select menu with less max options than options.")
+
+        select.set_min_values(self.min_values)
+        select.set_max_values(self.max_values)
+        select.set_placeholder(self.placeholder)
+        select.set_is_disabled(self.disabled)
         select.add_to_container()
 
 
