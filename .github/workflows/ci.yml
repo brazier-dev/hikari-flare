@@ -31,4 +31,4 @@ jobs:
     - name: run
       run: |
         pip install nox
-        poetry run nox -s pyright
+        nox -s pyright
