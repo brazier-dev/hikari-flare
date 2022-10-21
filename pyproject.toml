@@ -4,6 +4,7 @@ exclude = ["tests"]
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
 reportImportCycles = false
+reportPrivateUsage = false
 
 [tool.black]
 line-length = 120

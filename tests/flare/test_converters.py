@@ -1,6 +1,6 @@
 import typing
 
-from flare.converters import _get_left, _is_union  # type: ignore reportPrivateUsage
+from flare.converters import _get_left, _is_union
 
 
 def test_get_left():

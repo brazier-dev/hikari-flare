@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from flare.converters import _get_converter  # type: ignore reportPrivateUsage
+from flare.converters import _get_converter
 
 if typing.TYPE_CHECKING:
     from flare import component
@@ -57,7 +57,7 @@ def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) ->
     ret: dict[str, typing.Any] = {}
     for k, v in kwargs.items():
         cast_to = types[k]
-        ret[k] = _get_converter(cast_to).from_str(v)  # type: ignore reportPrivateUsage
+        ret[k] = _get_converter(cast_to).from_str(v)
 
     return ret
 
