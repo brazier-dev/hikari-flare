@@ -5,7 +5,7 @@ import typing
 from flare.converters import get_converter
 
 if typing.TYPE_CHECKING:
-    from flare import component
+    from flare.components import base
 
 __all__: typing.Final[typing.Sequence[str]] = ("serialize", "deserialize")
 
@@ -62,7 +62,7 @@ def _cast_kwargs(kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) ->
     return ret
 
 
-def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[component.Component[typing.Any], dict[str, typing.Any]]:
+def deserialize(id: str, map: dict[str, typing.Any]) -> tuple[base.Component[typing.Any], dict[str, typing.Any]]:
     """
     Decode a custom_id for a component.
 
