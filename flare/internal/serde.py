@@ -81,23 +81,23 @@ class Serde:
         return ret
 
     def deserialize(
-        self, id: str, map: dict[str, typing.Any]
+        self, custom_id: str, map: dict[str, typing.Any]
     ) -> tuple[base.Component[typing.Any], dict[str, typing.Any]]:
         """
         Decode a custom_id for a component.
 
         Args:
-            id:
+            custom_id:
                 The custom_id of the component.
             map:
                 A dictionary of cookies to components.
         """
-        version = id[0]
+        version = custom_id[0]
 
         if version != self.VER:
             raise FlareException(f"Serializer {self.__class__.__name__} cannot deserialize version {version}.")
 
-        cookie, *args = self.split_on_sep(id)[1:]
+        cookie, *args = self.split_on_sep(custom_id[1:])
 
         component_ = map[cookie]
         types = component_.args
