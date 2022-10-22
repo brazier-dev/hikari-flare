@@ -12,7 +12,7 @@ __all__: typing.Final[typing.Sequence[str]] = ("Serde",)
 
 
 class Serde:
-    """A class that handles serialization and deserialization of components."""
+    """A class that handles serialization and deserialization of component custom_id encoded data."""
 
     def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: str | None = "0") -> None:
         self._SEP: str = sep
