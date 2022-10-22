@@ -1,6 +1,6 @@
 import typing
 
-from flare.internal.event_handler import install
+from flare.internal.globals_ import install
 
 __all__: typing.Sequence[str] = ("install",)
 
