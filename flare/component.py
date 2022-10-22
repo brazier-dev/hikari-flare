@@ -83,12 +83,11 @@ class Component(abc.ABC, t.Generic[P]):
         """
         Convert arguments and keyword arguments in a dictionary of keyword
         arguments. This is done to make serialization and deserialization easier
-        because the differences between `POSITIONAL_OR_KEYWORD` and 
+        because the differences between `POSITIONAL_OR_KEYWORD` and
         `KEYWORD_ONLY` don't need to be considered.
         """
         out: dict[str, t.Any] = {}
 
-        kw_only: list[sigparse.Parameter] = []
         pos_or_kw: list[sigparse.Parameter] = []
 
         for arg in sigparse.sigparse(self.callback)[1:]:
@@ -96,7 +95,9 @@ class Component(abc.ABC, t.Generic[P]):
                 case inspect._ParameterKind.POSITIONAL_OR_KEYWORD:
                     pos_or_kw.append(arg)
                 case inspect._ParameterKind.KEYWORD_ONLY:
-                    kw_only.append(arg)
+                    # Arguments are considered `KEYWORD_ONLY` if they are not
+                    # `POSITIONAL_OR_KEYWORD`.
+                    pass
                 case inspect._ParameterKind.POSITIONAL_ONLY:
                     raise NotImplementedError("Positional only arguments are not supported for component callbacks")
                 case inspect._ParameterKind.VAR_POSITIONAL:
@@ -107,7 +108,6 @@ class Component(abc.ABC, t.Generic[P]):
         for arg, value in zip(pos_or_kw, args):
             out[arg.name] = value
 
-        print(out | kwargs)
         return out | kwargs
 
 
