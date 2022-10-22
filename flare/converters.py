@@ -146,20 +146,11 @@ class BoolConverter(Converter[bool]):
         return bool(int(obj))
 
 
-class FloatConverter(Converter[float]):
-    def to_str(self, obj: float) -> str:
-        return str(obj)
-
-    def from_str(self, obj: str) -> float:
-        return float(obj)
-
-
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
 add_converter(bool, BoolConverter)
-add_converter(float, FloatConverter)
 
 # MIT License
 #
