@@ -124,7 +124,7 @@ class Serde(SerdeABC):
     def split_on_sep(self, string: str) -> list[str]:
         """Split the provided string on the separator, but ignore separators that are escaped.
 
-        Parameters:
+        Args:
             string:
                 The provided string.
 
