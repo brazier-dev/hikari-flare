@@ -104,11 +104,11 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
     converter = _converters.get(origin)
 
     if converter:
-        return converter(type_)
+        return converter(origin)
 
     for k, v in _converters.items():
-        if _any_issubclass(type_, k):
-            return v(type_)
+        if _any_issubclass(origin, k):
+            return v(origin)
 
     raise exceptions.ConverterError(f"Could not find converter for type `{getattr(type_, '__name__', type_)}`.")
 
