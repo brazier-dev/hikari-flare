@@ -156,20 +156,11 @@ class FloatConverter(Converter[float]):
         return float(obj)
 
 
-class SnowflakeConverter(Converter[hikari.Snowflake]):
-    def to_str(self, obj: hikari.Snowflake) -> str:
-        return get_converter(int).to_str(obj)
-
-    def from_str(self, obj: str) -> hikari.Snowflake:
-        return hikari.Snowflake(get_converter(int).from_str(obj))
-
-
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
 add_converter(bool, BoolConverter)
-add_converter(hikari.Snowflake, SnowflakeConverter)
 add_converter(float, FloatConverter)
 
 # MIT License
