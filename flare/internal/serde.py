@@ -105,7 +105,8 @@ class Serde(SerdeABC):
         return self._VER
 
     def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
-        out = f"{get_converter(int).to_str(self.VER)}{cookie}{self.SEP}"
+        version = "" if self.VER is None else get_converter(int).to_str(self.VER)
+        out = f"{version}{cookie}{self.SEP}"
 
         for k, v in types.items():
             val = kwargs.get(k)
