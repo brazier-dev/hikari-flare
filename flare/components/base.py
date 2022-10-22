@@ -74,7 +74,7 @@ class Component(abc.ABC, t.Generic[P]):
         return self._callback
 
     @staticmethod
-    def from_partial_component(component: hikari.PartialComponent) -> Component[...] | None:
+    def from_partial(component: hikari.PartialComponent) -> Component[...] | None:
         """
         Build a flare component from `hikari.PartialComponent`.
 
