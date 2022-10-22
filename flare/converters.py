@@ -132,16 +132,25 @@ class StringConverter(Converter[str]):
 
 class EnumConverter(Converter[enum.Enum]):
     def to_str(self, obj: enum.Enum) -> str:
-        return str(obj.value)
+        return get_converter(int).to_str(obj.value)
 
     def from_str(self, obj: str) -> enum.Enum:
-        return self.type(int(obj))  # type: ignore
+        return self.type(get_converter(int).from_str(obj))  # type: ignore
+
+
+class BoolConverter(Converter[bool]):
+    def to_str(self, obj: bool) -> str:
+        return "1" if obj else "0"
+
+    def from_str(self, obj: str) -> bool:
+        return bool(int(obj))
 
 
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
+add_converter(bool, BoolConverter)
 
 # MIT License
 #
