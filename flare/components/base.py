@@ -84,7 +84,7 @@ class Component(abc.ABC, t.Generic[P]):
         Raises:
             SerializerError: The component could not be deserialized.
         """
-        if not isinstance(component, hikari.ButtonComponent | hikari.SelectMenuComponent):
+        if not isinstance(component, (hikari.ButtonComponent, hikari.SelectMenuComponent)):
             raise SerializerError(f"Flare component type can not be {component.type}")
 
         assert component.custom_id
