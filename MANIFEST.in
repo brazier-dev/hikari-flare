@@ -1,0 +1,8 @@
+graft flare
+include LICENSE
+include requirements.txt
+include dev_requirements.txt
+include setup.py
+include README.md
+include pyproject.toml
+global-exclude *.py[cod]

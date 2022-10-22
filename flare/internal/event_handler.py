@@ -1,26 +1,34 @@
-import typing
+import typing as t
 
-__all__: typing.Sequence[str] = ("FlareException", "ConverterError")
+import hikari
 
+from flare.context import Context
+from flare.internal import serde
 
-class FlareException(Exception):
-    """Base exception class for all flare exceptions."""
-
-
-class ConverterError(Exception):
-    """Exception raised when there is a error with converters."""
+__all__: t.Final[t.Sequence[str]] = ("install",)
 
 
-class ComponentError(FlareException):
-    """Exception raised when there is a error with components."""
+def install(bot: hikari.EventManagerAware) -> None:
+    bot.event_manager.subscribe(hikari.InteractionCreateEvent, _on_inter)
 
 
-class MissingRequiredParameterError(ComponentError):
-    """Exception raised when a required parameter (or parameters) for a component is missing."""
+components: dict[str, t.Any] = {}
 
 
-class RowMaxWidthError(ComponentError):
-    """Exception raised when a row exceeds the maximum width."""
+async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
+    """
+    Function called to respond to an interaction.
+    """
+    if not isinstance(event.interaction, hikari.ComponentInteraction):
+        return
+
+    component, kwargs = serde.deserialize(event.interaction.custom_id, components)
+
+    ctx = Context(
+        interaction=event.interaction,
+    )
+
+    await component.callback(ctx, **kwargs)
 
 
 # MIT License
