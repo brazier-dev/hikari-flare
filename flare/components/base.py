@@ -7,6 +7,7 @@ import typing as t
 
 import hikari
 import sigparse
+import hashlib
 
 from flare.exceptions import MissingRequiredParameterError, SerializerError
 from flare.internal import bootstrap
@@ -33,7 +34,7 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> None:
         self._custom_id = None
         self._callback = callback
-        self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
+        self.cookie = cookie or hashlib.blake2s(f"{callback.__name__}.{callback.__module__}".encode("utf-8"), digest_size=4).hexdigest()
 
         self.args = {param.name: param.annotation for param in sigparse.sigparse(callback)[1:]}
 
