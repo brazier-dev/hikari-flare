@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-import itertools
+import inspect
 import copy
 import typing as t
 
@@ -65,9 +65,9 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    def set(self, *_: P.args, **values: P.kwargs) -> Component[P]:
+    def set(self, *args: P.args, **values: P.kwargs) -> Component[P]:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = serde.serialize(self.cookie, self.args, values)
+        new._custom_id = serde.serialize(self.cookie, self.args, self.as_keyword(args, values))
         return new
 
     @abc.abstractmethod
@@ -79,18 +79,33 @@ class Component(abc.ABC, t.Generic[P]):
     async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
         ...
 
-    def as_keyword(
-        self, args: list[t.Any], kwargs: dict[str, t.Any]
-    ) -> dict[str, t.Any]:
+    def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
         Convert arguments and keyword arguments in a dictionary of keyword arguments.
         """
         out: dict[str, t.Any] = {}
 
-        for k, v in zip(self.args.keys(), itertools.chain(args, kwargs.values())):
-            out[k] = v
+        kw_only: list[sigparse.Parameter] = []
+        pos_or_kw: list[sigparse.Parameter] = []
 
-        return out
+        for arg in sigparse.sigparse(self.callback)[1:]:
+            match arg.kind:
+                case inspect._ParameterKind.POSITIONAL_OR_KEYWORD:
+                    pos_or_kw.append(arg)
+                case inspect._ParameterKind.KEYWORD_ONLY:
+                    kw_only.append(arg)
+                case inspect._ParameterKind.POSITIONAL_ONLY:
+                    raise NotImplementedError("Positional only arguments are not supported for component callbacks")
+                case inspect._ParameterKind.VAR_POSITIONAL:
+                    raise NotImplementedError("`*args` is not supported for component callbacks.")
+                case inspect._ParameterKind.VAR_KEYWORD:
+                    raise NotImplementedError("`**kwargs` is not supported for component callbacks.")
+
+        for arg, value in zip(pos_or_kw, args):
+            out[arg.name] = value
+
+        print(out | kwargs)
+        return out | kwargs
 
 
 class button:
