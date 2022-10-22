@@ -4,8 +4,6 @@ import inspect
 import types
 import typing as t
 
-import hikari
-
 from flare import exceptions
 
 T = t.TypeVar("T")
@@ -142,10 +140,10 @@ class EnumConverter(Converter[enum.Enum]):
 
 class BoolConverter(Converter[bool]):
     def to_str(self, obj: bool) -> str:
-        return get_converter(int).to_str(int(obj))
+        return "1" if obj else "0"
 
     def from_str(self, obj: str) -> bool:
-        return bool(get_converter(int).from_str(obj))
+        return bool(int(obj))
 
 
 class FloatConverter(Converter[float]):
