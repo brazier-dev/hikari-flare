@@ -60,7 +60,6 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
 
         for action_row in message.components:
             assert isinstance(action_row, hikari.ActionRowComponent)
-            rows.append(Row())
 
             for component in action_row.components:
                 if component := Component.from_partial_component(component):

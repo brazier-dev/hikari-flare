@@ -80,17 +80,20 @@ class Component(abc.ABC, t.Generic[P]):
 
         Args:
             component:
-                A partial component.
+                A partial component. The component type must be `hikari ComponentType.BUTTON`
+                or `hikari.ComponentType.SELECT_MENU`.
 
         Returns:
-            A component if the component type is `hikari ComponentType.BUTTON` or
-            `hikari.ComponentType.SELECT_MENU`. Otherwise return `None`.
+            A component.
+
+        Raises:
+            SerializerError: The component could not be deserialized.
         """
         if component.type not in {
             hikari.ComponentType.BUTTON,
             hikari.ComponentType.SELECT_MENU,
         }:
-            return None
+            raise SerializerError(f"Flare component type can not be {component.type}")
 
         assert isinstance(component, HasCustomId)
         try:
@@ -98,7 +101,7 @@ class Component(abc.ABC, t.Generic[P]):
                 component.custom_id, event_handler.components
             )
         except SerializerError:
-            return None
+            raise
         return flare_component.set(kwargs)
 
     def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
