@@ -184,6 +184,10 @@ class Context:
         return self._interaction.member
 
     @property
+    def message(self) -> hikari.Message:
+        return self._interaction.message
+
+    @property
     def locale(self) -> t.Union[str, hikari.Locale]:
         """The locale of this context."""
         return self._interaction.locale
