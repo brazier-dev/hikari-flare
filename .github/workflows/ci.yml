@@ -27,8 +27,4 @@ jobs:
     - uses: BSFishy/pip-action@v1
       with:
         packages: nox
-    - run: nox -s lint
-    - name: run
-      run: |
-        pip install nox
-        nox -s pyright
+    - run: nox -s pyright
