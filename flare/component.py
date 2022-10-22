@@ -184,10 +184,10 @@ class select:
     def __init__(
         self,
         options: t.Sequence[tuple[str, str] | str] | None = None,
-        min_values: int = 1,
-        max_values: int = 1,
+        min_values: int | None = None,
+        max_values: int | None = None,
         placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
-        disabled: bool = False,
+        disabled: bool | None = None,
         cookie: str | None = None,
     ) -> None:
         self.cookie = cookie
@@ -215,10 +215,10 @@ class SelectMenu(Component[P]):
         cookie: str | None,
         callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
         options: t.Sequence[tuple[str, str] | str] | None,
-        min_values: int,
-        max_values: int,
+        min_values: int | None,
+        max_values: int | None,
         placeholder: hikari.UndefinedOr[str],
-        disabled: bool,
+        disabled: bool | None,
     ) -> None:
         super().__init__(cookie, callback)
         self.options = options
@@ -264,15 +264,18 @@ class SelectMenu(Component[P]):
         if self.placeholder and len(self.placeholder) > 100:
             raise ComponentError("Placeholder text must be shorter than 100 characters.")
 
-        if self.min_values > len(self.options):
+        if self.min_values and self.min_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater min options than options.")
-        if self.max_values > len(self.options):
+        if self.max_values and self.max_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater max options than options.")
 
-        select.set_min_values(self.min_values)
-        select.set_max_values(self.max_values)
+        if self.min_values:
+            select.set_min_values(self.min_values)
+        if self.max_values:
+            select.set_max_values(self.max_values)
+        if self.disabled:
+            select.set_is_disabled(self.disabled)
         select.set_placeholder(self.placeholder)
-        select.set_is_disabled(self.disabled)
         select.add_to_container()
 
 
