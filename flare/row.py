@@ -4,9 +4,8 @@ import typing as t
 
 import hikari
 
+from flare.components.base import Component
 from flare.exceptions import RowMaxWidthError
-
-from .component import Component
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):

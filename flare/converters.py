@@ -21,27 +21,27 @@ class Converter(abc.ABC, t.Generic[T]):
     """
     Converters are used to convert types between a python object and string.
 
-    ```python
-    import flare
-    import hikari
+    ::
+        import flare
+        import hikari
 
-    class IntConverter(flare.Converter[int]):
-        def to_str(self, obj: int) -> str:
-            return str(obj)
+        class IntConverter(flare.Converter[int]):
+            def to_str(self, obj: int) -> str:
+                return str(obj)
 
-        def from_str(self, obj: str) -> int:
-            return int(obj)
+            def from_str(self, obj: str) -> int:
+                return int(obj)
 
-    flare.add_converter(int, IntConverter)
+        flare.add_converter(int, IntConverter)
 
-    @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
-    async def button(
-        ctx: flare.Context,
-        # `IntConverter` will be used to serialize and deserialize this kwarg.
-        number: int,
-    ):
-        ...
-    ```
+        @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
+        async def button(
+            ctx: flare.Context,
+            # `IntConverter` will be used to serialize and deserialize this kwarg.
+            number: int,
+        ):
+            ...
+
 
     Attributes:
         type:

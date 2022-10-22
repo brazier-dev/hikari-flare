@@ -1,4 +1,4 @@
-from flare.component import Component
+from flare.components.base import Component
 
 
 class MockComponent:

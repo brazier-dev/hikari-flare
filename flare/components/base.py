@@ -8,15 +8,17 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import ComponentError, MissingRequiredParameterError
+from flare.exceptions import MissingRequiredParameterError
 from flare.internal import event_handler, serde
 
 if t.TYPE_CHECKING:
     from flare import context
 
+__all__: t.Final[t.Sequence[str]] = ("Component",)
+
 P = t.ParamSpec("P")
 
-__all__: t.Final[t.Sequence[str]] = ("Component", "button", "Button")
+ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
 
 
 class Component(abc.ABC, t.Generic[P]):
@@ -36,17 +38,18 @@ class Component(abc.ABC, t.Generic[P]):
         self.args = {param.name: param.annotation for param in sigparse.sigparse(callback)[1:]}
 
         if not self.args:
-            # If no args were passed, calling with_params isn't necessary to construct custom_id
+            # If no args were passed, calling set() isn't necessary to construct custom_id
             self._custom_id = self.cookie
 
         event_handler.components[self.cookie] = self
 
     @property
+    @abc.abstractmethod
     def width(self) -> int:
         """
         The width of the component.
         """
-        return 1
+        ...
 
     @property
     def custom_id(self) -> str:
@@ -55,7 +58,7 @@ class Component(abc.ABC, t.Generic[P]):
         """
         if self._custom_id is None:
             raise MissingRequiredParameterError(
-                f"Component received no parameters when it has {len(self.args)}. Did you forget to call `with_params()`?"
+                f"Component {self.cookie} received no parameters when it has {len(self.args)}. Did you forget to call `set()`?"
             )
         return self._custom_id
 
@@ -65,19 +68,10 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    def set(self, *args: P.args, **values: P.kwargs) -> Component[P]:
+    def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = serde.serialize(self.cookie, self.args, self.as_keyword(args, values))
+        new._custom_id = serde.serialize(self.cookie, self.args, values)
         return new
-
-    @abc.abstractmethod
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
-        """Build and append a flare component to a hikari action row."""
-        ...
-
-    @abc.abstractmethod
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
-        ...
 
     def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
@@ -110,90 +104,9 @@ class Component(abc.ABC, t.Generic[P]):
 
         return out | kwargs
 
-
-class button:
-    """
-    A button message component.
-
-    Args:
-        label:
-            The label on the button.
-        style:
-            The button style.
-        cookie:
-            An identifier to use for the button. A custom cookie can be supplied so
-            a shorter one is used in serializing and deserializing.
-    """
-
-    def __init__(
-        self,
-        label: str | None,
-        emoji: hikari.Emoji | str | None,
-        style: hikari.ButtonStyle,
-        disabled: bool = False,
-        cookie: str | None = None,
-    ) -> None:
-        self.label = label
-        self.emoji = emoji
-        self.disabled = disabled
-        self.style = style
-        self.cookie = cookie
-
-    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> Button[P]:
-        return Button(
-            callback=callback,
-            label=self.label,
-            emoji=self.emoji,
-            disabled=self.disabled,
-            style=self.style,
-            cookie=self.cookie,
-        )
-
-
-class Button(Component[P]):
-    def __init__(
-        self,
-        *,
-        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
-        label: str | None,
-        emoji: hikari.Emoji | str | None,
-        style: hikari.ButtonStyle,
-        disabled: bool = False,
-        cookie: str | None,
-    ) -> None:
-        super().__init__(cookie, callback)
-        self.label = label
-        self.emoji = emoji
-        self.style = style
-        self.disabled = disabled
-
-        if isinstance(self.emoji, str):
-            self.emoji = hikari.Emoji.parse(self.emoji)
-
+    @abc.abstractmethod
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
-        """
-        Build the button into the passed action row.
-        """
-
-        if self.style == hikari.ButtonStyle.LINK:
-            raise ComponentError("Link buttons are not supported.")
-
-        if not self.label and not self.emoji:
-            raise ComponentError("Label and emoji cannot both be empty for button component.")
-
-        button = action_row.add_button(self.style, self.custom_id)
-
-        if self.label:
-            button.set_label(self.label)
-
-        if self.emoji:
-            button.set_emoji(self.emoji)
-
-        button.set_is_disabled(self.disabled)
-
-        button.add_to_container()
-
-    async def update_state(self, ctx: context.Context, *_: P.args, **kwargs: P.kwargs) -> None:
+        """Build and append a flare component to a hikari action row."""
         ...
 
 
