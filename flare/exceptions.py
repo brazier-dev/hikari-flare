@@ -11,6 +11,10 @@ class SerializerError(FlareException):
     """An exception raised when a serializer fails to serialize or deserialize."""
 
 
+class SerializerVersionViolation(SerializerError):
+    """An exception raised when a serializer fails to deserialize a custom_id due to a version mismatch."""
+
+
 class ConverterError(Exception):
     """Exception raised when there is a error with converters."""
 

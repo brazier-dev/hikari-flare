@@ -21,27 +21,27 @@ class Converter(abc.ABC, t.Generic[T]):
     """
     Converters are used to convert types between a python object and string.
 
-    ```python
-    import flare
-    import hikari
+    ::
+        import flare
+        import hikari
 
-    class IntConverter(flare.Converter[int]):
-        def to_str(self, obj: int) -> str:
-            return str(obj)
+        class IntConverter(flare.Converter[int]):
+            def to_str(self, obj: int) -> str:
+                return str(obj)
 
-        def from_str(self, obj: str) -> int:
-            return int(obj)
+            def from_str(self, obj: str) -> int:
+                return int(obj)
 
-    flare.add_converter(int, IntConverter)
+        flare.add_converter(int, IntConverter)
 
-    @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
-    async def button(
-        ctx: flare.Context,
-        # `IntConverter` will be used to serialize and deserialize this kwarg.
-        number: int,
-    ):
-        ...
-    ```
+        @flare.button(label="Button", style=hikari.ButtonStyle.PRIMARY)
+        async def button(
+            ctx: flare.Context,
+            # `IntConverter` will be used to serialize and deserialize this kwarg.
+            number: int,
+        ):
+            ...
+
 
     Attributes:
         type:
@@ -104,11 +104,11 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
     converter = _converters.get(origin)
 
     if converter:
-        return converter(type_)
+        return converter(origin)
 
     for k, v in _converters.items():
-        if _any_issubclass(type_, k):
-            return v(type_)
+        if _any_issubclass(origin, k):
+            return v(origin)
 
     raise exceptions.ConverterError(f"Could not find converter for type `{getattr(type_, '__name__', type_)}`.")
 
@@ -132,16 +132,25 @@ class StringConverter(Converter[str]):
 
 class EnumConverter(Converter[enum.Enum]):
     def to_str(self, obj: enum.Enum) -> str:
-        return str(obj.value)
+        return get_converter(int).to_str(obj.value)
 
     def from_str(self, obj: str) -> enum.Enum:
-        return self.type(int(obj))  # type: ignore
+        return self.type(get_converter(int).from_str(obj))  # type: ignore
+
+
+class BoolConverter(Converter[bool]):
+    def to_str(self, obj: bool) -> str:
+        return "1" if obj else "0"
+
+    def from_str(self, obj: str) -> bool:
+        return bool(int(obj))
 
 
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
+add_converter(bool, BoolConverter)
 
 # MIT License
 #

@@ -2,38 +2,45 @@
 
 Stateless component manager for hikari with type-safe API.
 
-
-# Example
-Example with crescent cause im lazy
+## Example
 
 ```python
 import hikari
-import crescent
 import flare
 
 
 @flare.button(label="Test Button", style=hikari.ButtonStyle.PRIMARY)
 async def test_button(
     ctx: flare.Context,
-    # Kwargs are used for state.
-    number: int | None = None
+) -> None:
+    await ctx.respond(content="Hello World!")
+
+@flare.button(label="State Button", style=hikari.ButtonStyle.PRIMARY)
+async def state_button(
+    ctx: flare.Context,
+    # Args and kwargs are used for state.
+    number: int,
 ) -> None:
     print(number)
-    await ctx.interaction.create_initial_response(
-        content=f"The number is: {number}",
-        response_type=hikari.ResponseType.MESSAGE_CREATE
-    )
+    await ctx.respond(content=f"The number is: {number}")
 
-bot = crescent.Bot("...")
+bot = hikari.GatewayBot("...")
 flare.install(bot)
 
-@bot.include
-@crescent.command
-async def cmd(ctx: crescent.Context, n: int) -> None:
-    await ctx.respond(components=[
-        # Set custom state here.
-        test_button.build(number=5)
-    ])
+@bot.listen()
+async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
+
+    # Ignore other bots or webhooks pinging us
+    if not event.is_human:
+        return
+
+    me = bot.get_me()
+
+    # If the bot is mentioned
+    if me.id in event.message.user_mentions_ids:
+        # Set custom state for components that need it
+        row = flare.Row(test_button, state_button.set(5))
+        message = await event.message.respond("Hello Flare!", component=row)
 
 bot.run()
 ```

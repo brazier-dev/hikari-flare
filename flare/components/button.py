@@ -38,9 +38,9 @@ class button:
 
     def __init__(
         self,
-        label: str | None,
-        emoji: hikari.Emoji | str | None,
-        style: hikari.ButtonStyle,
+        label: str | None = None,
+        emoji: hikari.Emoji | str | None = None,
+        style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
         disabled: bool = False,
         cookie: str | None = None,
     ) -> None:
