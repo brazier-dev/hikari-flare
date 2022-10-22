@@ -8,6 +8,7 @@ from flare.internal import bootstrap
 
 logger = logging.getLogger(__name__)
 
+
 async def on_inter(event: hikari.InteractionCreateEvent) -> None:
     """
     Function called to respond to an interaction.
