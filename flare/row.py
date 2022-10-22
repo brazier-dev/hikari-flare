@@ -4,9 +4,8 @@ import typing as t
 
 import hikari
 
+from flare.components import Component, Button, Select
 from flare.exceptions import RowMaxWidthError
-
-from .component import Component, Button
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
@@ -65,6 +64,8 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
             for component in action_row.components:
                 if isinstance(component, hikari.ButtonComponent) and (button := Button.from_partial(component)): # type: ignore
                     rows[i].append(button) if len(rows)-1 >= i else rows.append(cls()) and rows[i].append(button) # type: ignore
+                elif isinstance(component, hikari.SelectMenuComponent) and (select := Select.from_partial(component)): # type: ignore
+                    rows[i].append(select) if len(rows)-1 >= i else rows.append(cls()) and rows[i].append(select) # type: ignore
             
         return rows
         

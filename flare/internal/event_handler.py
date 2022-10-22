@@ -30,7 +30,6 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
 
     ctx = Context(
         interaction=event.interaction,
-        author=event.interaction.user,
     )
 
     await component.callback(ctx, **kwargs)
