@@ -1,21 +1,24 @@
+import logging
 import typing as t
 
 import hikari
 
 from flare.context import Context
 from flare.exceptions import SerializerError
-from flare.internal.serde import Serde
+from flare.internal.serde import Serde, SerdeABC
 
 __all__: t.Final[t.Sequence[str]] = ("install",)
+
+logger = logging.getLogger(__name__)
 
 components: dict[str, t.Any] = {}
 """Currently loaded components."""
 
-active_serde: Serde = Serde()
+active_serde: SerdeABC = Serde()
 """The currently active serializer."""
 
 
-def install(bot: hikari.EventManagerAware, serde: Serde | None = None) -> None:
+def install(bot: hikari.EventManagerAware, serde: SerdeABC | None = None) -> None:
     """Install flare under the given bot instance.
 
     Parameters:
@@ -42,6 +45,9 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
     try:
         component, kwargs = active_serde.deserialize(event.interaction.custom_id, components)
     except SerializerError:  # If the custom_id is invalid, it was probably not created by flare.
+        logger.debug(
+            f"Flare received custom_id '{event.interaction.custom_id}' which it cannot deserialize.", exc_info=True
+        )
         return
 
     ctx = Context(

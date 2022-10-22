@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import typing
 
 from flare.converters import get_converter
@@ -11,8 +12,46 @@ if typing.TYPE_CHECKING:
 __all__: typing.Final[typing.Sequence[str]] = ("Serde",)
 
 
-class Serde:
-    """A class that handles serialization and deserialization of component custom_id encoded data."""
+class SerdeABC(abc.ABC):
+    """Abstract class for implementing a custom serializer and deserializer."""
+
+    @abc.abstractmethod
+    def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
+        """
+        Encode a custom_id for a component.
+
+        Args:
+            cookie:
+                A unique identifier for the component.
+            types:
+                A dictionary of argument names to argument type hints. The type hint
+                is used to encode a value to a string.
+            kwargs:
+                Values that the user passes to save state.
+        """
+
+    @abc.abstractmethod
+    def deserialize(
+        self, custom_id: str, map: dict[str, typing.Any]
+    ) -> tuple[base.Component[typing.Any], dict[str, typing.Any]]:
+        """
+        Decode a custom_id for a component.
+
+        Args:
+            custom_id:
+                The custom_id of the component.
+            map:
+                A dictionary of cookies to components.
+        """
+
+
+class Serde(SerdeABC):
+    """
+    A class that handles serialization and deserialization of component custom_id encoded data.
+
+    For simple behaviour changes it may be sufficient to subclass this class, but if you desire to completely
+    overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
+    """
 
     def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: str | None = "0") -> None:
         self._SEP: str = sep
@@ -66,18 +105,6 @@ class Serde:
         return self._VER
 
     def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
-        """
-        Encode a custom_id for a component.
-
-        Args:
-            cookie:
-                A unique identifier for the component.
-            types:
-                A dictionary of argument names to argument type hints. The type hint
-                is used to encode a value to a string.
-            kwargs:
-                Values that the user passes to save state.
-        """
         out = f"{self.VER}{cookie}{self.SEP}"
 
         for k, v in types.items():
@@ -125,15 +152,6 @@ class Serde:
     def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
     ) -> tuple[base.Component[typing.Any], dict[str, typing.Any]]:
-        """
-        Decode a custom_id for a component.
-
-        Args:
-            custom_id:
-                The custom_id of the component.
-            map:
-                A dictionary of cookies to components.
-        """
         if self.VER:  # Allow for no version to disable verification
             version = custom_id[0]
 
