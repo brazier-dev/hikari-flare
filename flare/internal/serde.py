@@ -53,11 +53,11 @@ class Serde(SerdeABC):
     overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
     """
 
-    def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: str | None = "0") -> None:
+    def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: int | None = 0) -> None:
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
-        self._VER: str = version or ""
+        self._VER: int = version or 0
 
         if len(sep) != 1:
             raise ValueError("Separator must be a single character.")
@@ -68,8 +68,8 @@ class Serde(SerdeABC):
         if len(esc) != 1:
             raise ValueError("Escape must be a single character.")
 
-        if version and len(version) > 1:
-            raise ValueError("Serde version must be a single character.")
+        if version is not None and len(get_converter(int).to_str(version)) > 1:
+            raise ValueError("Serde version must serialize to a single character.")
 
     @property
     def SEP(self) -> str:
@@ -97,7 +97,7 @@ class Serde(SerdeABC):
         return f"{self.ESC}{self.SEP}"
 
     @property
-    def VER(self) -> str:
+    def VER(self) -> int:
         """
         The version of the serialization format.
         If None, the serializer will not attempt to verify the version of the serialized data.
@@ -105,7 +105,7 @@ class Serde(SerdeABC):
         return self._VER
 
     def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
-        out = f"{self.VER}{cookie}{self.SEP}"
+        out = f"{get_converter(int).to_str(self.VER)}{cookie}{self.SEP}"
 
         for k, v in types.items():
             val = kwargs.get(k)
@@ -153,8 +153,8 @@ class Serde(SerdeABC):
     def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
     ) -> tuple[base.Component[typing.Any], dict[str, typing.Any]]:
-        if self.VER:  # Allow for no version to disable verification
-            version = custom_id[0]
+        if self.VER is not None:  # Allow for no version to disable verification
+            version = get_converter(int).from_str(custom_id[0])
 
             if version != self.VER:
                 raise SerializerVersionViolation(
