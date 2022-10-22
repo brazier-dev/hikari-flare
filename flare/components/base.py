@@ -8,8 +8,8 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError
-from flare.internal import event_handler
+from flare.exceptions import MissingRequiredParameterError, SerializerError
+from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -39,9 +39,9 @@ class Component(abc.ABC, t.Generic[P]):
 
         if not self.args:
             # If no args were passed, calling set() isn't necessary to construct custom_id
-            self._custom_id = event_handler.active_serde.serialize(self.cookie, {}, {})
+            self._custom_id = bootstrap.active_serde.serialize(self.cookie, {}, {})
 
-        event_handler.components[self.cookie] = self
+        bootstrap.components[self.cookie] = self
 
     @property
     @abc.abstractmethod
@@ -68,9 +68,36 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
+    @staticmethod
+    def from_partial(component: hikari.PartialComponent) -> Component[...] | None:
+        """
+        Build a flare component from `hikari.PartialComponent`.
+
+        Args:
+            component:
+                A partial component. The component type must be `hikari ComponentType.BUTTON`
+                or `hikari.ComponentType.SELECT_MENU`.
+
+        Returns:
+            A component.
+
+        Raises:
+            SerializerError: The component could not be deserialized.
+        """
+        if not isinstance(component, (hikari.ButtonComponent, hikari.SelectMenuComponent)):
+            raise SerializerError(f"Flare component type can not be {component.type}")
+
+        assert component.custom_id
+
+        try:
+            flare_component, kwargs = bootstrap.active_serde.deserialize(component.custom_id, bootstrap.components)
+        except SerializerError:
+            raise
+        return flare_component.set(kwargs)
+
     def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = event_handler.active_serde.serialize(self.cookie, self.args, values)
+        new._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, values)
         return new
 
     def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:

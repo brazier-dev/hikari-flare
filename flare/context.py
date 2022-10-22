@@ -6,6 +6,8 @@ import typing as t
 import hikari
 from hikari.snowflakes import Snowflake
 
+from flare import row
+
 __all__: t.Sequence[str] = ("Context", "InteractionResponse")
 
 logger = logging.getLogger("__name__")
@@ -184,6 +186,10 @@ class Context:
         return self._interaction.member
 
     @property
+    def message(self) -> hikari.Message:
+        return self._interaction.message
+
+    @property
     def locale(self) -> t.Union[str, hikari.Locale]:
         """The locale of this context."""
         return self._interaction.locale
@@ -228,6 +234,10 @@ class Context:
     def get_channel(self) -> t.Optional[hikari.TextableGuildChannel]:
         """Gets the channel this context represents, None if in a DM. Requires application cache."""
         return self._interaction.get_channel()
+
+    def get_components(self) -> t.MutableSequence[row.Row]:
+        """Returns the flare components for the interaction this context is proxying"""
+        return row.Row.from_message(self.message)
 
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.

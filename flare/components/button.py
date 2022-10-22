@@ -13,6 +13,7 @@ if t.TYPE_CHECKING:
 __all__: t.Final[t.Sequence[str]] = ("button", "Button")
 
 P = t.ParamSpec("P")
+ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
 
 
 class button:
