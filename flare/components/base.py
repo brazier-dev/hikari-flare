@@ -9,7 +9,7 @@ import hikari
 import sigparse
 
 from flare.exceptions import MissingRequiredParameterError
-from flare.internal import event_handler, serde
+from flare.internal import event_handler
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -39,7 +39,7 @@ class Component(abc.ABC, t.Generic[P]):
 
         if not self.args:
             # If no args were passed, calling set() isn't necessary to construct custom_id
-            self._custom_id = self.cookie
+            self._custom_id = event_handler.active_serde.serialize(self.cookie, {}, {})
 
         event_handler.components[self.cookie] = self
 
@@ -70,7 +70,7 @@ class Component(abc.ABC, t.Generic[P]):
 
     def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = serde.serialize(self.cookie, self.args, values)
+        new._custom_id = event_handler.active_serde.serialize(self.cookie, self.args, values)
         return new
 
     def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
