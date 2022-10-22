@@ -119,6 +119,7 @@ class Select(Component[P]):
 
         if self.min_values and self.min_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater min options than options.")
+
         if self.max_values and self.max_values > len(self.options):
             raise ComponentError("Cannot create a select menu with greater max options than options.")
 
