@@ -3,7 +3,7 @@ import typing
 from flare.components import *
 from flare.context import Context
 from flare.converters import Converter, add_converter
-from flare.internal.globals_ import install
+from flare.internal.bootstrap import install
 from flare.row import Row
 
 __all__: typing.Sequence[str] = ("button", "select", "Context", "Converter", "add_converter", "install", "Row")

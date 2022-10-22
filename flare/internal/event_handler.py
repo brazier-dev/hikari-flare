@@ -4,10 +4,9 @@ import hikari
 
 from flare.context import Context
 from flare.exceptions import SerializerError
-from flare.internal import globals_
+from flare.internal import bootstrap
 
 logger = logging.getLogger(__name__)
-
 
 async def on_inter(event: hikari.InteractionCreateEvent) -> None:
     """
@@ -17,7 +16,7 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
         return
 
     try:
-        component, kwargs = globals_.active_serde.deserialize(event.interaction.custom_id, globals_.components)
+        component, kwargs = bootstrap.active_serde.deserialize(event.interaction.custom_id, bootstrap.components)
     except SerializerError:  # If the custom_id is invalid, it was probably not created by flare.
         logger.debug(
             f"Flare received custom_id '{event.interaction.custom_id}' which it cannot deserialize.", exc_info=True
