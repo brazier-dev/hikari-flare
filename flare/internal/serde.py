@@ -110,7 +110,8 @@ class Serde(SerdeABC):
         for k, v in types.items():
             val = kwargs.get(k)
             converter = get_converter(v)
-            out += f"{(converter.to_str(val).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL).replace(self.SEP, self.ESC_SEP)}{self.SEP}"
+            val = converter.to_str(val).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
+            out += f"{val.replace(self.SEP, self.ESC_SEP)}{self.SEP}"
 
         out = out[:-1]
 
