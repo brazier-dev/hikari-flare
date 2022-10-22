@@ -1,3 +1,4 @@
+import importlib.metadata
 import typing
 
 from flare.components import *
@@ -8,7 +9,7 @@ from flare.row import Row
 
 __all__: typing.Sequence[str] = ("button", "select", "Context", "Converter", "add_converter", "install", "Row")
 
-__version__ = "0.1.0"
+__version__ = importlib.metadata.version("hikari-flare")
 
 # MIT License
 #
