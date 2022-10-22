@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 import nox
+from nox import options
 
 SCRIPT_DIRS = ["flare"]
 
@@ -19,6 +20,8 @@ def pip_session(*args: str, name: str | None = None) -> typing.Callable[[nox.Ses
 
     return inner
 
+
+options.sessions = ["format", "pyright", "pytest", "sphinx"]
 
 @pip_session("black", "isort", "codespell")
 def format(session: nox.Session) -> None:
@@ -42,3 +45,9 @@ def pyright(session: nox.Session) -> None:
 @pip_session(".", "pytest")
 def pytest(session: nox.Session) -> None:
     session.run("pytest", "tests")
+
+@nox.session(reuse_venv=True)
+def sphinx(session: nox.Session) -> None:
+    session.install("-Ur", "doc_requirements.txt")
+    session.install("-Ur", "requirements.txt")
+    session.run("python", "-m", "sphinx.cmd.build", "docs/source", "docs/build", "-b", "html")

@@ -54,3 +54,6 @@ venv.bak/
 # IDE Specific
 .idea/
 .vscode/
+
+# Sphinx documentation
+docs/_build/
