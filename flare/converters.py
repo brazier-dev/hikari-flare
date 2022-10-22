@@ -4,8 +4,9 @@ import inspect
 import types
 import typing as t
 
-from flare import exceptions
 import hikari
+
+from flare import exceptions
 
 T = t.TypeVar("T")
 
@@ -136,7 +137,7 @@ class EnumConverter(Converter[enum.Enum]):
         return get_converter(int).to_str(obj.value)
 
     def from_str(self, obj: str) -> enum.Enum:
-        return self.type(get_converter(int).from_str(obj)) # type: ignore
+        return self.type(get_converter(int).from_str(obj))  # type: ignore
 
 
 class BoolConverter(Converter[bool]):
