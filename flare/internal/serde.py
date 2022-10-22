@@ -61,10 +61,20 @@ class Serde:
 
         return out[:-1]
 
-    def split_on_sep(self, s: str) -> list[str]:
-        out: list[list[str]] = [[s[0]]]
+    def split_on_sep(self, string: str) -> list[str]:
+        """Split the provided string on the separator, but ignore separators that are escaped.
 
-        for last, char in zip(s[:-1], s[1:]):
+        Parameters:
+            string:
+                The provided string.
+
+        Returns:
+            list[str]
+                The split string.
+        """
+        out: list[list[str]] = [[string[0]]]
+
+        for last, char in zip(string[:-1], string[1:]):
             if last != self.ESC and char == self.SEP:
                 out.append([])
             else:
