@@ -13,10 +13,7 @@ import flare
 async def test_button(
     ctx: flare.Context,
 ) -> None:
-    await ctx.interaction.create_initial_response(
-        content="Hello World!",
-        response_type=hikari.ResponseType.MESSAGE_CREATE
-    )
+    await ctx.respond(content="Hello World!")
 
 @flare.button(label="State Button", style=hikari.ButtonStyle.PRIMARY)
 async def state_button(
@@ -25,10 +22,7 @@ async def state_button(
     number: int | None = None
 ) -> None:
     print(number)
-    await ctx.interaction.create_initial_response(
-        content=f"The number is: {number}",
-        response_type=hikari.ResponseType.MESSAGE_CREATE
-    )
+    await ctx.respond(content=f"The number is: {number}")
 
 bot = hikari.GatewayBot("...")
 flare.install(bot)
