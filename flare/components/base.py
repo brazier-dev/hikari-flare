@@ -95,12 +95,12 @@ class Component(abc.ABC, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
-    def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
+    def set(self: ComponentT, *args: P.args, **kwargs: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, values)
+        new._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
         return new
 
-    def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
+    def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
         Convert arguments and keyword arguments in a dictionary of keyword
         arguments. This is done to make serialization and deserialization easier
