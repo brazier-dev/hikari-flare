@@ -21,7 +21,7 @@ active_serde: SerdeABC = Serde()
 def install(bot: hikari.EventManagerAware, serde: SerdeABC | None = None) -> None:
     """Install flare under the given bot instance.
 
-    Parameters:
+    Args:
         bot:
             The bot to install flare under.
         serde:
