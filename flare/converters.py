@@ -5,6 +5,7 @@ import types
 import typing as t
 
 from flare import exceptions
+import hikari
 
 T = t.TypeVar("T")
 
@@ -132,16 +133,43 @@ class StringConverter(Converter[str]):
 
 class EnumConverter(Converter[enum.Enum]):
     def to_str(self, obj: enum.Enum) -> str:
-        return str(obj.value)
+        return get_converter(int).to_str(obj.value)
 
     def from_str(self, obj: str) -> enum.Enum:
-        return self.type(int(obj))  # type: ignore
+        return self.type(get_converter(int).from_str(obj)) # type: ignore
+
+
+class BoolConverter(Converter[bool]):
+    def to_str(self, obj: bool) -> str:
+        return get_converter(int).to_str(int(obj))
+
+    def from_str(self, obj: str) -> bool:
+        return bool(get_converter(int).from_str(obj))
+
+
+class FloatConverter(Converter[float]):
+    def to_str(self, obj: float) -> str:
+        return str(obj)
+
+    def from_str(self, obj: str) -> float:
+        return float(obj)
+
+
+class SnowflakeConverter(Converter[hikari.Snowflake]):
+    def to_str(self, obj: hikari.Snowflake) -> str:
+        return get_converter(int).to_str(obj)
+
+    def from_str(self, obj: str) -> hikari.Snowflake:
+        return hikari.Snowflake(get_converter(int).from_str(obj))
 
 
 add_converter(int, IntConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
+add_converter(bool, BoolConverter)
+add_converter(hikari.Snowflake, SnowflakeConverter)
+add_converter(float, FloatConverter)
 
 # MIT License
 #
