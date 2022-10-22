@@ -46,15 +46,13 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
     def from_message(cls, message: hikari.Message) -> t.MutableSequence[Row]:
         """Create a row from a message's components.
 
-        Parameters
-        ----------
-        message : hikari.Message
-            The message to create the row from.
+        Args:
+            message:
+                The message to create the row from.
 
-        Returns
-        -------
-        Row
-            The created rows from the message's components.
+        Returns:
+            Row:
+                The created rows from the message's components.
         """
         rows: list[Row] = []
 
