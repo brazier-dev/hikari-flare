@@ -81,7 +81,10 @@ class Component(abc.ABC, t.Generic[P]):
 
     def as_keyword(self, args: list[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
-        Convert arguments and keyword arguments in a dictionary of keyword arguments.
+        Convert arguments and keyword arguments in a dictionary of keyword
+        arguments. This is done to make serialization and deserialization easier
+        because the differences between `POSITIONAL_OR_KEYWORD` and 
+        `KEYWORD_ONLY` don't need to be considered.
         """
         out: dict[str, t.Any] = {}
 
