@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components import Button, Component, Select
+from flare.components import Component
 from flare.exceptions import RowMaxWidthError
 
 
@@ -58,14 +58,13 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
         """
         rows: list[Row] = []
 
-        for i, action_row in enumerate(message.components):
+        for action_row in message.components:
             assert isinstance(action_row, hikari.ActionRowComponent)
+            rows.append(Row())
 
             for component in action_row.components:
-                if isinstance(component, hikari.ButtonComponent) and (button := Button.from_partial(component)):  # type: ignore
-                    rows[i].append(button) if len(rows) - 1 >= i else rows.append(cls()) and rows[i].append(button)  # type: ignore
-                elif isinstance(component, hikari.SelectMenuComponent) and (select := Select.from_partial(component)):  # type: ignore
-                    rows[i].append(select) if len(rows) - 1 >= i else rows.append(cls()) and rows[i].append(select)  # type: ignore
+                if component := Component.from_partial_component(component):
+                    rows[-1].append(component)
 
         return rows
 

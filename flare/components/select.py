@@ -6,9 +6,7 @@ import typing as t
 import hikari
 
 from flare.components.base import Component
-from flare.exceptions import ComponentError, SerializerError
-from flare.internal import serde
-from flare.internal.event_handler import components as _components
+from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -133,23 +131,6 @@ class Select(Component[P]):
             select.set_is_disabled(self.disabled)
         select.set_placeholder(self.placeholder)
         select.add_to_container()
-
-    @classmethod
-    def from_partial(cls, partial: hikari.PartialComponent) -> Select[P] | None:
-        if not partial.type == hikari.ComponentType.SELECT_MENU:
-            raise TypeError("Partial component is not a select menu.")
-        assert isinstance(partial, hikari.SelectMenuComponent)
-
-        if not partial.custom_id:
-            raise ValueError("Partial component is missing custom_id.")
-        try:
-            component, kwargs = serde.deserialize(partial.custom_id, _components)
-        except SerializerError:
-            return None
-
-        assert isinstance(component, cls)
-        component = component.set(**kwargs)  # type: ignore reportGeneralTypeIssues
-        return component
 
 
 # MIT License

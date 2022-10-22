@@ -5,9 +5,7 @@ import typing as t
 import hikari
 
 from flare.components.base import Component
-from flare.exceptions import ComponentError, SerializerError
-from flare.internal import serde
-from flare.internal.event_handler import components as _components
+from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
     from flare import context
@@ -107,23 +105,6 @@ class Button(Component[P]):
         button.set_is_disabled(self.disabled)
 
         button.add_to_container()
-
-    @classmethod
-    def from_partial(cls, partial: hikari.PartialComponent) -> Button[P] | None:
-        if not partial.type == hikari.ComponentType.BUTTON:
-            raise TypeError("Partial component is not a button.")
-        assert isinstance(partial, hikari.ButtonComponent)
-
-        if not partial.custom_id:
-            raise ValueError("Partial component is missing custom_id.")
-        try:
-            component, kwargs = serde.deserialize(partial.custom_id, _components)
-        except SerializerError:
-            return None
-
-        assert isinstance(component, cls)
-        component = component.set(**kwargs)  # type: ignore reportGeneralTypeIssues
-        return component
 
 
 # MIT License

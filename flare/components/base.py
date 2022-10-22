@@ -8,7 +8,7 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError
+from flare.exceptions import MissingRequiredParameterError, SerializerError
 from flare.internal import event_handler
 
 if t.TYPE_CHECKING:
@@ -19,6 +19,11 @@ __all__: t.Final[t.Sequence[str]] = ("Component",)
 P = t.ParamSpec("P")
 
 ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
+
+
+@t.runtime_checkable
+class HasCustomId(t.Protocol):
+    custom_id: str
 
 
 class Component(abc.ABC, t.Generic[P]):
@@ -68,6 +73,34 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
+    @staticmethod
+    def from_partial_component(component: hikari.PartialComponent) -> Component[...] | None:
+        """
+        Build a flare component from `hikari.PartialComponent`.
+
+        Args:
+            component:
+                A partial component.
+
+        Returns:
+            A component if the component type is `hikari ComponentType.BUTTON` or
+            `hikari.ComponentType.SELECT_MENU`. Otherwise return `None`.
+        """
+        if component.type not in {
+            hikari.ComponentType.BUTTON,
+            hikari.ComponentType.SELECT_MENU,
+        }:
+            return None
+
+        assert isinstance(component, HasCustomId)
+        try:
+            flare_component, kwargs = event_handler.active_serde.deserialize(
+                component.custom_id, event_handler.components
+            )
+        except SerializerError:
+            return None
+        return flare_component.set(kwargs)
+
     def set(self: ComponentT, *_: P.args, **values: P.kwargs) -> ComponentT:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = event_handler.active_serde.serialize(self.cookie, self.args, values)
@@ -107,14 +140,6 @@ class Component(abc.ABC, t.Generic[P]):
     @abc.abstractmethod
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """Build and append a flare component to a hikari action row."""
-        ...
-
-    @abc.abstractclassmethod
-    def from_partial(cls: ComponentT, partial: hikari.PartialComponent) -> ComponentT | None:
-        """
-        Convert a hikari partial component to a flare component.
-        This only works if the component was previously created with flare, otherwise it will return `None`.
-        """
         ...
 
 
