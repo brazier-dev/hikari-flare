@@ -18,6 +18,7 @@ def test_as_keyword_pos_args_only():
         "c": 3,
     }
 
+
 def test_as_keyword_kw_args_only():
     def callback(ctx, a=None, b=None, c=None):
         ...

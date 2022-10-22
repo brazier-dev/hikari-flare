@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import abc
-import inspect
 import copy
+import inspect
 import typing as t
 
 import hikari
