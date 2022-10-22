@@ -21,11 +21,6 @@ P = t.ParamSpec("P")
 ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
 
 
-@t.runtime_checkable
-class HasCustomId(t.Protocol):
-    custom_id: str
-
-
 class Component(abc.ABC, t.Generic[P]):
     """
     An abstract class that all components derive from.
@@ -89,13 +84,11 @@ class Component(abc.ABC, t.Generic[P]):
         Raises:
             SerializerError: The component could not be deserialized.
         """
-        if component.type not in {
-            hikari.ComponentType.BUTTON,
-            hikari.ComponentType.SELECT_MENU,
-        }:
+        if not isinstance(component, hikari.ButtonComponent | hikari.SelectMenuComponent):
             raise SerializerError(f"Flare component type can not be {component.type}")
 
-        assert isinstance(component, HasCustomId)
+        assert component.custom_id
+
         try:
             flare_component, kwargs = event_handler.active_serde.deserialize(
                 component.custom_id, event_handler.components
