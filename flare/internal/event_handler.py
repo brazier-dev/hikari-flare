@@ -3,16 +3,32 @@ import typing as t
 import hikari
 
 from flare.context import Context
-from flare.internal import serde
+from flare.internal.serde import Serde
 
 __all__: t.Final[t.Sequence[str]] = ("install",)
 
-
-def install(bot: hikari.EventManagerAware) -> None:
-    bot.event_manager.subscribe(hikari.InteractionCreateEvent, _on_inter)
-
-
 components: dict[str, t.Any] = {}
+"""Currently loaded components."""
+
+active_serde: Serde = Serde()
+"""The currently active serializer."""
+
+
+def install(bot: hikari.EventManagerAware, serde: Serde | None = None) -> None:
+    """Install flare under the given bot instance.
+
+    Parameters:
+        bot:
+            The bot to install flare under.
+        serde:
+            For advanced usage, you can pass a custom serializer. By default uses the default serializer.
+    """
+    global active_serde
+
+    if serde is not None:
+        active_serde = serde
+
+    bot.event_manager.subscribe(hikari.InteractionCreateEvent, _on_inter)
 
 
 async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
@@ -22,7 +38,7 @@ async def _on_inter(event: hikari.InteractionCreateEvent) -> None:
     if not isinstance(event.interaction, hikari.ComponentInteraction):
         return
 
-    component, kwargs = serde.deserialize(event.interaction.custom_id, components)
+    component, kwargs = active_serde.deserialize(event.interaction.custom_id, components)
 
     ctx = Context(
         interaction=event.interaction,
