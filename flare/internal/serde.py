@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from flare.converters import get_converter
-from flare.exceptions import FlareException
+from flare.exceptions import SerializerError, SerializerVersionViolation
 
 if typing.TYPE_CHECKING:
     from flare.components import base
@@ -18,9 +18,18 @@ class Serde:
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
-        self._VER: str | None = version
+        self._VER: str = version or ""
 
-        if version and len(version) != 1:
+        if len(sep) != 1:
+            raise ValueError("Separator must be a single character.")
+
+        if len(null) != 1:
+            raise ValueError("Null must be a single character.")
+
+        if len(esc) != 1:
+            raise ValueError("Escape must be a single character.")
+
+        if version and len(version) > 1:
             raise ValueError("Serde version must be a single character.")
 
     @property
@@ -49,7 +58,7 @@ class Serde:
         return f"{self.ESC}{self.SEP}"
 
     @property
-    def VER(self) -> str | None:
+    def VER(self) -> str:
         """
         The version of the serialization format.
         If None, the serializer will not attempt to verify the version of the serialized data.
@@ -76,7 +85,13 @@ class Serde:
             converter = get_converter(v)
             out += f"{(converter.to_str(val).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL).replace(self.SEP, self.ESC_SEP)}{self.SEP}"
 
-        return out[:-1]
+        out = out[:-1]
+
+        if len(out) > 100:
+            raise SerializerError(
+                f"The serialized custom_id for component {cookie} may be too long. Try reducing the number of parameters the component takes.\nGot length: {len(out)} Expected length: 100 or less"
+            )
+        return out
 
     def split_on_sep(self, string: str) -> list[str]:
         """Split the provided string on the separator, but ignore separators that are escaped.
@@ -123,13 +138,19 @@ class Serde:
             version = custom_id[0]
 
             if version != self.VER:
-                raise FlareException(f"Serializer {self.__class__.__name__} cannot deserialize version {version}.")
+                raise SerializerVersionViolation(
+                    f"Serializer {self.__class__.__name__} cannot deserialize version {version}."
+                )
 
             custom_id = custom_id[1:]
 
         cookie, *args = self.split_on_sep(custom_id)
 
-        component_ = map[cookie]
+        component_ = map.get(cookie)
+
+        if component_ is None:
+            raise SerializerError(f"Component with cookie {cookie} does not exist.")
+
         types = component_.args
 
         transformed_args: dict[str, typing.Any] = {}
