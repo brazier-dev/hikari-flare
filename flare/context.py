@@ -14,7 +14,7 @@ logger = logging.getLogger("__name__")
 class InteractionResponse:
     """
     Represents a response to an interaction, allows for standardized handling of responses.
-    This class is not meant to be directly instantiated, and is instead returned by :obj:`flare.context.Context`.
+    This class is not meant to be directly instantiated, and is instead returned by `flare.context.Context`.
     """
 
     __slots__ = (
@@ -33,14 +33,12 @@ class InteractionResponse:
         """Get or fetch the message created by this response.
         Initial responses need to be fetched, while followups will be provided directly.
 
-        .. note::
+        > ℹ️
             The object itself can also be awaited directly, which in turn calls this method,
             producing the same results.
 
-        Returns
-        -------
-        hikari.Message
-            The message created by this response.
+        Returns:
+            hikari.Message: The message created by this response.
         """
         if self._message:
             return self._message
@@ -76,33 +74,30 @@ class InteractionResponse:
     ) -> InteractionResponse:
         """A short-hand method to edit the message belonging to this response.
 
-        Parameters
-        ----------
-        content : undefined.UndefinedOr[t.Any], optional
-            The content of the message. Anything passed here will be cast to str.
-        attachment : undefined.UndefinedOr[hikari.Resourceish], optional
-            An attachment to add to this message.
-        attachments : undefined.UndefinedOr[t.Sequence[hikari.Resourceish]], optional
-            A sequence of attachments to add to this message.
-        component : undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder], optional
-            A component to add to this message.
-        components : undefined.UndefinedOr[t.Sequence[hikari.api.special_endpoints.ComponentBuilder]], optional
-            A sequence of components to add to this message.
-        embed : undefined.UndefinedOr[hikari.Embed], optional
-            An embed to add to this message.
-        embeds : undefined.UndefinedOr[t.Sequence[hikari.Embed]], optional
-            A sequence of embeds to add to this message.
-        mentions_everyone : undefined.UndefinedOr[bool], optional
-            If True, mentioning @everyone will be allowed.
-        user_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]], optional
-            The set of allowed user mentions in this message. Set to True to allow all.
-        role_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]], optional
-            The set of allowed role mentions in this message. Set to True to allow all.
+        Args:
+            content:
+                The content of the message. Anything passed here will be cast to str.
+            attachment:
+                An attachment to add to this message.
+            attachments:
+                A sequence of attachments to add to this message.
+            component:
+                A component to add to this message.
+            components:
+                A sequence of components to add to this message.
+            embed:
+                An embed to add to this message.
+            embeds:
+                A sequence of embeds to add to this message.
+            mentions_everyone:
+                If True, mentioning @everyone will be allowed.
+            user_mentions:
+                The set of allowed user mentions in this message. Set to True to allow all.
+            role_mentions:
+                The set of allowed role mentions in this message. Set to True to allow all.
 
-        Returns
-        -------
-        InteractionResponse
-            A proxy object representing the response to the interaction.
+        Returns:
+            InteractionResponse: A proxy object representing the response to the interaction.
         """
         if self._message:
             message = await self._context.interaction.edit_message(
@@ -236,15 +231,11 @@ class Context:
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.
 
-        Returns
-        -------
-        InteractionResponse
-            The response object.
+        Returns:
+            InteractionResponse: The response object.
 
-        Raises
-        ------
-        RuntimeError
-            The interaction was not yet responded to.
+        Raises:
+            RuntimeError: The interaction was not yet responded to.
         """
         if self._responses:
             return self._responses[-1]
@@ -273,39 +264,36 @@ class Context:
     ) -> InteractionResponse:
         """Short-hand method to create a new message response via the interaction this context represents.
 
-        Parameters
-        ----------
-        content : undefined.UndefinedOr[t.Any], optional
-            The content of the message. Anything passed here will be cast to str.
-        tts : undefined.UndefinedOr[bool], optional
-            If the message should be tts or not.
-        attachment : undefined.UndefinedOr[hikari.Resourceish], optional
-            An attachment to add to this message.
-        attachments : undefined.UndefinedOr[t.Sequence[hikari.Resourceish]], optional
-            A sequence of attachments to add to this message.
-        replace_attachments: bool
-            Whether to replace the attachments with the provided ones.
-        component : undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder], optional
-            A component to add to this message.
-        components : undefined.UndefinedOr[t.Sequence[hikari.api.special_endpoints.ComponentBuilder]], optional
-            A sequence of components to add to this message.
-        embed : undefined.UndefinedOr[hikari.Embed], optional
-            An embed to add to this message.
-        embeds : undefined.UndefinedOr[t.Sequence[hikari.Embed]], optional
-            A sequence of embeds to add to this message.
-        mentions_everyone : undefined.UndefinedOr[bool], optional
-            If True, mentioning @everyone will be allowed.
-        user_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]], optional
-            The set of allowed user mentions in this message. Set to True to allow all.
-        role_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]], optional
-            The set of allowed role mentions in this message. Set to True to allow all.
-        flags : t.Union[undefined.UndefinedType, int, hikari.MessageFlag], optional
-            Message flags that should be included with this message.
+        Args:
+            content:
+                The content of the message. Anything passed here will be cast to str.
+            tts:
+                If the message should be tts or not.
+            attachment:
+                An attachment to add to this message.
+            attachments:
+                A sequence of attachments to add to this message.
+            replace_attachments:
+                Whether to replace the attachments with the provided ones.
+            component:
+                A component to add to this message.
+            components:
+                A sequence of components to add to this message.
+            embed:
+                An embed to add to this message.
+            embeds:
+                A sequence of embeds to add to this message.
+            mentions_everyone:
+                If True, mentioning @everyone will be allowed.
+            user_mentions:
+                The set of allowed user mentions in this message. Set to True to allow all.
+            role_mentions:
+                The set of allowed role mentions in this message. Set to True to allow all.
+            flags:
+                Message flags that should be included with this message.
 
-        Returns
-        -------
-        InteractionResponse
-            A proxy object representing the response to the interaction.
+        Returns:
+            InteractionResponse: A proxy object representing the response to the interaction.
         """
         if self._issued_response:
             if replace_attachments:
@@ -371,39 +359,36 @@ class Context:
         """A short-hand method to edit the last message belonging to this interaction.
         In the case of modals, this will be the component's message that triggered the modal.
 
-        Parameters
-        ----------
-        content : undefined.UndefinedOr[t.Any], optional
-            The content of the message. Anything passed here will be cast to str.
-        tts : undefined.UndefinedOr[bool], optional
-            If the message should be tts or not.
-        attachment : undefined.UndefinedOr[hikari.Resourceish], optional
-            An attachment to add to this message.
-        attachments : undefined.UndefinedOr[t.Sequence[hikari.Resourceish]], optional
-            A sequence of attachments to add to this message.
-        component : undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder], optional
-            A component to add to this message.
-        components : undefined.UndefinedOr[t.Sequence[hikari.api.special_endpoints.ComponentBuilder]], optional
-            A sequence of components to add to this message.
-        embed : undefined.UndefinedOr[hikari.Embed], optional
-            An embed to add to this message.
-        embeds : undefined.UndefinedOr[t.Sequence[hikari.Embed]], optional
-            A sequence of embeds to add to this message.
-        replace_attachments: bool
-            Whether to replace the attachments with the provided ones.
-        mentions_everyone : undefined.UndefinedOr[bool], optional
-            If True, mentioning @everyone will be allowed.
-        user_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]], optional
-            The set of allowed user mentions in this message. Set to True to allow all.
-        role_mentions : undefined.UndefinedOr[t.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]], optional
-            The set of allowed role mentions in this message. Set to True to allow all.
-        flags : t.Union[undefined.UndefinedType, int, hikari.MessageFlag], optional
-            Message flags that should be included with this message.
+        Args:
+            content:
+                The content of the message. Anything passed here will be cast to str.
+            tts:
+                If the message should be tts or not.
+            attachment:
+                An attachment to add to this message.
+            attachments:
+                A sequence of attachments to add to this message.
+            component:
+                A component to add to this message.
+            components:
+                A sequence of components to add to this message.
+            embed:
+                An embed to add to this message.
+            embeds:
+                A sequence of embeds to add to this message.
+            replace_attachments:
+                Whether to replace the attachments with the provided ones.
+            mentions_everyone:
+                If True, mentioning @everyone will be allowed.
+            user_mentions:
+                The set of allowed user mentions in this message. Set to True to allow all.
+            role_mentions:
+                The set of allowed role mentions in this message. Set to True to allow all.
+            flags:
+                Message flags that should be included with this message.
 
-        Returns
-        -------
-        InteractionResponse
-            A proxy object representing the response to the interaction.
+        Returns:
+            InteractionResponse: A proxy object representing the response to the interaction.
         """
         if self._issued_response:
             message = await self.interaction.edit_initial_response(
@@ -459,21 +444,18 @@ class Context:
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
         **kwargs: t.Any,
     ) -> None:
-        """Short-hand method to defer an interaction response. Raises RuntimeError if the interaction was already responded to.
+        """Short-hand method to defer an interaction response.
+        Raises RuntimeError if the interaction was already responded to.
 
-        Parameters
-        ----------
-        response_type : hikari.ResponseType, optional
-            The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
-        flags : t.Union[int, hikari.MessageFlag, None], optional
-            Message flags that should be included with this defer request, by default None
+        Args:
+            response_type:
+                The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
+            flags:
+                Message flags that should be included with this defer request, by default None
 
-        Raises
-        ------
-        RuntimeError
-            The interaction was already responded to.
-        ValueError
-            response_type was not a deferred response type.
+        Raises:
+            RuntimeError: The interaction was already responded to.
+            ValueError: response_type was not a deferred response type.
         """
         response_type = args[0] if args else hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
 
@@ -482,7 +464,8 @@ class Context:
             hikari.ResponseType.DEFERRED_MESSAGE_UPDATE,
         ]:
             raise ValueError(
-                "Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE or ResponseType.DEFERRED_MESSAGE_UPDATE."
+                "Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE"
+                " or ResponseType.DEFERRED_MESSAGE_UPDATE."
             )
 
         if self._issued_response:
