@@ -20,6 +20,9 @@ class Serde:
         self._NULL: str = null
         self._VER: str | None = version
 
+        if version and len(version) != 1:
+            raise ValueError("Serde version must be a single character.")
+
     @property
     def SEP(self) -> str:
         """The separator used to separate arguments."""
