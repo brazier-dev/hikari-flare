@@ -77,9 +77,8 @@ class Component(abc.ABC, t.Generic[P]):
         """Build and append a flare component to a hikari action row."""
         ...
 
-    @abc.abstractmethod
-    @classmethod
-    def from_partial(cls: type[ComponentT], partial: hikari.PartialComponent) -> ComponentT | None:
+    @abc.abstractclassmethod
+    def from_partial(cls: ComponentT, partial: hikari.PartialComponent) -> ComponentT | None:
         """
         Convert a hikari partial component to a flare component.
         This only works if the component was previously created with flare, otherwise it will return `None`.

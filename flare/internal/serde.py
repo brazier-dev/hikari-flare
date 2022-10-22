@@ -41,7 +41,9 @@ def serialize(cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typin
 
     out = out[:-1]
     if len(out) > 100:
-        raise SerializerError(f"Custom ID is too long for cookie {cookie}, try reducing the number of state parameters your component takes.\nReceived length: {len(out)}, max length is 100.")
+        raise SerializerError(
+            f"Custom ID is too long for cookie {cookie}, try reducing the number of state parameters your component takes.\nReceived length: {len(out)}, max length is 100."
+        )
     return out
 
 

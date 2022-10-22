@@ -147,7 +147,7 @@ class Select(Component[P]):
             return None
 
         assert isinstance(component, cls)
-        component = component.set(**kwargs) # type: ignore reportGeneralTypeIssues
+        component = component.set(**kwargs)  # type: ignore reportGeneralTypeIssues
         return component
 
 
