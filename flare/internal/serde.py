@@ -14,30 +14,44 @@ __all__: typing.Final[typing.Sequence[str]] = ("Serde",)
 class Serde:
     """A class that handles serialization and deserialization of components."""
 
+    def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: str | None = "0") -> None:
+        self._SEP: str = sep
+        self._ESC: str = esc
+        self._NULL: str = null
+        self._VER: str | None = version
+
     @property
     def SEP(self) -> str:
-        return "\x01"
+        """The separator used to separate arguments."""
+        return self._SEP
 
     @property
     def ESC(self) -> str:
-        return "\\"
+        """The escape character."""
+        return self._ESC
 
     @property
     def NULL(self) -> str:
-        return "\x00"
+        """Character used to represent a missing value."""
+        return self._NULL
 
     @property
     def ESC_NULL(self) -> str:
-        return f"{self.ESC}\x00"
+        """The escape sequence for the null character."""
+        return f"{self.ESC}{self.NULL}"
 
     @property
     def ESC_SEP(self) -> str:
-        return f"{self.ESC}\x01"
+        """The escape sequence for the separator."""
+        return f"{self.ESC}{self.SEP}"
 
     @property
-    def VER(self) -> str:
-        """The version of the serialization format."""
-        return "0"
+    def VER(self) -> str | None:
+        """
+        The version of the serialization format. 
+        If None, the serializer will not attempt to verify the version of the serialized data.
+        """
+        return self._VER
 
     def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
         """
@@ -102,12 +116,15 @@ class Serde:
             map:
                 A dictionary of cookies to components.
         """
-        version = custom_id[0]
+        if self.VER: # Allow for no version to disable verification
+            version = custom_id[0]
 
-        if version != self.VER:
-            raise FlareException(f"Serializer {self.__class__.__name__} cannot deserialize version {version}.")
+            if version != self.VER:
+                raise FlareException(f"Serializer {self.__class__.__name__} cannot deserialize version {version}.")
+            
+            custom_id = custom_id[1:]
 
-        cookie, *args = self.split_on_sep(custom_id[1:])
+        cookie, *args = self.split_on_sep(custom_id)
 
         component_ = map[cookie]
         types = component_.args
