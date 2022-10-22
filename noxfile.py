@@ -23,6 +23,7 @@ def pip_session(*args: str, name: str | None = None) -> typing.Callable[[nox.Ses
 
 options.sessions = ["format", "pyright", "pytest", "sphinx"]
 
+
 @pip_session("black", "isort", "codespell")
 def format(session: nox.Session) -> None:
     session.run("black", *SCRIPT_DIRS)
@@ -45,6 +46,7 @@ def pyright(session: nox.Session) -> None:
 @pip_session(".", "pytest")
 def pytest(session: nox.Session) -> None:
     session.run("pytest", "tests")
+
 
 @nox.session(reuse_venv=True)
 def sphinx(session: nox.Session) -> None:
