@@ -13,8 +13,9 @@ logger = logging.getLogger("__name__")
 
 class InteractionResponse:
     """
-    Represents a response to an interaction, allows for standardized handling of responses.
-    This class is not meant to be directly instantiated, and is instead returned by `flare.context.Context`.
+    Represents a response to an interaction, allows for standardized handling
+    of responses. This class is not meant to be directly instantiated, and is
+    instead returned by `flare.context.Context`.
     """
 
     __slots__ = (
