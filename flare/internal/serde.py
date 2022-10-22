@@ -48,7 +48,7 @@ class Serde:
     @property
     def VER(self) -> str | None:
         """
-        The version of the serialization format. 
+        The version of the serialization format.
         If None, the serializer will not attempt to verify the version of the serialized data.
         """
         return self._VER
@@ -116,12 +116,12 @@ class Serde:
             map:
                 A dictionary of cookies to components.
         """
-        if self.VER: # Allow for no version to disable verification
+        if self.VER:  # Allow for no version to disable verification
             version = custom_id[0]
 
             if version != self.VER:
                 raise FlareException(f"Serializer {self.__class__.__name__} cannot deserialize version {version}.")
-            
+
             custom_id = custom_id[1:]
 
         cookie, *args = self.split_on_sep(custom_id)
