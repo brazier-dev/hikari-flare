@@ -18,8 +18,8 @@ async def test_button(
 @flare.button(label="State Button", style=hikari.ButtonStyle.PRIMARY)
 async def state_button(
     ctx: flare.Context,
-    # Kwargs are used for state.
-    number: int | None = None
+    # Args and kwargs are used for state.
+    number: int,
 ) -> None:
     print(number)
     await ctx.respond(content=f"The number is: {number}")
@@ -39,7 +39,7 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         # Set custom state for components that need it
-        row = flare.Row(test_button, state_button.set(number=5))
+        row = flare.Row(test_button, state_button.set(5))
         message = await event.message.respond("Hello Flare!", component=row)
 
 bot.run()
