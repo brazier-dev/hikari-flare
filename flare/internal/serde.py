@@ -57,7 +57,7 @@ class Serde(SerdeABC):
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
-        self._VER: int = version or 0
+        self._VER: int | None = version
 
         if len(sep) != 1:
             raise ValueError("Separator must be a single character.")
@@ -97,7 +97,7 @@ class Serde(SerdeABC):
         return f"{self.ESC}{self.SEP}"
 
     @property
-    def VER(self) -> int:
+    def VER(self) -> int | None:
         """
         The version of the serialization format.
         If None, the serializer will not attempt to verify the version of the serialized data.
