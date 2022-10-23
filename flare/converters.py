@@ -75,7 +75,7 @@ def add_converter(t: t.Any, converter: type[Converter[t.Any]], *, supports_subcl
         t:
             The type this converter supports.
         converter: The converter object.
-        support_subclass:
+        supports_subclass:
             If `True`, this converter will be used for subclasses of `t`.
     """
     _converters[t] = (converter, supports_subclass)
