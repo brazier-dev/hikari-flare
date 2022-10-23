@@ -39,7 +39,7 @@ class Component(abc.ABC, t.Generic[P]):
         ).digest().decode("latin1")
 
         parameters = sigparse.sigparse(callback)[1:]
-        self.args = {param.name:param.annotation for param in parameters}
+        self.args = {param.name: param.annotation for param in parameters}
 
         if not self.args:
             # If no args were passed, calling set() isn't necessary to construct custom_id.
