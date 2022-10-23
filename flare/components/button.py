@@ -108,6 +108,15 @@ class Button(Component[P]):
 
 
 class LinkButton(Component[P]):
+    """
+    Args:
+        url:
+            The link for this button.
+        label:
+            The label on the button.
+        emoji:
+            The emoji on the button.
+    """
     @t.overload
     def __init__(
         self,
