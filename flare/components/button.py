@@ -119,6 +119,7 @@ class LinkButton(Component[P]):
         emoji:
             The emoji on the button.
     """
+
     @t.overload
     def __init__(
         self,
