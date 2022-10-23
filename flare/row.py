@@ -4,38 +4,38 @@ import typing as t
 
 import hikari
 
-from flare.components import Component
-from flare.exceptions import RowMaxWidthError
+from flare.components import Component, CallbackComponent, LinkButton
+from flare.exceptions import RowMaxWidthError, SerializerError
 
 
-class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
-    def __init__(self, *components: Component[...]) -> None:
+class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
+    def __init__(self, *components: Component) -> None:
         if (width := sum(component.width for component in components)) > 5:
             raise RowMaxWidthError(f"Row only has space for a combined width of 5 components, got {width}.")
 
         self._components = list(components)
 
-    def __check_width(self, value: Component[...]):
+    def __check_width(self, value: Component):
         if (width := sum(component.width for component in self._components) + value.width) > 5:
             raise RowMaxWidthError(
                 f"Row only has space for a combined width of 5 components, with added component it would be {width}."
             )
 
     @t.overload
-    def __getitem__(self, value: int) -> Component[...]:
+    def __getitem__(self, value: int) -> Component:
         ...
 
     @t.overload
-    def __getitem__(self, value: slice) -> t.Sequence[Component[...]]:
+    def __getitem__(self, value: slice) -> t.Sequence[Component]:
         ...
 
-    def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component[...], t.Sequence[Component[...]]]:
+    def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component, t.Sequence[Component]]:
         return self._components[value]
 
     def __len__(self) -> int:
         return len(self._components)
 
-    def __setitem__(self, key: int, value: Component[...]) -> None:
+    def __setitem__(self, key: int, value: Component) -> None:
         self.__check_width(value)
         self._components[key] = value
 
@@ -60,8 +60,24 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
             assert isinstance(action_row, hikari.ActionRowComponent)
 
             for component in action_row.components:
-                if component := Component.from_partial(component):
-                    rows[-1].append(component)
+                if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
+                    assert component.url
+
+                    if not (component.label or component.emoji):
+                        raise SerializerError(
+                            "Link button does not have label or emoji."
+                        )
+
+                    rows[-1].append(
+                        # This is a valid overload users shouldn't be able to use.
+                        LinkButton(
+                            url=component.url,
+                            label=component.label,  # type: ignore
+                            emoji=component.emoji,  # type: ignore
+                        )
+                    )
+                else:
+                    rows[-1].append(CallbackComponent.from_partial(component))
 
         return rows
 
@@ -73,6 +89,6 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[...]]):
 
         return row.build()
 
-    def insert(self, index: int, value: Component[...]) -> None:
+    def insert(self, index: int, value: Component) -> None:
         self.__check_width(value)
         self._components.insert(index, value)

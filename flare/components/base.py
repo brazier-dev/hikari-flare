@@ -14,14 +14,29 @@ from flare.internal import bootstrap
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("Component",)
+__all__: t.Final[t.Sequence[str]] = ("Component", "CallbackComponent")
 
 P = t.ParamSpec("P")
 
-ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
+CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent[...]")
 
 
-class Component(abc.ABC, t.Generic[P]):
+class Component(abc.ABC):
+    @abc.abstractmethod
+    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+        """Build and append a flare component to a hikari action row."""
+        ...
+
+    @property
+    @abc.abstractmethod
+    def width(self) -> int:
+        """
+        The width of the component.
+        """
+        ...
+
+
+class CallbackComponent(Component, t.Generic[P]):
     """
     An abstract class that all components derive from.
     """
@@ -31,6 +46,7 @@ class Component(abc.ABC, t.Generic[P]):
         cookie: str | None,
         callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
     ) -> None:
+        super().__init__()
         self._custom_id = None
         self._callback = callback
         self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
@@ -42,14 +58,6 @@ class Component(abc.ABC, t.Generic[P]):
             self._custom_id = bootstrap.active_serde.serialize(self.cookie, {}, {})
 
         bootstrap.components[self.cookie] = self
-
-    @property
-    @abc.abstractmethod
-    def width(self) -> int:
-        """
-        The width of the component.
-        """
-        ...
 
     @property
     def custom_id(self) -> str:
@@ -69,7 +77,7 @@ class Component(abc.ABC, t.Generic[P]):
         return self._callback
 
     @staticmethod
-    def from_partial(component: hikari.PartialComponent) -> Component[...] | None:
+    def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
         Build a flare component from `hikari.PartialComponent`.
 
@@ -95,7 +103,7 @@ class Component(abc.ABC, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
-    def set(self: ComponentT, *args: P.args, **kwargs: P.kwargs) -> ComponentT:
+    def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
         return new
@@ -130,11 +138,6 @@ class Component(abc.ABC, t.Generic[P]):
             out[arg.name] = value
 
         return out | kwargs
-
-    @abc.abstractmethod
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
-        """Build and append a flare component to a hikari action row."""
-        ...
 
 
 # MIT License

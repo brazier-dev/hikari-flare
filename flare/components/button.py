@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import Component
+from flare.components.base import Component, CallbackComponent
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
@@ -13,7 +13,7 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
-ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
+ComponentT = t.TypeVar("ComponentT", bound="CallbackComponent[...]")
 
 
 class button:
@@ -59,7 +59,7 @@ class button:
         )
 
 
-class Button(Component[P]):
+class Button(CallbackComponent[P]):
     def __init__(
         self,
         *,
@@ -107,7 +107,7 @@ class Button(Component[P]):
         button.add_to_container()
 
 
-class LinkButton(Component[P]):
+class LinkButton(Component):
     """
     A button with a link.
 
@@ -134,7 +134,7 @@ class LinkButton(Component[P]):
         self,
         url: str,
         *,
-        emoji: str,
+        emoji: hikari.Emoji,
     ) -> None:
         ...
 
@@ -144,7 +144,7 @@ class LinkButton(Component[P]):
         url: str,
         *,
         label: str,
-        emoji: str,
+        emoji: hikari.Emoji,
     ) -> None:
         ...
 
@@ -153,7 +153,7 @@ class LinkButton(Component[P]):
         url: str,
         *,
         label: str | None = None,
-        emoji: str | None = None,
+        emoji: hikari.Emoji | None = None,
     ) -> None:
         self.url = url
         self.label = label
