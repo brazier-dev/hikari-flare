@@ -5,7 +5,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import CallbackComponent
+from flare.components.base import SupportsCallback
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
@@ -65,7 +65,7 @@ class select:
         )
 
 
-class Select(CallbackComponent[P]):
+class Select(SupportsCallback[P]):
     def __init__(
         self,
         cookie: str | None,

@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components import CallbackComponent, Component, LinkButton
+from flare.components import SupportsCallback, Component, LinkButton
 from flare.exceptions import RowMaxWidthError, SerializerError
 
 
@@ -75,7 +75,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
                         )
                     )
                 else:
-                    rows[-1].append(CallbackComponent.from_partial(component))
+                    rows[-1].append(SupportsCallback.from_partial(component))
 
         return rows
 
