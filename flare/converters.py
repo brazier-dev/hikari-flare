@@ -22,7 +22,7 @@ class Converter(abc.ABC, t.Generic[T]):
     Converters are used to convert types between a python object and string.
 
     .. code-block:: python
-    
+
         import flare
         import hikari
 
