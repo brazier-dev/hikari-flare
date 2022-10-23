@@ -38,11 +38,16 @@ class Component(abc.ABC, t.Generic[P]):
             f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
 
-        self.args = {param.name: param.annotation for param in sigparse.sigparse(callback)[1:]}
+        parameters = sigparse.sigparse(callback)[1:]
+        self.args = {param.name: param.annotation for param in parameters}
 
         if not self.args:
-            # If no args were passed, calling set() isn't necessary to construct custom_id
+            # If no args were passed, calling set() isn't necessary to construct custom_id.
             self._custom_id = bootstrap.active_serde.serialize(self.cookie, {}, {})
+        else:
+            # If the function only has optional kwargs, calling set() isn't necessary.
+            if all(param.has_default for param in parameters):
+                self._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, {})
 
         bootstrap.components[self.cookie] = self
 
