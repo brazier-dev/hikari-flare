@@ -116,10 +116,10 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
 class IntConverter(Converter[int]):
     def to_str(self, obj: int) -> str:
         byte_length = obj.bit_length() // 8 + 1
-        return obj.to_bytes(byte_length, "little").decode("utf-8")
+        return obj.to_bytes(byte_length, "little").decode("latin1")
 
     def from_str(self, obj: str) -> int:
-        return self.type.from_bytes(obj.encode("utf-8"), "little")
+        return self.type.from_bytes(obj.encode("latin1"), "little")
 
 
 class StringConverter(Converter[str]):
