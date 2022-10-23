@@ -63,15 +63,15 @@ class Converter(abc.ABC, t.Generic[T]):
         ...
 
 
-_converters: dict[t.Any, type[Converter[t.Any]]] = {}
+_converters: dict[t.Any, tuple[type[Converter[t.Any]], bool]] = {}
 
 
-def add_converter(t: t.Any, converter: type[Converter[t.Any]]) -> None:
+def add_converter(t: t.Any, converter: type[Converter[t.Any]], *, support_subclass: bool = False) -> None:
     """
     Set a converter to be used for a certain type hint and the subclasses of the
     type hint.
     """
-    _converters[t] = converter
+    _converters[t] = (converter, support_subclass)
 
 
 def _any_issubclass(t: t.Any, cls: t.Any) -> bool:
@@ -101,14 +101,13 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
     if origin_ := t.get_origin(origin):
         origin = origin_
 
-    converter = _converters.get(origin)
-
-    if converter:
+    if origin in _converters:
+        converter, _ = _converters[origin]
         return converter(origin)
-
-    for k, v in _converters.items():
-        if _any_issubclass(origin, k):
-            return v(origin)
+    else:
+        for k, (converter, supports_subclass) in _converters.items():
+            if supports_subclass and _any_issubclass(origin, k):
+                return converter(origin)
 
     raise exceptions.ConverterError(f"Could not find converter for type `{getattr(type_, '__name__', type_)}`.")
 
@@ -146,10 +145,10 @@ class BoolConverter(Converter[bool]):
         return bool(int(obj))
 
 
-add_converter(int, IntConverter)
-add_converter(str, StringConverter)
+add_converter(int, IntConverter, support_subclass=True)
+add_converter(str, StringConverter, support_subclass=True)
 add_converter(t.Literal, StringConverter)
-add_converter(enum.Enum, EnumConverter)
+add_converter(enum.Enum, EnumConverter, support_subclass=True)
 add_converter(bool, BoolConverter)
 
 # MIT License
