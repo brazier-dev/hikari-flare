@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import copy
+import hashlib
 import inspect
 import typing as t
 
@@ -33,7 +34,9 @@ class Component(abc.ABC, t.Generic[P]):
     ) -> None:
         self._custom_id = None
         self._callback = callback
-        self.cookie = cookie or f"{callback.__name__}.{callback.__module__}"
+        self.cookie = cookie or hashlib.blake2s(
+            f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
+        ).digest().decode("latin1")
 
         self.args = {param.name: param.annotation for param in sigparse.sigparse(callback)[1:]}
 
