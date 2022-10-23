@@ -10,7 +10,7 @@ from flare.exceptions import ComponentError
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("button", "Button")
+__all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
 ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
@@ -103,6 +103,62 @@ class Button(Component[P]):
             button.set_emoji(self.emoji)
 
         button.set_is_disabled(self.disabled)
+
+        button.add_to_container()
+
+
+class LinkButton(Component[P]):
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str,
+    ) -> None:
+        ...
+
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        emoji: str,
+    ) -> None:
+        ...
+
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str,
+        emoji: str,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str | None = None,
+        emoji: str | None = None,
+    ) -> None:
+        self.url = url
+        self.label = label
+        self.emoji = emoji
+
+    @property
+    def width(self) -> int:
+        return 1
+
+    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+        button = action_row.add_button(hikari.ButtonStyle.LINK, self.url)
+
+        if self.label:
+            button.set_label(self.label)
+
+        if self.emoji:
+            button.set_emoji(self.emoji)
 
         button.add_to_container()
 
