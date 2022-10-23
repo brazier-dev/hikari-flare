@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components import SupportsCallback, Component, LinkButton
+from flare.components import Component, LinkButton, SupportsCallback
 from flare.exceptions import RowMaxWidthError, SerializerError
 
 
