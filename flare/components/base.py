@@ -41,7 +41,7 @@ class SupportsCustomID(abc.ABC):
     @property
     @abc.abstractmethod
     def custom_id(self) -> str:
-        """A custom_id for a button."""
+        """A custom_id for a component."""
         ...
 
 
@@ -49,7 +49,7 @@ class SupportsCookie(abc.ABC):
     @property
     @abc.abstractmethod
     def cookie(self) -> str:
-        """A unique identifier for a button."""
+        """A unique identifier for a component."""
         ...
 
 
