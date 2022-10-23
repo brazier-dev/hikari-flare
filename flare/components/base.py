@@ -36,7 +36,14 @@ class Component(abc.ABC):
         ...
 
 
-class CallbackComponent(Component, t.Generic[P]):
+class SupportsCustomID(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def custom_id(self) -> str:
+        ...
+
+
+class CallbackComponent(Component, SupportsCustomID, t.Generic[P]):
     """
     An abstract class that all components derive from.
     """

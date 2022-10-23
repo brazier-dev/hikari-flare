@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import CallbackComponent, Component
+from flare.components.base import CallbackComponent, Component, SupportsCustomID
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
@@ -107,7 +107,7 @@ class Button(CallbackComponent[P]):
         button.add_to_container()
 
 
-class LinkButton(Component):
+class LinkButton(Component, SupportsCustomID):
     """
     A button with a link.
 
@@ -162,6 +162,10 @@ class LinkButton(Component):
     @property
     def width(self) -> int:
         return 1
+
+    @property
+    def custom_id(self) -> str:
+        return self.url
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         button = action_row.add_button(hikari.ButtonStyle.LINK, self.url)
