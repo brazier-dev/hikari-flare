@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import Component, CallbackComponent
+from flare.components.base import CallbackComponent, Component
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:

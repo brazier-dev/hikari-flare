@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components import Component, CallbackComponent, LinkButton
+from flare.components import CallbackComponent, Component, LinkButton
 from flare.exceptions import RowMaxWidthError, SerializerError
 
 
@@ -64,9 +64,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
                     assert component.url
 
                     if not (component.label or component.emoji):
-                        raise SerializerError(
-                            "Link button does not have label or emoji."
-                        )
+                        raise SerializerError("Link button does not have label or emoji.")
 
                     rows[-1].append(
                         # This is a valid overload users shouldn't be able to use.
