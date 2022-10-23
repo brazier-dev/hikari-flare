@@ -109,6 +109,8 @@ class Button(Component[P]):
 
 class LinkButton(Component[P]):
     """
+    A button with a link.
+
     Args:
         url:
             The link for this button.
