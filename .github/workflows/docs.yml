@@ -1,6 +1,7 @@
 name: pypi
 
-on: [push]
+on:
+  release:
 
 jobs:
   publish-docs:
