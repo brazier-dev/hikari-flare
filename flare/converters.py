@@ -1,6 +1,7 @@
 import abc
 import enum
 import inspect
+import struct
 import types
 import typing as t
 
@@ -122,6 +123,14 @@ class IntConverter(Converter[int]):
         return self.type.from_bytes(obj.encode("latin1"), "little")
 
 
+class FloatConverter(Converter[float]):
+    def to_str(self, obj: float) -> str:
+        return struct.pack("d", obj).decode("latin1")
+
+    def from_str(self, obj: str) -> float:
+        return struct.unpack("d", obj.encode("latin1"))[0]
+
+
 class StringConverter(Converter[str]):
     def to_str(self, obj: str) -> str:
         return obj
@@ -147,6 +156,7 @@ class BoolConverter(Converter[bool]):
 
 
 add_converter(int, IntConverter)
+add_converter(float, FloatConverter)
 add_converter(str, StringConverter)
 add_converter(t.Literal, StringConverter)
 add_converter(enum.Enum, EnumConverter)
