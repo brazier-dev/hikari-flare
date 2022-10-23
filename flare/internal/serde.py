@@ -53,7 +53,7 @@ class Serde(SerdeABC):
     overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
     """
 
-    def __init__(self, sep: str = "\x01", null: str = "\x00", esc: str = "\\", version: int | None = 0) -> None:
+    def __init__(self, sep: str = "\x81", null: str = "\x82", esc: str = "\\", version: int | None = 0) -> None:
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
