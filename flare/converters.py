@@ -1,6 +1,7 @@
 import abc
 import enum
 import inspect
+import struct
 import types
 import typing as t
 
@@ -21,7 +22,8 @@ class Converter(abc.ABC, t.Generic[T]):
     """
     Converters are used to convert types between a python object and string.
 
-    ::
+    .. code-block:: python
+
         import flare
         import hikari
 
@@ -63,15 +65,22 @@ class Converter(abc.ABC, t.Generic[T]):
         ...
 
 
-_converters: dict[t.Any, type[Converter[t.Any]]] = {}
+_converters: dict[t.Any, tuple[type[Converter[t.Any]], bool]] = {}
 
 
-def add_converter(t: t.Any, converter: type[Converter[t.Any]]) -> None:
+def add_converter(t: t.Any, converter: type[Converter[t.Any]], *, supports_subclass: bool = False) -> None:
     """
     Set a converter to be used for a certain type hint and the subclasses of the
     type hint.
+
+    Args:
+        t:
+            The type this converter supports.
+        converter: The converter object.
+        supports_subclass:
+            If `True`, this converter will be used for subclasses of `t`.
     """
-    _converters[t] = converter
+    _converters[t] = (converter, supports_subclass)
 
 
 def _any_issubclass(t: t.Any, cls: t.Any) -> bool:
@@ -101,14 +110,13 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
     if origin_ := t.get_origin(origin):
         origin = origin_
 
-    converter = _converters.get(origin)
-
-    if converter:
+    if origin in _converters:
+        converter, _ = _converters[origin]
         return converter(origin)
-
-    for k, v in _converters.items():
-        if _any_issubclass(origin, k):
-            return v(origin)
+    else:
+        for k, (converter, supports_subclass) in _converters.items():
+            if supports_subclass and _any_issubclass(origin, k):
+                return converter(origin)
 
     raise exceptions.ConverterError(f"Could not find converter for type `{getattr(type_, '__name__', type_)}`.")
 
@@ -120,6 +128,14 @@ class IntConverter(Converter[int]):
 
     def from_str(self, obj: str) -> int:
         return self.type.from_bytes(obj.encode("latin1"), "little")
+
+
+class FloatConverter(Converter[float]):
+    def to_str(self, obj: float) -> str:
+        return struct.pack("d", obj).decode("latin1")
+
+    def from_str(self, obj: str) -> float:
+        return struct.unpack("d", obj.encode("latin1"))[0]
 
 
 class StringConverter(Converter[str]):
@@ -146,10 +162,11 @@ class BoolConverter(Converter[bool]):
         return bool(int(obj))
 
 
-add_converter(int, IntConverter)
-add_converter(str, StringConverter)
+add_converter(float, FloatConverter, supports_subclass=True)
+add_converter(int, IntConverter, supports_subclass=True)
+add_converter(str, StringConverter, supports_subclass=True)
 add_converter(t.Literal, StringConverter)
-add_converter(enum.Enum, EnumConverter)
+add_converter(enum.Enum, EnumConverter, supports_subclass=True)
 add_converter(bool, BoolConverter)
 
 # MIT License

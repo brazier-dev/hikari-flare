@@ -1,6 +1,4 @@
-=============
-API Reference
-=============
+# API Reference
 
 This section contains an index of all the API reference pages for flare.
 
@@ -8,8 +6,9 @@ If you think anything is missing, feel free to open an issue or pull request.
 
 ----
 
-**Index:**
+### Index
 
+```{eval-rst}
 .. toctree::
    :maxdepth: 4
 
@@ -20,3 +19,4 @@ If you think anything is missing, feel free to open an issue or pull request.
    api_references/converters
    api_references/exceptions
    api_references/internals
+```
