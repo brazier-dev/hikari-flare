@@ -45,6 +45,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "myst_parser",
+    "sphinx_immaterial",
 ]
 
 autodoc_default_options = {"member-order": "groupwise"}
@@ -67,9 +68,53 @@ intersphinx_mapping = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_book_theme"
+html_theme = "sphinx_immaterial"
 
+# material theme options (see theme.conf for more information)
 html_theme_options = {
-    "repository_url": "https://github.com/lunarmagpie/hikari-flare",
-    "use_repository_button": True,
+    "icon": {
+        "repo": "fontawesome/brands/github",
+    },
+    "site_url": "https://lunarmagpie.github.io/hikari-flare/",
+    "repo_url": "https://github.com/Lunarmagpie/hikari-flare",
+    "repo_name": "hikari-flare",
+    "repo_type": "github",
+    "features": [
+        "navigation.expand",
+        "navigation.tabs",
+        "toc.integrate",
+        "navigation.sections",
+        "navigation.instant",
+        "header.autohide",
+        "navigation.top",
+        "navigation.tracking",
+        "search.highlight",
+        "search.share",
+        "toc.follow",
+        "toc.sticky",
+    ],
+    "palette": [
+        {
+            "media": "(prefers-color-scheme: light)",
+            "scheme": "default",
+            "primary": "red",
+            "accent": "pink",
+            "toggle": {
+                "icon": "material/lightbulb-outline",
+                "name": "Switch to dark mode",
+            },
+        },
+        {
+            "media": "(prefers-color-scheme: dark)",
+            "scheme": "slate",
+            "primary": "red",
+            "accent": "pink",
+            "toggle": {
+                "icon": "material/lightbulb",
+                "name": "Switch to light mode",
+            },
+        },
+    ],
+    # END: version_dropdown
+    "toc_title_is_page_title": True,
 }

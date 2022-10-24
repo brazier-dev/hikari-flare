@@ -1,7 +1,7 @@
 name: docs
 
 on:
-  release:
+  push:
 
 jobs:
   publish-docs:
@@ -18,10 +18,11 @@ jobs:
           pip install -r doc_requirements.txt
       - name: "Build"
         run: |
-          sphinx-build -b html ./docs/source ./docs/_build
+          cd ./docs/source
+          sphinx-build -b html . ../_build
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./docs/_build
+          publish_dir: ../_build
