@@ -56,7 +56,7 @@ class CatConverter(flare.Converter[Cat]):
         return Cat(
             name=name,
             # The `breed` string must be converted to an `int` so it is a
-            # valid enum value. 
+            # valid value of `CatBreed`.
             breed=CatBreed(int(breed))
         )
 
