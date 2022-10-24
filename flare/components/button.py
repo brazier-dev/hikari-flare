@@ -13,7 +13,6 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
-ComponentT = t.TypeVar("ComponentT", bound="CallbackComponent[...]")
 
 
 class button:
