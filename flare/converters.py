@@ -1,5 +1,6 @@
 import abc
 import enum
+import functools
 import inspect
 import struct
 import types
@@ -81,6 +82,7 @@ def add_converter(t: t.Any, converter: type[Converter[t.Any]], *, supports_subcl
             If `True`, this converter will be used for subclasses of `t`.
     """
     _converters[t] = (converter, supports_subclass)
+    get_converter.cache_clear()
 
 
 def _any_issubclass(t: t.Any, cls: t.Any) -> bool:
@@ -100,6 +102,7 @@ def _get_left(obj: t.Any) -> t.Any:
     return t.get_args(obj)[0]
 
 
+@functools.lru_cache(maxsize=128)
 def get_converter(type_: t.Any) -> Converter[t.Any]:
     """
     Return the converter used for a certain type hint. If a Union is passed,
