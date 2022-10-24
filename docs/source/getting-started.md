@@ -56,4 +56,6 @@ async def on_message(event: hikari.MessageCreateEvent):
             # When responding to the interaction, use the default values.
             component=flare.Row(counter_button)
         )
+
+bot.run()
 ```
