@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import Component, SupportsCallback, SupportsCustomID
+from flare.components.base import Component, SupportsCallback
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
@@ -107,7 +107,7 @@ class Button(SupportsCallback[P]):
         button.add_to_container()
 
 
-class LinkButton(Component, SupportsCustomID):
+class LinkButton(Component):
     """
     A button with a link.
 

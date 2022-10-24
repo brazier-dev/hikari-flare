@@ -15,7 +15,7 @@ from flare.internal import bootstrap
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCustomID", "SupportsCookie", "SupportsCallback")
+__all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "SupportsCallback")
 
 P = t.ParamSpec("P")
 
@@ -36,8 +36,6 @@ class Component(abc.ABC):
         """
         ...
 
-
-class SupportsCustomID(abc.ABC):
     @property
     @abc.abstractmethod
     def custom_id(self) -> str:
@@ -53,7 +51,7 @@ class SupportsCookie(abc.ABC):
         ...
 
 
-class SupportsCallback(Component, SupportsCookie, SupportsCustomID, t.Generic[P]):
+class SupportsCallback(Component, SupportsCookie, t.Generic[P]):
     """
     An abstract class that all components with callbacks are derive from.
     """
