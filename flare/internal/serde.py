@@ -33,7 +33,7 @@ class SerdeABC(abc.ABC):
     @abc.abstractmethod
     def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
-    ) -> tuple[base.Component[...], dict[str, typing.Any]]:
+    ) -> tuple[base.CallbackComponent[...], dict[str, typing.Any]]:
         """
         Decode a custom_id for a component.
 
@@ -153,7 +153,7 @@ class Serde(SerdeABC):
 
     def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
-    ) -> tuple[base.Component[...], dict[str, typing.Any]]:
+    ) -> tuple[base.CallbackComponent[...], dict[str, typing.Any]]:
         if self.VER is not None:  # Allow for no version to disable verification
             version = get_converter(int).from_str(custom_id[0])
 

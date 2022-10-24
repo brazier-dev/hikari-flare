@@ -1,11 +1,11 @@
-from flare.components.base import Component
+from flare.components.base import CallbackComponent
 
 
 class MockComponent:
     def __init__(self, callback) -> None:
         self.callback = callback
 
-    as_keyword = Component.as_keyword
+    as_keyword = CallbackComponent.as_keyword
 
 
 def test_as_keyword_pos_args_only():

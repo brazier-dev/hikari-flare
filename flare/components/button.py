@@ -4,16 +4,15 @@ import typing as t
 
 import hikari
 
-from flare.components.base import Component
+from flare.components.base import CallbackComponent, Component
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("button", "Button")
+__all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
-ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
 
 
 class button:
@@ -59,7 +58,7 @@ class button:
         )
 
 
-class Button(Component[P]):
+class Button(CallbackComponent[P]):
     def __init__(
         self,
         *,
@@ -103,6 +102,78 @@ class Button(Component[P]):
             button.set_emoji(self.emoji)
 
         button.set_is_disabled(self.disabled)
+
+        button.add_to_container()
+
+
+class LinkButton(Component):
+    """
+    A button with a link.
+
+    Args:
+        url:
+            The link for this button.
+        label:
+            The label on the button.
+        emoji:
+            The emoji on the button.
+    """
+
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str,
+    ) -> None:
+        ...
+
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        emoji: hikari.Emoji,
+    ) -> None:
+        ...
+
+    @t.overload
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str,
+        emoji: hikari.Emoji,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        url: str,
+        *,
+        label: str | None = None,
+        emoji: hikari.Emoji | None = None,
+    ) -> None:
+        self.url = url
+        self.label = label
+        self.emoji = emoji
+
+    @property
+    def width(self) -> int:
+        return 1
+
+    @property
+    def custom_id(self) -> str:
+        return self.url
+
+    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+        button = action_row.add_button(hikari.ButtonStyle.LINK, self.url)
+
+        if self.label:
+            button.set_label(self.label)
+
+        if self.emoji:
+            button.set_emoji(self.emoji)
 
         button.add_to_container()
 

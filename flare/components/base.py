@@ -15,41 +15,18 @@ from flare.internal import bootstrap
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("Component",)
+__all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
 P = t.ParamSpec("P")
 
-ComponentT = t.TypeVar("ComponentT", bound="Component[...]")
+CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent[...]")
 
 
-class Component(abc.ABC, t.Generic[P]):
-    """
-    An abstract class that all components derive from.
-    """
-
-    def __init__(
-        self,
-        cookie: str | None,
-        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
-    ) -> None:
-        self._custom_id = None
-        self._callback = callback
-        self.cookie = cookie or hashlib.blake2s(
-            f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
-        ).digest().decode("latin1")
-
-        parameters = sigparse.sigparse(callback)[1:]
-        self.args = {param.name: param.annotation for param in parameters}
-
-        if not self.args:
-            # If no args were passed, calling set() isn't necessary to construct custom_id.
-            self._custom_id = bootstrap.active_serde.serialize(self.cookie, {}, {})
-        else:
-            # If the function only has optional kwargs, calling set() isn't necessary.
-            if all(param.has_default for param in parameters):
-                self._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, {})
-
-        bootstrap.components[self.cookie] = self
+class Component(abc.ABC):
+    @abc.abstractmethod
+    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+        """Build and append a flare component to a hikari action row."""
+        ...
 
     @property
     @abc.abstractmethod
@@ -60,15 +37,65 @@ class Component(abc.ABC, t.Generic[P]):
         ...
 
     @property
+    @abc.abstractmethod
+    def custom_id(self) -> str:
+        """A custom_id for a component."""
+        ...
+
+
+class SupportsCookie(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def cookie(self) -> str:
+        """A unique identifier for a component."""
+        ...
+
+
+class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
+    """
+    An abstract class that all components with callbacks are derive from.
+    """
+
+    def __init__(
+        self,
+        cookie: str | None,
+        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
+    ) -> None:
+        super().__init__()
+        self._custom_id = None
+        self._callback = callback
+        self._cookie = cookie or hashlib.blake2s(
+            f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
+        ).digest().decode("latin1")
+
+        parameters = sigparse.sigparse(callback)[1:]
+        self.args = {param.name: param.annotation for param in parameters}
+
+        if not self.args:
+            # If no args were passed, calling set() isn't necessary to construct custom_id.
+            self._custom_id = bootstrap.active_serde.serialize(self._cookie, {}, {})
+        else:
+            # If the function only has optional kwargs, calling set() isn't necessary.
+            if all(param.has_default for param in parameters):
+                self._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, {})
+
+        bootstrap.components[self._cookie] = self
+
+    @property
     def custom_id(self) -> str:
         """
         The custom ID of the component.
         """
         if self._custom_id is None:
             raise MissingRequiredParameterError(
-                f"Component {self.cookie} received no parameters when it has {len(self.args)}. Did you forget to call `set()`?"
+                f"Component `{self._callback.__module__}.{self._callback.__name__}` received no"
+                f"parameters when it has {len(self.args)}. Did you forget to call `set()`?"
             )
         return self._custom_id
+
+    @property
+    def cookie(self) -> str:
+        return self.cookie
 
     @property
     def callback(
@@ -77,7 +104,7 @@ class Component(abc.ABC, t.Generic[P]):
         return self._callback
 
     @staticmethod
-    def from_partial(component: hikari.PartialComponent) -> Component[...] | None:
+    def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
         Build a flare component from `hikari.PartialComponent`.
 
@@ -103,9 +130,9 @@ class Component(abc.ABC, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
-    def set(self: ComponentT, *args: P.args, **kwargs: P.kwargs) -> ComponentT:
+    def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
+        new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
         return new
 
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
@@ -138,11 +165,6 @@ class Component(abc.ABC, t.Generic[P]):
             out[arg.name] = value
 
         return out | kwargs
-
-    @abc.abstractmethod
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
-        """Build and append a flare component to a hikari action row."""
-        ...
 
 
 # MIT License
