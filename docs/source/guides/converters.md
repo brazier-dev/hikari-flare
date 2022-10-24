@@ -24,7 +24,7 @@ flare.add_converter(
 Do not use this impl. A more space efficient version of `IntConverter` is enabled by default.
 ```
 
-Here is an example converting a custom class.
+Here is an example of converting a more complex custom class.
 
 ```{note}
 The strings your converters generate should be as short as possible. Only 100 characters can be used
