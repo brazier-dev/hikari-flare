@@ -35,7 +35,7 @@ in a component's custom id.
 import dataclasses
 import enum
 
-# An `Enum` with int values is used to reduce space when serializing.
+# An `Enum` with `int` values is used to reduce space when serializing.
 class CatBreed(enum.Enum):
     Saimese = enum.auto()
     TabbyCat = enum.auto()
