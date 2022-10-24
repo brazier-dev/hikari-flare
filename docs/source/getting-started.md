@@ -42,7 +42,7 @@ async def on_message(event: hikari.MessageCreateEvent):
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
             "The button was pressed 0 times.",
-            # Set `n` to 0 when responding.
+            # When responding to the interaction, use the default values.
             component=flare.Row(counter_button)
         )
 ```
