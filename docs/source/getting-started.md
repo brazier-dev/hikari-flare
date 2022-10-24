@@ -18,7 +18,9 @@ bot = hikari.GatewayBot("TOKEN")
 @flare.button(label="Click me!")
 async def counter_button(
     ctx: flare.Context,
-    # The argument `n` is saved as the state.
+    # The argument `n` is saved as the state. This argument defaults to 0 if no
+    # value is specified in `counter_button.set()` or `counter_button.set()` is
+    # not used.
     n: int = 0,
 ) -> None:
     n += 1
@@ -41,6 +43,6 @@ async def on_message(event: hikari.MessageCreateEvent):
         await event.message.respond(
             "The button was pressed 0 times.",
             # Set `n` to 0 when responding.
-            component=flare.Row(counter_button.set(n=0))
+            component=flare.Row(counter_button)
         )
 ```
