@@ -6,6 +6,12 @@ flare can be installed using pip via the following command:
 
 ``$ python3 -m pip install -U hikari-flare``
 
+## What is falre?
+flare is a coponent handler that uses the `custom_id` field for buttons to save
+state. This allows components to save state between restarts without using a
+database.
+
+
 ## First steps
 
 How about the typical example from webdev with a counter button?
