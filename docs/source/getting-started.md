@@ -7,7 +7,7 @@ flare can be installed using pip via the following command:
 ``$ python3 -m pip install -U hikari-flare``
 
 ## What is falre?
-flare is a coponent handler that uses the `custom_id` field for buttons to save
+`flare` is a component handler that uses the `custom_id` field for buttons to save
 state. This allows components to save state between restarts without using a
 database.
 
@@ -18,8 +18,13 @@ How about the typical example from webdev with a counter button?
 
 ```python
 import hikari
+import flare
 
 bot = hikari.GatewayBot("TOKEN")
+
+# This function must be called on startup. `bot` must be an object that
+# implements `hikari.traits.EventManagerAware`.
+flare.install(bot)
 
 @flare.button(label="Click me!")
 async def counter_button(
