@@ -12,6 +12,8 @@ class IntConverter(Converter[int]):
     def from_str(self, obj: str) -> int:
         return int(obj)
 
+# Add the converter to `flare`. Without this, the type will not be converted
+# with the converter.
 flare.add_converter(
     int,          # The typehint this converter is used for.
     IntConverter  # The converter class.
