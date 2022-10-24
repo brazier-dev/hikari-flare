@@ -15,11 +15,11 @@ from flare.internal import bootstrap
 if t.TYPE_CHECKING:
     from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "SupportsCallback")
+__all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
 P = t.ParamSpec("P")
 
-SupportsCallbackT = t.TypeVar("SupportsCallbackT", bound="SupportsCallback[...]")
+CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent[...]")
 
 
 class Component(abc.ABC):
@@ -51,7 +51,7 @@ class SupportsCookie(abc.ABC):
         ...
 
 
-class SupportsCallback(Component, SupportsCookie, t.Generic[P]):
+class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
     """
     An abstract class that all components with callbacks are derive from.
     """
@@ -104,7 +104,7 @@ class SupportsCallback(Component, SupportsCookie, t.Generic[P]):
         return self._callback
 
     @staticmethod
-    def from_partial(component: hikari.PartialComponent) -> SupportsCallback[...]:
+    def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
         Build a flare component from `hikari.PartialComponent`.
 
@@ -130,7 +130,7 @@ class SupportsCallback(Component, SupportsCookie, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
-    def set(self: SupportsCallbackT, *args: P.args, **kwargs: P.kwargs) -> SupportsCallbackT:
+    def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         new = copy.copy(self)  # Create new instance with params set
         new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
         return new

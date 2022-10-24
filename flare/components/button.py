@@ -4,7 +4,7 @@ import typing as t
 
 import hikari
 
-from flare.components.base import Component, SupportsCallback
+from flare.components.base import Component, CallbackComponent
 from flare.exceptions import ComponentError
 
 if t.TYPE_CHECKING:
@@ -13,7 +13,7 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
-ComponentT = t.TypeVar("ComponentT", bound="SupportsCallback[...]")
+ComponentT = t.TypeVar("ComponentT", bound="CallbackComponent[...]")
 
 
 class button:
@@ -59,7 +59,7 @@ class button:
         )
 
 
-class Button(SupportsCallback[P]):
+class Button(CallbackComponent[P]):
     def __init__(
         self,
         *,
