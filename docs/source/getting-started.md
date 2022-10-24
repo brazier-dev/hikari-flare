@@ -8,8 +8,8 @@ flare can be installed using pip via the following command:
 
 ## What is falre?
 `flare` is a component handler that uses the `custom_id` field for buttons to save
-state. This allows components to save state between restarts without using a
-database.
+state. This allows components to save information/data between restarts without
+using a database.
 
 
 ## First steps
