@@ -171,7 +171,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             ) -> None:
                 rows = ctx.get_components()
                 # Edit this button in the array `rows`
-                counter_button.edit_me(rows, n=n+1)
+                counter_button.set_in(rows, n=n+1)
                 await ctx.edit_response(
                     # Rows must be passed back into `edit_response`
                     components=rows,
