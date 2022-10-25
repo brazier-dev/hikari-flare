@@ -182,7 +182,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
     ) -> t.Sequence[CallbackComponentT]:
         """
-        Edit a all instances of this component in-place in :typing.Sequence[flare.row.Row]:.
+        Edit all instances of this component in-place in :typing.Sequence[flare.row.Row]:.
 
         .. code-block:: python
 
