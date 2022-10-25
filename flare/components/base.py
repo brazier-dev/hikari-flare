@@ -136,6 +136,58 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
         return new
 
+    def get_from(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
+        """
+        Return all instances of this component that appear in :class:`typing.Sequence[flare.row.Row]`.
+
+        Args:
+            rows:
+                The rows to search through.
+        Returns:
+            A list of all components of this type that appear in ``rows``.
+
+        """
+        out: list[CallbackComponentT] = []
+        for row in rows:
+            for component in row:
+                if isinstance(component, type(self)) and component.cookie == self.cookie:
+                    out.append(component)
+        return out
+
+    def set_in(
+        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
+    ) -> t.Sequence[CallbackComponentT]:
+        """
+        Edit all instances of this component in-place in :class:`typing.Sequence[flare.row.Row]`.
+
+        .. code-block:: python
+
+            import flare
+
+            @flare.button(label="Click me!")
+            async def counter_button(
+                ctx: flare.Context,
+                n: int = 0,
+            ) -> None:
+                rows = ctx.get_components()
+                # Edit this button in the array `rows`
+                counter_button.edit_me(rows, n=n+1)
+                await ctx.edit_response(
+                    # Rows must be passed back into `edit_response`
+                    components=rows,
+                )
+
+        Args:
+            rows:
+                The rows to edit.
+        Returns:
+            A list of all components of this type that appear in `rows`.
+        """
+        mes = self.get_from(rows)
+        for me in mes:
+            me._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
+        return mes
+
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
         Convert arguments and keyword arguments in a dictionary of keyword
@@ -166,58 +218,6 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             out[arg.name] = value
 
         return out | kwargs
-
-    def get_me(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
-        """
-        Return all instances of this component that appear in :class:`typing.Sequence[flare.row.Row]`.
-
-        Args:
-            rows:
-                The rows to search through.
-        Returns:
-            A list of all components of this type that appear in ``rows``.
-
-        """
-        out: list[CallbackComponentT] = []
-        for row in rows:
-            for component in row:
-                if isinstance(component, type(self)) and component.cookie == self.cookie:
-                    out.append(component)
-        return out
-
-    def edit_me(
-        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
-    ) -> t.Sequence[CallbackComponentT]:
-        """
-        Edit all instances of this component in-place in :class:`typing.Sequence[flare.row.Row]`.
-
-        .. code-block:: python
-
-            import flare
-
-            @flare.button(label="Click me!")
-            async def counter_button(
-                ctx: flare.Context,
-                n: int = 0,
-            ) -> None:
-                rows = ctx.get_components()
-                # Edit this button in the array `rows`
-                counter_button.edit_me(rows, n=n+1)
-                await ctx.edit_response(
-                    # Rows must be passed back into `edit_response`
-                    components=rows,
-                )
-
-        Args:
-            rows:
-                The rows to edit.
-        Returns:
-            A list of all components of this type that appear in `rows`.
-        """
-        mes = self.get_me(rows)
-        for me in mes:
-            me._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
-        return mes
 
 
 # MIT License
