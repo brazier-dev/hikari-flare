@@ -170,6 +170,13 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
     def get_me(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
         """
         Return all instances of this component that appear in :typing.Sequence[flare.row.Row]:.
+
+        Args:
+            rows:
+                The rows to search through.
+        Returns:
+            A list of all components of this type that appear in `rows`.
+
         """
         out: list[CallbackComponentT] = []
         for row in rows:
@@ -200,6 +207,12 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
                     # Rows must be passed back into `edit_response`
                     components=rows,
                 )
+
+        Args:
+            rows:
+                The rows to edit.
+        Returns:
+            A list of all components of this type that appear in `rows`.
         """
         mes = self.get_me(rows)
         for me in mes:
