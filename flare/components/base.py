@@ -74,11 +74,11 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
 
         if not self.args:
             # If no args were passed, calling set() isn't necessary to construct custom_id.
-            self._custom_id = bootstrap.active_serde.serialize(self._cookie, {}, {})
+            self._custom_id = self._change_params()
         else:
             # If the function only has optional kwargs, calling set() isn't necessary.
             if all(param.has_default for param in parameters):
-                self._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, {})
+                self._custom_id = self._change_params()
 
         bootstrap.components[self._cookie] = self
 
@@ -133,8 +133,11 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
 
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
+        new._change_params(*args, **kwargs)
         return new
+
+    def _change_params(self, *args: P.args, **kwargs: P.kwargs):
+        self._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
 
     def get_from(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
         """
@@ -185,7 +188,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         """
         mes = self.get_from(rows)
         for me in mes:
-            me._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
+            me._change_params(*args, **kwargs)
         return mes
 
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
