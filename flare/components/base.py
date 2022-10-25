@@ -14,6 +14,7 @@ from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
     from flare import context
+    from flare import row
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
@@ -95,7 +96,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
 
     @property
     def cookie(self) -> str:
-        return self.cookie
+        return self._cookie
 
     @property
     def callback(
@@ -128,7 +129,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             flare_component, kwargs = bootstrap.active_serde.deserialize(component.custom_id, bootstrap.components)
         except SerializerError:
             raise
-        return flare_component.set(kwargs)
+        return flare_component.set(**kwargs)
 
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         new = copy.copy(self)  # Create new instance with params set
@@ -165,6 +166,45 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             out[arg.name] = value
 
         return out | kwargs
+
+    def get_me(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
+        """
+        Return all instances of this component that appear in :typing.Sequence[flare.row.Row]:.
+        """
+        out: list[CallbackComponentT] = []
+        for row in rows:
+            for component in row:
+                if isinstance(component, type(self)) and component.cookie == self.cookie:
+                    out.append(component)
+        return out
+
+    def edit_me(
+        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
+    ) -> t.Sequence[CallbackComponentT]:
+        """
+        Edit a all instances of this component in-place in :typing.Sequence[flare.row.Row]:.
+
+        .. code-block:: python
+
+            import flare
+
+            @flare.button(label="Click me!")
+            async def counter_button(
+                ctx: flare.Context,
+                n: int = 0,
+            ) -> None:
+                rows = ctx.get_components()
+                # Edit this button in the array `rows`
+                counter_button.edit_me(rows, n=n+1)
+                await ctx.edit_response(
+                    # Rows must be passed back into `edit_response`
+                    components=rows,
+                )
+        """
+        mes = self.get_me(rows)
+        for me in mes:
+            me._custom_id = bootstrap.active_serde.serialize(self.cookie, self.args, self.as_keyword(args, kwargs))
+        return mes
 
 
 # MIT License
