@@ -102,6 +102,7 @@ class Select(CallbackComponent[P]):
         clone = self._clone_if_not_cloned()
         clone.min_values = min_values
         return clone
+
     def set_max_values(self: SelectT, max_values: int | None) -> SelectT:
         clone = self._clone_if_not_cloned()
         clone.max_values = max_values
