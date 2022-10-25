@@ -14,6 +14,7 @@ if t.TYPE_CHECKING:
 __all__: t.Final[t.Sequence[str]] = ("select", "Select")
 
 P = t.ParamSpec("P")
+SelectT = t.TypeVar("SelectT", bound="Select[...]")
 
 
 class select:
@@ -87,14 +88,34 @@ class Select(CallbackComponent[P]):
     def width(self) -> int:
         return 5
 
-    def set(self, *_: P.args, **values: P.kwargs) -> Select[P]:
-        s = super().set(*_, **values)
-        # The options array should be different for clones.
-        s.options = copy.copy(self.options)
-        return s
+    def _clone(self: SelectT) -> SelectT:
+        clone = super()._clone()
+        clone.options = copy.copy(clone.options)
+        return clone
 
-    def set_options(self, *options: tuple[str, str] | str) -> None:
-        self.options = options
+    def set_options(self: SelectT, *options: tuple[str, str] | str) -> SelectT:
+        clone = self._clone_if_not_cloned()
+        clone.options = options
+        return clone
+
+    def set_min_values(self: SelectT, min_values: int | None) -> SelectT:
+        clone = self._clone_if_not_cloned()
+        clone.min_values = min_values
+        return clone
+    def set_max_values(self: SelectT, max_values: int | None) -> SelectT:
+        clone = self._clone_if_not_cloned()
+        clone.max_values = max_values
+        return clone
+
+    def set_placeholder(self: SelectT, placeholder: hikari.UndefinedOr[str]) -> SelectT:
+        clone = self._clone_if_not_cloned()
+        clone.placeholder = placeholder
+        return clone
+
+    def set_disabled(self: SelectT, disabled: bool) -> SelectT:
+        clone = self._clone_if_not_cloned()
+        clone.disabled = disabled
+        return clone
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """

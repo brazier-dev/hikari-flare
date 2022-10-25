@@ -13,6 +13,7 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
+ButtonT = t.TypeVar("ButtonT", bound="Button[...]")
 
 
 class button:
@@ -81,6 +82,26 @@ class Button(CallbackComponent[P]):
     @property
     def width(self) -> int:
         return 1
+
+    def set_label(self: ButtonT, label: str | None) -> ButtonT:
+        clone = self._clone_if_not_cloned()
+        clone.label = label
+        return clone
+
+    def set_emoji(self: ButtonT, emoji: hikari.Emoji | str | None) -> ButtonT:
+        clone = self._clone_if_not_cloned()
+        clone.emoji = emoji
+        return clone
+
+    def set_style(self: ButtonT, style: hikari.ButtonStyle) -> ButtonT:
+        clone = self._clone_if_not_cloned()
+        clone.style = style
+        return clone
+
+    def set_disabled(self: ButtonT, disabled: bool) -> ButtonT:
+        clone = self._clone_if_not_cloned()
+        clone.disabled = disabled
+        return clone
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """
