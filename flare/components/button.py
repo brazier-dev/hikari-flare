@@ -76,9 +76,6 @@ class Button(CallbackComponent[P]):
         self.style = style
         self.disabled = disabled
 
-        if isinstance(self.emoji, str):
-            self.emoji = hikari.Emoji.parse(self.emoji)
-
     @property
     def width(self) -> int:
         return 1
@@ -119,8 +116,13 @@ class Button(CallbackComponent[P]):
         if self.label:
             button.set_label(self.label)
 
+        if isinstance(self.emoji, str):
+            emoji = hikari.Emoji.parse(self.emoji)
+        else:
+            emoji = self.emoji or hikari.UNDEFINED
+
         if self.emoji:
-            button.set_emoji(self.emoji)
+            button.set_emoji(emoji)
 
         button.set_is_disabled(self.disabled)
 
