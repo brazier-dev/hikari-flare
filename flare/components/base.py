@@ -67,6 +67,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         self._cookie = cookie or hashlib.blake2s(
             f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
+        self._is_clone = False
 
         parameters = sigparse.sigparse(callback)[1:]
         self.args = {param.name: param.annotation for param in parameters}
@@ -130,10 +131,20 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
+    def _clone_if_not_cloned(self):
+        if not self._is_clone:
+            clone = self._clone()
+            clone._is_clone = True
+            return clone
+        return self
+
+    def _clone(self: CallbackComponentT) -> CallbackComponentT:
+        return copy.copy(self)
+
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
-        new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
-        return new
+        clone = self._clone_if_not_cloned()
+        clone._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
+        return clone
 
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
