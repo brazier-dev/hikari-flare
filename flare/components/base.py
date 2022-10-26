@@ -106,6 +106,10 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
 
     @property
     def is_clone(self) -> bool:
+        """
+        Return `True` if this object is a clone. If the object is not a clone,
+        it will be cloned instead of mutated for set methods.
+        """
         return self._is_clone
 
     @staticmethod
