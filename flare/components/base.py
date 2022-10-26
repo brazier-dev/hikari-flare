@@ -104,6 +104,10 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
+    @property
+    def is_clone(self) -> bool:
+        return self._is_clone
+
     @staticmethod
     def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
