@@ -130,10 +130,13 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
+    def _clone(self: CallbackComponentT) -> CallbackComponentT:
+        return copy.copy(self)
+
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
-        new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
-        return new
+        clone = self._clone()
+        clone._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
+        return clone
 
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """
