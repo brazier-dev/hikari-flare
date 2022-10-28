@@ -81,22 +81,22 @@ class Button(CallbackComponent[P]):
         return 1
 
     def set_label(self: ButtonT, label: str | None) -> ButtonT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.label = label
         return clone
 
     def set_emoji(self: ButtonT, emoji: hikari.Emoji | str | None) -> ButtonT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.emoji = emoji
         return clone
 
     def set_style(self: ButtonT, style: hikari.ButtonStyle) -> ButtonT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.style = style
         return clone
 
     def set_disabled(self: ButtonT, disabled: bool) -> ButtonT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.disabled = disabled
         return clone
 

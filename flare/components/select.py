@@ -94,27 +94,27 @@ class Select(CallbackComponent[P]):
         return clone
 
     def set_options(self: SelectT, *options: tuple[str, str] | str) -> SelectT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.options = options
         return clone
 
     def set_min_values(self: SelectT, min_values: int | None) -> SelectT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.min_values = min_values
         return clone
 
     def set_max_values(self: SelectT, max_values: int | None) -> SelectT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.max_values = max_values
         return clone
 
     def set_placeholder(self: SelectT, placeholder: hikari.UndefinedOr[str]) -> SelectT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.placeholder = placeholder
         return clone
 
     def set_disabled(self: SelectT, disabled: bool) -> SelectT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone.disabled = disabled
         return clone
 

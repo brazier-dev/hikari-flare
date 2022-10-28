@@ -67,7 +67,6 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         self._cookie = cookie or hashlib.blake2s(
             f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
-        self._is_clone = False
 
         parameters = sigparse.sigparse(callback)[1:]
         self.args = {param.name: param.annotation for param in parameters}
@@ -104,14 +103,6 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
     ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
         return self._callback
 
-    @property
-    def is_clone(self) -> bool:
-        """
-        Return `True` if this object is a clone. If the object is not a clone,
-        it will be cloned instead of mutated for set methods.
-        """
-        return self._is_clone
-
     @staticmethod
     def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
@@ -139,18 +130,11 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             raise
         return flare_component.set(kwargs)
 
-    def _clone_if_not_cloned(self):
-        if not self._is_clone:
-            clone = self._clone()
-            clone._is_clone = True
-            return clone
-        return self
-
     def _clone(self: CallbackComponentT) -> CallbackComponentT:
         return copy.copy(self)
 
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
-        clone = self._clone_if_not_cloned()
+        clone = self._clone()
         clone._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
         return clone
 
