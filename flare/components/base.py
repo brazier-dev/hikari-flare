@@ -13,8 +13,7 @@ from flare.exceptions import MissingRequiredParameterError, SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
-    from flare import context
-    from flare import row
+    from flare import context, row
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
