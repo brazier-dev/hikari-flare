@@ -60,8 +60,4 @@ def test_clone():
     async def button(ctx: flare.Context) -> None:
         ...
 
-    assert id(button) != id(button._clone_if_not_cloned())
-
-    clone = button._clone_if_not_cloned()
-
-    assert id(clone) == id(clone._clone_if_not_cloned())
+    assert id(button) != id(button._clone())
