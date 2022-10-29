@@ -439,6 +439,15 @@ class Context:
     @t.overload
     async def defer(
         self,
+        edit: bool,
+        *,
+        flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
+    ) -> None:
+        ...
+
+    @t.overload
+    async def defer(
+        self,
         response_type: hikari.ResponseType,
         *,
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
@@ -468,7 +477,16 @@ class Context:
             RuntimeError: The interaction was already responded to.
             ValueError: response_type was not a deferred response type.
         """
-        response_type = args[0] if args else hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+        response_type = hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+        if args:
+            if isinstance(args[0], hikari.ResponseType):
+                response_type = args[0]
+            elif isinstance(args[0], bool):
+                response_type = (
+                    hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+                    if args[0]
+                    else hikari.ResponseType.DEFERRED_MESSAGE_CREATE
+                )
 
         if response_type not in [
             hikari.ResponseType.DEFERRED_MESSAGE_CREATE,
