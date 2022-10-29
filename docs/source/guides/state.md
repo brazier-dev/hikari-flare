@@ -92,7 +92,7 @@ This list can be modified to change modified to edit components.
 `component.set()` clones components. It does not modify them in place.
 ```
 
-One helper method is also provided to help edit components.
+A helper method is also provided to help edit components.
 
 ```python
 @flare.button(label="Click me!")
@@ -110,8 +110,7 @@ async def counter_button(
 
     await ctx.edit_response(
         content=number,
-        # Await all the rows.
+        # Build all the rows.
         components=await asyncio.gather(*rows),
     )
 ```
-
