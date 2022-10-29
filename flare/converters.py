@@ -5,6 +5,7 @@ import inspect
 import struct
 import types
 import typing as t
+import hikari.traits
 
 from flare import exceptions
 
@@ -52,6 +53,8 @@ class Converter(abc.ABC, t.Generic[T]):
             different than the generic type if a subclass of the generic type is being
             serialized/deserialized.
     """
+
+    app: t.ClassVar[hikari.traits.EventManagerAware]
 
     def __init__(self, type: T) -> None:
         super().__init__()
