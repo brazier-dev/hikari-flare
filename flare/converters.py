@@ -29,10 +29,10 @@ class Converter(abc.ABC, t.Generic[T]):
         import hikari
 
         class IntConverter(flare.Converter[int]):
-            def to_str(self, obj: int) -> str:
+            async def to_str(self, obj: int) -> str:
                 return str(obj)
 
-            def from_str(self, obj: str) -> int:
+            async def from_str(self, obj: str) -> int:
                 return int(obj)
 
         flare.add_converter(int, IntConverter)
@@ -58,11 +58,11 @@ class Converter(abc.ABC, t.Generic[T]):
         self.type = type
 
     @abc.abstractmethod
-    def to_str(self, obj: T) -> str:
+    async def to_str(self, obj: T) -> str:
         ...
 
     @abc.abstractmethod
-    def from_str(self, obj: str) -> T:
+    async def from_str(self, obj: str) -> T:
         ...
 
 
@@ -125,43 +125,43 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
 
 
 class IntConverter(Converter[int]):
-    def to_str(self, obj: int) -> str:
+    async def to_str(self, obj: int) -> str:
         byte_length = obj.bit_length() // 8 + 1
         return obj.to_bytes(byte_length, "little").decode("latin1")
 
-    def from_str(self, obj: str) -> int:
+    async def from_str(self, obj: str) -> int:
         return self.type.from_bytes(obj.encode("latin1"), "little")
 
 
 class FloatConverter(Converter[float]):
-    def to_str(self, obj: float) -> str:
+    async def to_str(self, obj: float) -> str:
         return struct.pack("d", obj).decode("latin1")
 
-    def from_str(self, obj: str) -> float:
+    async def from_str(self, obj: str) -> float:
         return struct.unpack("d", obj.encode("latin1"))[0]
 
 
 class StringConverter(Converter[str]):
-    def to_str(self, obj: str) -> str:
+    async def to_str(self, obj: str) -> str:
         return obj
 
-    def from_str(self, obj: str) -> str:
+    async def from_str(self, obj: str) -> str:
         return obj
 
 
 class EnumConverter(Converter[enum.Enum]):
-    def to_str(self, obj: enum.Enum) -> str:
-        return get_converter(int).to_str(obj.value)
+    async def to_str(self, obj: enum.Enum) -> str:
+        return await get_converter(int).to_str(obj.value)
 
-    def from_str(self, obj: str) -> enum.Enum:
+    async def from_str(self, obj: str) -> enum.Enum:
         return self.type(get_converter(int).from_str(obj))  # type: ignore
 
 
 class BoolConverter(Converter[bool]):
-    def to_str(self, obj: bool) -> str:
+    async def to_str(self, obj: bool) -> str:
         return "1" if obj else "0"
 
-    def from_str(self, obj: str) -> bool:
+    async def from_str(self, obj: str) -> bool:
         return bool(int(obj))
 
 
