@@ -1,39 +1,39 @@
-import logging
+import os
+import platform
+import sys
 
 import hikari
 
-from flare.context import Context
-from flare.exceptions import SerializerError
-from flare.internal import bootstrap
+import flare
 
-logger = logging.getLogger(__name__)
+# Support color on Windows
+if sys.platform == "win32":
+    import colorama
+
+    colorama.init()
 
 
-async def on_inter(event: hikari.InteractionCreateEvent) -> None:
-    """
-    Function called to respond to an interaction.
-    """
-    if not isinstance(event.interaction, hikari.ComponentInteraction):
-        return
+BLUE = "\x1b[34m"
+WHITE = "\x1b[37m"
 
-    try:
-        component, kwargs = await bootstrap.active_serde.deserialize(event.interaction.custom_id, bootstrap.components)
-    except SerializerError:  # If the custom_id is invalid, it was probably not created by flare.
-        logger.debug(
-            f"Flare received custom_id '{event.interaction.custom_id}' which it cannot deserialize.", exc_info=True
-        )
-        return
+uname = platform.uname()
+system_details = f"{uname.system} {uname.machine} ({uname.node}) - {uname.release}"
+python_details = f"{platform.python_implementation()} {platform.python_version()} ({platform.python_compiler()})"
 
-    ctx = Context(
-        interaction=event.interaction,
-    )
-
-    await component.callback(ctx, **kwargs)
-
+sys.stderr.write(
+    f"""{BLUE}hikari-flare - package information
+{WHITE}----------------------------------
+{BLUE}Flare version: {WHITE}{flare.__version__}
+{BLUE}Install path: {WHITE}{os.path.abspath(os.path.dirname(__file__))}
+{BLUE}Hikari version: {WHITE}{hikari.__version__}
+{BLUE}Install path: {WHITE}{os.path.abspath(os.path.dirname(hikari.__file__))}
+{BLUE}Python: {WHITE}{python_details}
+{BLUE}System: {WHITE}{system_details}\n\n"""
+)
 
 # MIT License
 #
-# Copyright (c) 2022-present Lunarmagpie
+# Copyright (c) 2022-present HyperGH
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal

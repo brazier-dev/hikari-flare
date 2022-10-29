@@ -1,3 +1,4 @@
+import flare
 from flare.components.base import CallbackComponent
 
 
@@ -52,3 +53,11 @@ def test_as_keyword_kw_and_pos_arg():
         "a": 1,
         "b": 2,
     }
+
+
+def test_clone():
+    @flare.button()
+    async def button(ctx: flare.Context) -> None:
+        ...
+
+    assert id(button) != id(button._clone())

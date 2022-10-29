@@ -13,6 +13,7 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("button", "Button", "LinkButton")
 
 P = t.ParamSpec("P")
+ButtonT = t.TypeVar("ButtonT", bound="Button[...]")
 
 
 class button:
@@ -75,12 +76,29 @@ class Button(CallbackComponent[P]):
         self.style = style
         self.disabled = disabled
 
-        if isinstance(self.emoji, str):
-            self.emoji = hikari.Emoji.parse(self.emoji)
-
     @property
     def width(self) -> int:
         return 1
+
+    def set_label(self: ButtonT, label: str | None) -> ButtonT:
+        clone = self._clone()
+        clone.label = label
+        return clone
+
+    def set_emoji(self: ButtonT, emoji: hikari.Emoji | str | None) -> ButtonT:
+        clone = self._clone()
+        clone.emoji = emoji
+        return clone
+
+    def set_style(self: ButtonT, style: hikari.ButtonStyle) -> ButtonT:
+        clone = self._clone()
+        clone.style = style
+        return clone
+
+    def set_disabled(self: ButtonT, disabled: bool) -> ButtonT:
+        clone = self._clone()
+        clone.disabled = disabled
+        return clone
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """
@@ -98,8 +116,13 @@ class Button(CallbackComponent[P]):
         if self.label:
             button.set_label(self.label)
 
+        if isinstance(self.emoji, str):
+            emoji = hikari.Emoji.parse(self.emoji)
+        else:
+            emoji = self.emoji or hikari.UNDEFINED
+
         if self.emoji:
-            button.set_emoji(self.emoji)
+            button.set_emoji(emoji)
 
         button.set_is_disabled(self.disabled)
 

@@ -13,7 +13,7 @@ from flare.exceptions import MissingRequiredParameterError, SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
-    from flare import context
+    from flare import context, row
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
@@ -67,17 +67,21 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         self._cookie = cookie or hashlib.blake2s(
             f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
+        self._is_set = False
 
         parameters = sigparse.sigparse(callback)[1:]
-        self.args = {param.name: param.annotation for param in parameters}
+        self.function_params = {param.name: param.annotation for param in parameters}
 
-        if not self.args:
+        self.args: t.Sequence[t.Any] = []
+        self.kwargs: dict[str, t.Any] = {}
+
+        if not self.function_params:
             # If no args were passed, calling set() isn't necessary to construct custom_id.
-            self._custom_id = bootstrap.active_serde.serialize(self._cookie, {}, {})
+            self._custom_id = self._change_params()
         else:
             # If the function only has optional kwargs, calling set() isn't necessary.
             if all(param.has_default for param in parameters):
-                self._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, {})
+                self._custom_id = self._change_params()
 
         bootstrap.components[self._cookie] = self
 
@@ -86,16 +90,22 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         """
         The custom ID of the component.
         """
-        if self._custom_id is None:
+        assert self._custom_id
+        return self._custom_id
+
+    async def set_custom_id(self):
+        if not self._is_set:
             raise MissingRequiredParameterError(
                 f"Component `{self._callback.__module__}.{self._callback.__name__}` received no"
-                f"parameters when it has {len(self.args)}. Did you forget to call `set()`?"
+                f" parameters when it has {len(self.function_params)}. Did you forget to call `set()`?"
             )
-        return self._custom_id
+        self._custom_id = await bootstrap.active_serde.serialize(
+            self._cookie, self.function_params, self.as_keyword(self.args, self.kwargs)
+        )
 
     @property
     def cookie(self) -> str:
-        return self.cookie
+        return self._cookie
 
     @property
     def callback(
@@ -104,7 +114,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         return self._callback
 
     @staticmethod
-    def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
+    async def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
         """
         Build a flare component from `hikari.PartialComponent`.
 
@@ -125,15 +135,77 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         assert component.custom_id
 
         try:
-            flare_component, kwargs = bootstrap.active_serde.deserialize(component.custom_id, bootstrap.components)
+            flare_component, kwargs = await bootstrap.active_serde.deserialize(
+                component.custom_id, bootstrap.components
+            )
         except SerializerError:
             raise
-        return flare_component.set(kwargs)
+        return flare_component.set(**kwargs)
+
+    def _clone(self: CallbackComponentT) -> CallbackComponentT:
+        return copy.copy(self)
 
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
-        new = copy.copy(self)  # Create new instance with params set
-        new._custom_id = bootstrap.active_serde.serialize(self._cookie, self.args, self.as_keyword(args, kwargs))
-        return new
+        clone = self._clone()  # Create new instance with params set
+        clone._change_params(*args, **kwargs)
+        return clone
+
+    def _change_params(self, *args: P.args, **kwargs: P.kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self._is_set = True
+
+    def get_from(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
+        """
+        Return all instances of this component that appear in :class:`typing.Sequence[flare.row.Row]`.
+
+        Args:
+            rows:
+                The rows to search through.
+        Returns:
+            A list of all components of this type that appear in ``rows``.
+
+        """
+        out: list[CallbackComponentT] = []
+        for row in rows:
+            for component in row:
+                if isinstance(component, type(self)) and component.cookie == self.cookie:
+                    out.append(component)
+        return out
+
+    def set_in(
+        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
+    ) -> t.Sequence[CallbackComponentT]:
+        """
+        Edit all instances of this component in-place in :class:`typing.Sequence[flare.row.Row]`.
+
+        .. code-block:: python
+
+            import flare
+
+            @flare.button(label="Click me!")
+            async def counter_button(
+                ctx: flare.Context,
+                n: int = 0,
+            ) -> None:
+                rows = ctx.get_components()
+                # Edit this button in the array `rows`
+                counter_button.set_in(rows, n=n+1)
+                await ctx.edit_response(
+                    # Rows must be passed back into `edit_response`
+                    components=rows,
+                )
+
+        Args:
+            rows:
+                The rows to edit.
+        Returns:
+            A list of all components of this type that appear in `rows`.
+        """
+        mes = self.get_from(rows)
+        for me in mes:
+            me._change_params(*args, **kwargs)
+        return mes
 
     def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
         """

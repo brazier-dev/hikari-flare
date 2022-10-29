@@ -235,9 +235,9 @@ class Context:
         """Gets the channel this context represents, None if in a DM. Requires application cache."""
         return self._interaction.get_channel()
 
-    def get_components(self) -> t.MutableSequence[row.Row]:
+    async def get_components(self) -> t.MutableSequence[row.Row]:
         """Returns the flare components for the interaction this context is proxying"""
-        return row.Row.from_message(self.message)
+        return await row.Row.from_message(self.message)
 
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.
@@ -439,6 +439,15 @@ class Context:
     @t.overload
     async def defer(
         self,
+        edit: bool,
+        *,
+        flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
+    ) -> None:
+        ...
+
+    @t.overload
+    async def defer(
+        self,
         response_type: hikari.ResponseType,
         *,
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
@@ -461,6 +470,8 @@ class Context:
         Args:
             response_type:
                 The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
+            edit:
+                If True, the response will be deferred as an edit.
             flags:
                 Message flags that should be included with this defer request, by default None
 
@@ -468,7 +479,16 @@ class Context:
             RuntimeError: The interaction was already responded to.
             ValueError: response_type was not a deferred response type.
         """
-        response_type = args[0] if args else hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+        response_type = hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+        if args:
+            if isinstance(args[0], hikari.ResponseType):
+                response_type = args[0]
+            elif isinstance(args[0], bool):
+                response_type = (
+                    hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+                    if args[0]
+                    else hikari.ResponseType.DEFERRED_MESSAGE_CREATE
+                )
 
         if response_type not in [
             hikari.ResponseType.DEFERRED_MESSAGE_CREATE,

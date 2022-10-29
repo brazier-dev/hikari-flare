@@ -25,6 +25,7 @@ bot = hikari.GatewayBot("TOKEN")
 # implements `hikari.traits.EventManagerAware`.
 flare.install(bot)
 
+
 @flare.button(label="Click me!")
 async def counter_button(
     ctx: flare.Context,
@@ -35,9 +36,8 @@ async def counter_button(
 ) -> None:
     n += 1
     await ctx.edit_response(
-        f"The button was pressed {n} times.",
         # The components are edited to update the state.
-        component=flare.Row(counter_button.set(n=n))
+        component=await flare.Row(counter_button.set_label(f"Clicked {n} Times!").set(n=n))
     )
 
 
@@ -51,9 +51,8 @@ async def on_message(event: hikari.MessageCreateEvent):
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
-            "The button was pressed 0 times.",
             # When responding to the interaction, use the default values.
-            component=flare.Row(counter_button)
+            component=await flare.Row(counter_button)
         )
 
 bot.run()
