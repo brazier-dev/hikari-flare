@@ -54,10 +54,10 @@ Converters for `int`, `str`, `typing.Literal`, and `enum.Enum` are built in.
 
 ```python
 class IntConverter(Converter[int]):
-    def to_str(self, obj: int) -> str:
+    async def to_str(self, obj: int) -> str:
         return str(obj)
 
-    def from_str(self, obj: str) -> int:
+    async def from_str(self, obj: str) -> int:
         return int(obj)
 
 flare.add_converter(
