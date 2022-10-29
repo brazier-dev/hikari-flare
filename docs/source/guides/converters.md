@@ -6,10 +6,10 @@ Converters allow you to serialize and deserialize types. Here in an example of a
 # All converters inherit from `Converter[T]` where `T` is the type that they
 # convert to a string and back.
 class IntConverter(flare.Converter[int]):
-    def to_str(self, obj: int) -> str:
+    async def to_str(self, obj: int) -> str:
         return str(obj)
 
-    def from_str(self, obj: str) -> int:
+    async def from_str(self, obj: str) -> int:
         return int(obj)
 
 # Add the converter to `flare`. Without this, the type will not be converted
@@ -46,12 +46,12 @@ class Cat:
     breed: CatBreed
 
 class CatConverter(flare.Converter[Cat]):
-    def to_str(self, obj: Cat) -> str:
+    async def to_str(self, obj: Cat) -> str:
         # Space is minimal! Using a format like this is much more space
         # efficient than json.
         return f"{obj.name}:{obj.breed.value}"
 
-    def from_str(self, obj: str) -> Cat:
+    async def from_str(self, obj: str) -> Cat:
         name, breed = obj.split(":")
         return Cat(
             name=name,
@@ -75,10 +75,10 @@ get the type that is currently being converted.
 
 ```python
 class SubclassIntConverter(flare.Converter[int]):
-    def to_string(self, obj: int) -> str:
+    async def to_string(self, obj: int) -> str:
         return str(obj) 
 
-    def from_str(self, obj: str) -> int:
+    async def from_str(self, obj: str) -> int:
         # `self.type` is the type that is currently being converted.
         # Examples:
         # - If an int was being converted, `self.type` would be `int`.

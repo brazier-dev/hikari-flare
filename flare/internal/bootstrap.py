@@ -14,7 +14,7 @@ active_serde: SerdeABC = Serde()
 """The currently active serializer."""
 
 
-def install(bot: hikari.EventManagerAware, serde: SerdeABC | None = None) -> None:
+def install(app: hikari.EventManagerAware, serde: SerdeABC | None = None) -> None:
     """Install flare under the given bot instance.
 
     Args:
@@ -29,8 +29,11 @@ def install(bot: hikari.EventManagerAware, serde: SerdeABC | None = None) -> Non
         active_serde = serde
 
     from flare.internal.event_handler import on_inter
+    from flare.converters import Converter
 
-    bot.event_manager.subscribe(hikari.InteractionCreateEvent, on_inter)
+    Converter.app = app
+
+    app.event_manager.subscribe(hikari.InteractionCreateEvent, on_inter)
 
 
 # MIT License

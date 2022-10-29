@@ -42,8 +42,17 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
     def __delitem__(self, key: int) -> None:
         del self._components[key]
 
+    def __await__(self):
+        async def set_custom_ids() -> Row:
+            for component in self._components:
+                if isinstance(component, CallbackComponent):
+                    await component.set_custom_id()
+            return self
+
+        return set_custom_ids().__await__()
+
     @classmethod
-    def from_message(cls, message: hikari.Message) -> t.MutableSequence[Row]:
+    async def from_message(cls, message: hikari.Message) -> t.MutableSequence[Row]:
         """Create a row from a message's components.
 
         Args:
@@ -76,7 +85,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
                         )
                     )
                 else:
-                    rows[-1].append(CallbackComponent.from_partial(component))
+                    rows[-1].append(await CallbackComponent.from_partial(component))
 
         return rows
 

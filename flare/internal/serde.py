@@ -16,7 +16,7 @@ class SerdeABC(abc.ABC):
     """Abstract class for implementing a custom serializer and deserializer."""
 
     @abc.abstractmethod
-    def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
+    async def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
         """
         Encode a custom_id for a component.
 
@@ -31,7 +31,7 @@ class SerdeABC(abc.ABC):
         """
 
     @abc.abstractmethod
-    def deserialize(
+    async def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
     ) -> tuple[base.CallbackComponent[...], dict[str, typing.Any]]:
         """
@@ -68,9 +68,6 @@ class Serde(SerdeABC):
         if len(esc) != 1:
             raise ValueError("Escape must be a single character.")
 
-        if version is not None and len(get_converter(int).to_str(version)) > 1:
-            raise ValueError("Serde version must serialize to a single character.")
-
     @property
     def SEP(self) -> str:
         """The separator used to separate arguments."""
@@ -104,14 +101,14 @@ class Serde(SerdeABC):
         """
         return self._VER
 
-    def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
-        version = "" if self.VER is None else get_converter(int).to_str(self.VER)
+    async def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
+        version = "" if self.VER is None else await get_converter(int).to_str(self.VER)
         out = f"{version}{cookie}{self.SEP}"
 
         for k, v in types.items():
             val = kwargs.get(k)
             converter = get_converter(v)
-            val = converter.to_str(val).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
+            val = (await converter.to_str(val)).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
             out += f"{val.replace(self.SEP, self.ESC_SEP)}{self.SEP}"
 
         out = out[:-1]
@@ -143,19 +140,19 @@ class Serde(SerdeABC):
 
         return ["".join(row).replace(self.ESC_SEP, self.SEP) for row in out]
 
-    def _cast_kwargs(self, kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    async def _cast_kwargs(self, kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
         ret: dict[str, typing.Any] = {}
         for k, v in kwargs.items():
             cast_to = types[k]
-            ret[k] = get_converter(cast_to).from_str(v)
+            ret[k] = await get_converter(cast_to).from_str(v)
 
         return ret
 
-    def deserialize(
+    async def deserialize(
         self, custom_id: str, map: dict[str, typing.Any]
     ) -> tuple[base.CallbackComponent[...], dict[str, typing.Any]]:
         if self.VER is not None:  # Allow for no version to disable verification
-            version = get_converter(int).from_str(custom_id[0])
+            version = await get_converter(int).from_str(custom_id[0])
 
             if version != self.VER:
                 raise SerializerVersionViolation(
@@ -171,7 +168,7 @@ class Serde(SerdeABC):
         if component_ is None:
             raise SerializerError(f"Component with cookie {cookie} does not exist.")
 
-        types = component_.args
+        types = component_.function_params
 
         transformed_args: dict[str, typing.Any] = {}
 
@@ -180,4 +177,4 @@ class Serde(SerdeABC):
                 arg = arg.replace(self.ESC_NULL, self.NULL)
                 transformed_args[k] = arg
 
-        return (component_, self._cast_kwargs(transformed_args, component_.args))
+        return (component_, await self._cast_kwargs(transformed_args, types))
