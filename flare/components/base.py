@@ -9,7 +9,7 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError, SerializerError
+from flare.exceptions import MissingRequiredParameterError, SerializerError, UnsetIdError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
@@ -90,7 +90,8 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         """
         The custom ID of the component.
         """
-        assert self._custom_id
+        if not self._custom_id:
+            raise UnsetIdError("The row containing this component must be awaited.")
         return self._custom_id
 
     async def set_custom_id(self):

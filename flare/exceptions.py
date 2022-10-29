@@ -26,6 +26,8 @@ class ComponentError(FlareException):
 class MissingRequiredParameterError(ComponentError):
     """Exception raised when a required parameter (or parameters) for a component is missing."""
 
+class UnsetIdError(ComponentError):
+    """Exception raised when component custom is not set."""
 
 class RowMaxWidthError(ComponentError):
     """Exception raised when a row exceeds the maximum width."""
