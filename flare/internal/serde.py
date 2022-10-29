@@ -5,6 +5,7 @@ import typing
 
 from flare.converters import get_converter
 from flare.exceptions import SerializerError, SerializerVersionViolation
+from flare.utils import gather_iter
 
 if typing.TYPE_CHECKING:
     from flare.components import base
@@ -103,15 +104,14 @@ class Serde(SerdeABC):
 
     async def serialize(self, cookie: str, types: dict[str, typing.Any], kwargs: dict[str, typing.Any]) -> str:
         version = "" if self.VER is None else await get_converter(int).to_str(self.VER)
-        out = f"{version}{cookie}{self.SEP}"
 
-        for k, v in types.items():
+        async def serialize_one(k: str, v: typing.Any) -> str:
             val = kwargs.get(k)
             converter = get_converter(v)
             val = (await converter.to_str(val)).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
-            out += f"{val.replace(self.SEP, self.ESC_SEP)}{self.SEP}"
+            return f"{val.replace(self.SEP, self.ESC_SEP)}"
 
-        out = out[:-1]
+        out = self.SEP.join((f"{version}{cookie}", *await gather_iter(serialize_one(k, v) for k, v in types.items())))
 
         if len(out) > 100:
             raise SerializerError(
@@ -142,9 +142,12 @@ class Serde(SerdeABC):
 
     async def _cast_kwargs(self, kwargs: dict[str, typing.Any], types: dict[str, typing.Any]) -> dict[str, typing.Any]:
         ret: dict[str, typing.Any] = {}
-        for k, v in kwargs.items():
+
+        async def convert_one(k: str, v: typing.Any):
             cast_to = types[k]
             ret[k] = await get_converter(cast_to).from_str(v)
+
+        await gather_iter(convert_one(k, v) for k, v in kwargs.items())
 
         return ret
 
