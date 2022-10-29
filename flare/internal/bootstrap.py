@@ -28,8 +28,8 @@ def install(app: hikari.EventManagerAware, serde: SerdeABC | None = None) -> Non
     if serde is not None:
         active_serde = serde
 
-    from flare.internal.event_handler import on_inter
     from flare.converters import Converter
+    from flare.internal.event_handler import on_inter
 
     Converter.app = app
 
