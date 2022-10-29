@@ -78,12 +78,10 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         if not self.function_params:
             # If no args were passed, calling set() isn't necessary to construct custom_id.
             self._custom_id = self._change_params()
-            self._is_set = True
         else:
             # If the function only has optional kwargs, calling set() isn't necessary.
             if all(param.has_default for param in parameters):
                 self._custom_id = self._change_params()
-            self._is_set = True
 
         bootstrap.components[self._cookie] = self
 
@@ -150,12 +148,12 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
     def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
         clone = self._clone()  # Create new instance with params set
         clone._change_params(*args, **kwargs)
-        clone._is_set = True
         return clone
 
     def _change_params(self, *args: P.args, **kwargs: P.kwargs):
         self.args = args
         self.kwargs = kwargs
+        self._is_set = True
 
     def get_from(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
         """
