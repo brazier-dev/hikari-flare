@@ -85,3 +85,33 @@ async def button(
         for component in components:
             print(component)
 ```
+
+This list can be modified to change modified to edit components.
+
+```{note}
+`component.set()` clones components. It does not modify them in place.
+```
+
+One helper method is also provided to help edit components.
+
+```python
+@flare.button(label="Click me!")
+async def counter_button(
+    ctx: flare.Context,
+    number: int,
+) -> None:
+    number += 1
+
+    # Get all the components as a list of rows.
+    rows = await ctx.get_components()
+    # Edit the values for `counter_button` in the list of
+    # rows.
+    counter_button.set_in(rows, number=number)
+
+    await ctx.edit_response(
+        content=number,
+        # Await all the rows.
+        components=await asyncio.gather(*rows),
+    )
+```
+
