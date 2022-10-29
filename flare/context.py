@@ -470,6 +470,8 @@ class Context:
         Args:
             response_type:
                 The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
+            edit:
+                If True, the response will be deferred as an edit.
             flags:
                 Message flags that should be included with this defer request, by default None
 
