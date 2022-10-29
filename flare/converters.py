@@ -5,6 +5,7 @@ import inspect
 import struct
 import types
 import typing as t
+
 import hikari.traits
 
 from flare import exceptions
