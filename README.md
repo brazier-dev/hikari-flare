@@ -39,7 +39,7 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         # Set custom state for components that need it
-        row = flare.Row(test_button, state_button.set(5))
+        row = await flare.Row(test_button, state_button.set(5))
         message = await event.message.respond("Hello Flare!", component=row)
 
 bot.run()

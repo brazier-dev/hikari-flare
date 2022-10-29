@@ -37,7 +37,7 @@ async def counter_button(
     n += 1
     await ctx.edit_response(
         # The components are edited to update the state.
-        component=flare.Row(counter_button.set_label(f"Clicked {n} Times!").set(n=n))
+        component=await flare.Row(counter_button.set_label(f"Clicked {n} Times!").set(n=n))
     )
 
 
@@ -52,7 +52,7 @@ async def on_message(event: hikari.MessageCreateEvent):
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
             # When responding to the interaction, use the default values.
-            component=flare.Row(counter_button)
+            component=await flare.Row(counter_button)
         )
 
 bot.run()
