@@ -6,6 +6,7 @@ import hikari
 
 from flare.components import CallbackComponent, Component, LinkButton
 from flare.exceptions import RowMaxWidthError, SerializerError
+from flare.utils import gather_iter
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
@@ -63,31 +64,28 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
             Row:
                 The created rows from the message's components.
         """
-        rows: list[Row] = []
 
-        for action_row in message.components:
+        async def gather_rows(action_row: hikari.PartialComponent) -> Row:
             assert isinstance(action_row, hikari.ActionRowComponent)
-            rows.append(Row())
 
-            for component in action_row.components:
-                if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
-                    assert component.url
+            return Row(*await gather_iter(gather_components(components) for components in action_row))
 
-                    if not (component.label or component.emoji):
-                        raise SerializerError("Link button does not have label or emoji.")
+        async def gather_components(component: hikari.PartialComponent):
+            if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
+                assert component.url
 
-                    rows[-1].append(
-                        # This is a valid overload users shouldn't be able to use.
-                        LinkButton(
-                            url=component.url,
-                            label=component.label,  # type: ignore
-                            emoji=component.emoji,  # type: ignore
-                        )
-                    )
-                else:
-                    rows[-1].append(await CallbackComponent.from_partial(component))
+                if not (component.label or component.emoji):
+                    raise SerializerError("Link button does not have label or emoji.")
+                # This is a valid overload users shouldn't be able to use.
+                return LinkButton(
+                    url=component.url,
+                    label=component.label,  # type: ignore
+                    emoji=component.emoji,  # type: ignore
+                )
+            else:
+                return await CallbackComponent.from_partial(component)
 
-        return rows
+        return await gather_iter(gather_rows(action_row) for action_row in message.components)
 
     def build(self) -> t.MutableMapping[str, t.Any]:
         row = hikari.impl.ActionRowBuilder()
