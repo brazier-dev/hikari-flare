@@ -15,7 +15,7 @@ class TestButton(flare.Button, label="Test Button"):
 
 
 class StateButton(flare.Button, label="State Button", cookie="Custom Cookie"):
-    # state is declared as dataclass fields
+    # State is declared as dataclass fields.
     number: int
 
     async def callback(self, ctx: flare.Context):
@@ -24,9 +24,6 @@ class StateButton(flare.Button, label="State Button", cookie="Custom Cookie"):
 
 bot = hikari.GatewayBot("...")
 flare.install(bot)
-
-
-print("\\" in StateButton._cookie)
 
 
 @bot.listen()
