@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import abc
 import copy
+import dataclasses
 import hashlib
-import inspect
 import typing as t
+from typing_extensions import dataclass_transform
 
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError, SerializerError
+from flare.exceptions import SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
@@ -19,7 +20,7 @@ __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackCom
 
 P = t.ParamSpec("P")
 
-CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent[...]")
+CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent")
 
 
 class Component(abc.ABC):
@@ -51,70 +52,58 @@ class SupportsCookie(abc.ABC):
         ...
 
 
-class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
+class SupportsCallback(t.Protocol):
+    async def callback(self, ctx: context.Context) -> None:
+        raise NotImplementedError
+
+
+@dataclass_transform()
+class CallbackComponent(Component, SupportsCookie, SupportsCallback):
     """
     An abstract class that all components with callbacks are derive from.
     """
 
-    def __init__(
-        self,
-        cookie: str | None,
-        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
+    _custom_id: str | None
+    _cookie: t.ClassVar[str]
+    _class_vars: t.ClassVar[dict[str, t.Any]]
+
+    def __init_subclass__(
+        cls,
+        cookie: str | None = None,
     ) -> None:
-        super().__init__()
-        self._custom_id = None
-        self._callback = callback
-        self._cookie = cookie or hashlib.blake2s(
-            f"{callback.__name__}.{callback.__module__}".encode("latin1"), digest_size=8
+        cls = dataclasses.dataclass(cls)
+
+        cls._custom_id = None
+        cls._cookie = cookie or hashlib.blake2s(
+            f"{cls.__name__}.{cls.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
-        self._is_set = False
 
-        parameters = sigparse.sigparse(callback)[1:]
-        self.function_params = {param.name: param.annotation for param in parameters}
+        cls._class_vars: dict[str, t.Any] = {
+            class_var.name: class_var.annotation
+            for class_var in sigparse.classparse(cls)
+            if not class_var.name.startswith("_")
+        }
 
-        self.args: t.Sequence[t.Any] = []
-        self.kwargs: dict[str, t.Any] = {}
-
-        if not self.function_params:
-            # If no args were passed, calling set() isn't necessary to construct custom_id.
-            self._custom_id = self._change_params()
-        else:
-            # If the function only has optional kwargs, calling set() isn't necessary.
-            if all(param.has_default for param in parameters):
-                self._custom_id = self._change_params()
-
-        bootstrap.components[self._cookie] = self
+        bootstrap.components[cls._cookie] = cls
 
     @property
     def custom_id(self) -> str:
         """
         The custom ID of the component.
         """
-        assert self._custom_id
+        if not self._custom_id:
+            raise Exception
         return self._custom_id
 
     async def set_custom_id(self):
-        if not self._is_set:
-            raise MissingRequiredParameterError(
-                f"Component `{self._callback.__module__}.{self._callback.__name__}` received no"
-                f" parameters when it has {len(self.function_params)}. Did you forget to call `set()`?"
-            )
-        self._custom_id = await bootstrap.active_serde.serialize(
-            self._cookie, self.function_params, self.as_keyword(self.args, self.kwargs)
-        )
+        self._custom_id = await bootstrap.active_serde.serialize(self._cookie, self._class_vars, self.kw_args)
 
     @property
     def cookie(self) -> str:
         return self._cookie
 
-    @property
-    def callback(
-        self,
-    ) -> t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]:
-        return self._callback
-
     @staticmethod
-    async def from_partial(component: hikari.PartialComponent) -> CallbackComponent[...]:
+    async def from_partial(component: hikari.PartialComponent) -> CallbackComponent:
         """
         Build a flare component from `hikari.PartialComponent`.
 
@@ -140,20 +129,10 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             )
         except SerializerError:
             raise
-        return flare_component.set(**kwargs)
+        return flare_component(**kwargs)  # type: ignore
 
     def _clone(self: CallbackComponentT) -> CallbackComponentT:
         return copy.copy(self)
-
-    def set(self: CallbackComponentT, *args: P.args, **kwargs: P.kwargs) -> CallbackComponentT:
-        clone = self._clone()  # Create new instance with params set
-        clone._change_params(*args, **kwargs)
-        return clone
-
-    def _change_params(self, *args: P.args, **kwargs: P.kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        self._is_set = True
 
     def get_from(self: CallbackComponentT, rows: t.Sequence[row.Row]) -> t.Sequence[CallbackComponentT]:
         """
@@ -174,7 +153,7 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
         return out
 
     def set_in(
-        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: P.args, **kwargs: P.kwargs
+        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: t.Any, **kwargs: t.Any
     ) -> t.Sequence[CallbackComponentT]:
         """
         Edit all instances of this component in-place in :class:`typing.Sequence[flare.row.Row]`.
@@ -207,36 +186,9 @@ class CallbackComponent(Component, SupportsCookie, t.Generic[P]):
             me._change_params(*args, **kwargs)
         return mes
 
-    def as_keyword(self, args: t.Sequence[t.Any], kwargs: dict[str, t.Any]) -> dict[str, t.Any]:
-        """
-        Convert arguments and keyword arguments in a dictionary of keyword
-        arguments. This is done to make serialization and deserialization easier
-        because the differences between `POSITIONAL_OR_KEYWORD` and
-        `KEYWORD_ONLY` don't need to be considered.
-        """
-        out: dict[str, t.Any] = {}
-
-        pos_or_kw: list[sigparse.Parameter] = []
-
-        for arg in sigparse.sigparse(self.callback)[1:]:
-            match arg.kind:
-                case inspect._ParameterKind.POSITIONAL_OR_KEYWORD:
-                    pos_or_kw.append(arg)
-                case inspect._ParameterKind.KEYWORD_ONLY:
-                    # Arguments are considered `KEYWORD_ONLY` if they are not
-                    # `POSITIONAL_OR_KEYWORD`.
-                    pass
-                case inspect._ParameterKind.POSITIONAL_ONLY:
-                    raise NotImplementedError("Positional only arguments are not supported for component callbacks")
-                case inspect._ParameterKind.VAR_POSITIONAL:
-                    raise NotImplementedError("`*args` is not supported for component callbacks.")
-                case inspect._ParameterKind.VAR_KEYWORD:
-                    raise NotImplementedError("`**kwargs` is not supported for component callbacks.")
-
-        for arg, value in zip(pos_or_kw, args):
-            out[arg.name] = value
-
-        return out | kwargs
+    @property
+    def kw_args(self) -> dict[str, t.Any]:
+        return dataclasses.asdict(self)
 
 
 # MIT License

@@ -1,23 +1,20 @@
 from __future__ import annotations
 
-import copy
 import typing as t
+from typing_extensions import Self
 
 import hikari
 
 from flare.components.base import CallbackComponent
 from flare.exceptions import ComponentError
 
-if t.TYPE_CHECKING:
-    from flare import context
 
-__all__: t.Final[t.Sequence[str]] = ("select", "Select")
+__all__: t.Final[t.Sequence[str]] = ("Select",)
 
 P = t.ParamSpec("P")
-SelectT = t.TypeVar("SelectT", bound="Select[...]")
 
 
-class select:
+class Select(CallbackComponent):
     """
     Decorator for a select menu message component.
 
@@ -38,85 +35,58 @@ class select:
             supplied so a shorter one is used in serializing and deserializing.
     """
 
-    def __init__(
-        self,
-        options: t.Sequence[tuple[str, str] | str] | None = None,
-        min_values: int | None = None,
-        max_values: int | None = None,
-        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
-        disabled: bool | None = None,
-        cookie: str | None = None,
-    ) -> None:
-        self.cookie = cookie
-        self.options = options
-        self.min_values = min_values
-        self.max_values = max_values
-        self.placeholder = placeholder
-        self.disabled = disabled
+    __options: t.Sequence[tuple[str, str] | str] | None
+    __min_values: int | None
+    __max_values: int | None
+    __placeholder: hikari.UndefinedOr[str]
+    __disabled: bool | None
 
-    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> Select[P]:
-        return Select(
-            cookie=self.cookie,
-            callback=callback,
-            options=self.options,
-            min_values=self.min_values,
-            max_values=self.max_values,
-            placeholder=self.placeholder,
-            disabled=self.disabled,
-        )
-
-
-class Select(CallbackComponent[P]):
-    def __init__(
-        self,
+    def __init_subclass__(
+        cls,
         cookie: str | None,
-        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
         options: t.Sequence[tuple[str, str] | str] | None,
         min_values: int | None,
         max_values: int | None,
         placeholder: hikari.UndefinedOr[str],
         disabled: bool | None,
     ) -> None:
-        super().__init__(cookie, callback)
-        self.options = options
-        self.min_values = min_values
-        self.max_values = max_values
-        self.placeholder = placeholder
-        self.disabled = disabled
+        super().__init_subclass__(cookie)
+        cls.__options = options
+        cls.__min_values = min_values
+        cls.__max_values = max_values
+        cls.__placeholder = placeholder
+        cls.__disabled = disabled
+
+    def __post_init__(self):
+        self.options = self.__options
+        self.min_values = self.__min_values
+        self.max_values = self.__max_values
+        self.placeholder = self.__placeholder
+        self.disabled = self.__disabled
 
     @property
     def width(self) -> int:
         return 5
 
-    def _clone(self: SelectT) -> SelectT:
-        clone = super()._clone()
-        clone.options = copy.copy(clone.options)
-        return clone
+    def set_options(self, *options: tuple[str, str] | str) -> Self:
+        self.options = options
+        return self
 
-    def set_options(self: SelectT, *options: tuple[str, str] | str) -> SelectT:
-        clone = self._clone()
-        clone.options = options
-        return clone
+    def set_min_values(self, min_values: int | None) -> Self:
+        self.min_values = min_values
+        return self
 
-    def set_min_values(self: SelectT, min_values: int | None) -> SelectT:
-        clone = self._clone()
-        clone.min_values = min_values
-        return clone
+    def set_max_values(self, max_values: int | None) -> Self:
+        self.max_values = max_values
+        return self
 
-    def set_max_values(self: SelectT, max_values: int | None) -> SelectT:
-        clone = self._clone()
-        clone.max_values = max_values
-        return clone
+    def set_placeholder(self, placeholder: hikari.UndefinedOr[str]) -> Self:
+        self.placeholder = placeholder
+        return self
 
-    def set_placeholder(self: SelectT, placeholder: hikari.UndefinedOr[str]) -> SelectT:
-        clone = self._clone()
-        clone.placeholder = placeholder
-        return clone
-
-    def set_disabled(self: SelectT, disabled: bool) -> SelectT:
-        clone = self._clone()
-        clone.disabled = disabled
-        return clone
+    def set_disabled(self, disabled: bool) -> Self:
+        self.disabled = disabled
+        return self
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """
