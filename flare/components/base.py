@@ -78,7 +78,7 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
             f"{cls.__name__}.{cls.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
 
-        cls._class_vars: dict[str, t.Any] = {
+        cls._class_vars = {
             class_var.name: class_var.annotation
             for class_var in sigparse.classparse(cls)
             if not class_var.name.startswith("_")
@@ -151,40 +151,6 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
                 if isinstance(component, type(self)) and component.cookie == self.cookie:
                     out.append(component)
         return out
-
-    def set_in(
-        self: CallbackComponentT, rows: t.Sequence[row.Row], *args: t.Any, **kwargs: t.Any
-    ) -> t.Sequence[CallbackComponentT]:
-        """
-        Edit all instances of this component in-place in :class:`typing.Sequence[flare.row.Row]`.
-
-        .. code-block:: python
-
-            import flare
-
-            @flare.button(label="Click me!")
-            async def counter_button(
-                ctx: flare.Context,
-                n: int = 0,
-            ) -> None:
-                rows = ctx.get_components()
-                # Edit this button in the array `rows`
-                counter_button.set_in(rows, n=n+1)
-                await ctx.edit_response(
-                    # Rows must be passed back into `edit_response`
-                    components=rows,
-                )
-
-        Args:
-            rows:
-                The rows to edit.
-        Returns:
-            A list of all components of this type that appear in `rows`.
-        """
-        mes = self.get_from(rows)
-        for me in mes:
-            me._change_params(*args, **kwargs)
-        return mes
 
     @property
     def kw_args(self) -> dict[str, t.Any]:

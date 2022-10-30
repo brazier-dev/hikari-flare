@@ -77,6 +77,7 @@ class Button(CallbackComponent):
         if self.label:
             button.set_label(self.label)
 
+        emoji: hikari.Emoji | hikari.UndefinedType
         if isinstance(self.emoji, str):
             emoji = hikari.Emoji.parse(self.emoji)
         else:
