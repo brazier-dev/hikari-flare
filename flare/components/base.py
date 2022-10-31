@@ -13,7 +13,8 @@ from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
     from flare import context, row
-    from flare.components import button, select
+    from flare.components.button import Button
+    from flare.components.select import Select
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
@@ -129,14 +130,14 @@ class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.D
 
         if isinstance(component, hikari.ButtonComponent):
             if t.TYPE_CHECKING:
-                assert isinstance(component_inst, "button.Button")
+                assert isinstance(component_inst, "Button")
 
             component_inst.set_label(component.label).set_emoji(component.emoji).set_style(
                 hikari.ButtonStyle(component.style)
             ).set_disabled(component.is_disabled)
         else:
             if t.TYPE_CHECKING:
-                assert isinstance(component_inst, "select.Select")
+                assert isinstance(component_inst, "Select")
 
             component_inst.set_options(*((option.label, option.value) for option in component.options)).set_min_values(
                 component.min_values
