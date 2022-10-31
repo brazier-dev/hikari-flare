@@ -26,16 +26,18 @@ bot = hikari.GatewayBot("TOKEN")
 flare.install(bot)
 
 
-class CounterButton(flare.Button, label="Click me!"):
-    # State is saved as dataclass fields. The value `n` will default to 0.
-    n: int = 0
-
-    async def callback(self, ctx: flare.Context):
-        n = self.n + 1
-        await ctx.edit_response(
-            # The components are edited to update the state.
-            component=await flare.Row(CounterButton(n).set_label(f"Clicked {n} Times!"))
-        )
+@flare.button(label="Click me!")
+async def counter_button(
+    ctx: flare.Context,
+    # The argument `n` is saved as the state. This argument defaults to 0 if no
+    # value is specified in `counter_button()`.
+    n: int = 0,
+) -> None:
+    n += 1
+    await ctx.edit_response(
+        # The components are edited to update the state.
+        component=await flare.Row(counter_button(n=n).set_label(f"Clicked {n} Times!"))
+    )
 
 
 @bot.listen()
@@ -49,7 +51,7 @@ async def on_message(event: hikari.MessageCreateEvent):
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
             # When responding to the interaction, use the default values.
-            component=await flare.Row(CounterButton())
+            component=await flare.Row(counter_button())
         )
 
 bot.run()
