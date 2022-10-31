@@ -47,12 +47,14 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
 
         return Inner  # type: ignore
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def component_type(self) -> type[T]:
         """The component type."""
         ...
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def kwargs(self) -> dict[str, t.Any]:
         """The kwargs for `__init_subclass__`"""
         ...
@@ -74,7 +76,7 @@ class button(FunctionalComponent[Button]):
         self.disabled = disabled
 
     @property
-    def proxied(self) -> type[Button]:
+    def component_type(self) -> type[Button]:
         return Button
 
     @property
@@ -106,7 +108,7 @@ class select(FunctionalComponent[Select]):
         self.disabled = disabled
 
     @property
-    def proxied(self) -> type[Select]:
+    def component_type(self) -> type[Select]:
         return Select
 
     @property
