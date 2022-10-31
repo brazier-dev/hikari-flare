@@ -130,14 +130,14 @@ class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.D
 
         if isinstance(component, hikari.ButtonComponent):
             if t.TYPE_CHECKING:
-                assert isinstance(component_inst, "Button")
+                assert isinstance(component_inst, Button)
 
             component_inst.set_label(component.label).set_emoji(component.emoji).set_style(
                 hikari.ButtonStyle(component.style)
             ).set_disabled(component.is_disabled)
         else:
             if t.TYPE_CHECKING:
-                assert isinstance(component_inst, "Select")
+                assert isinstance(component_inst, Select)
 
             component_inst.set_options(*((option.label, option.value) for option in component.options)).set_min_values(
                 component.min_values
