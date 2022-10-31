@@ -31,6 +31,10 @@ class RowMaxWidthError(ComponentError):
     """Exception raised when a row exceeds the maximum width."""
 
 
+class CustomIDNotSetError(ComponentError):
+    """Raised when a component's custom ID is not set because the row it is in was not awaited."""
+
+
 # MIT License
 #
 # Copyright (c) 2022-present Lunarmagpie

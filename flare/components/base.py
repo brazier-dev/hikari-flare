@@ -10,7 +10,7 @@ import hikari
 import sigparse
 from typing_extensions import dataclass_transform
 
-from flare.exceptions import SerializerError
+from flare.exceptions import CustomIDNotSetError, SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
@@ -93,7 +93,7 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
         The custom ID of the component.
         """
         if not self._custom_id:
-            raise Exception
+            raise CustomIDNotSetError(f"The row containing `{self.__class__.__name__}` must be awaited.")
         return self._custom_id
 
     async def set_custom_id(self):
