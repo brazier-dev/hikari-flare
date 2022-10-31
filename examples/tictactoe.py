@@ -1,4 +1,5 @@
 import asyncio
+import enum
 import typing as t
 
 import hikari
@@ -10,7 +11,14 @@ bot = hikari.GatewayBot("...")
 flare.install(bot)
 
 
-def check_solved(rows: t.MutableSequence[flare.Row]) -> int:
+class CheckSolvedResult(enum.IntEnum):
+    Nothing = 0
+    Player1 = 1
+    Player2 = 2
+    Tie = 3
+
+
+def check_solved(rows: t.MutableSequence[flare.Row]) -> CheckSolvedResult:
     x = 0
     o = 0
 
@@ -43,14 +51,14 @@ def check_solved(rows: t.MutableSequence[flare.Row]) -> int:
         return False
 
     if is_win(x):
-        return 1
+        return CheckSolvedResult.Player1
     if is_win(o):
-        return 2
+        return CheckSolvedResult.Player2
 
     if x + o == 511:
-        return 3
+        return CheckSolvedResult.Tie
 
-    return False
+    return CheckSolvedResult.Nothing
 
 
 def disable_all(rows: t.MutableSequence[flare.Row]):
@@ -82,29 +90,25 @@ class TicTacToe(flare.Button, label=" "):
                 if component.x == self.x and component.y == self.y:
                     component.set_label("X" if component.turn else "O").set_disabled(True)
 
-        if num := check_solved(rows):
-            if num == 1:
+        content = None
+        res = check_solved(rows)
+        if res != CheckSolvedResult.Nothing:
+            if res == CheckSolvedResult.Player1:
                 disable_all(rows)
-                await ctx.edit_response(
-                    f"{self.player_1.username} wins!",
-                    components=await asyncio.gather(*rows),
-                )
+                content = f"{self.player_1.username} wins!"
                 return
-            elif num == 2:
+            elif res == CheckSolvedResult.Player2:
                 disable_all(rows)
-                await ctx.edit_response(
-                    f"{self.player_2.username} wins!",
-                    components=await asyncio.gather(*rows),
-                )
+                content = f"{self.player_2.username} wins!"
                 return
-            elif num == 3:
+            elif res == CheckSolvedResult.Tie:
                 await ctx.edit_response(
                     f"Its a tie!",
                     components=await asyncio.gather(*rows),
                 )
                 return
         await ctx.edit_response(
-            f"{self.player_1.username if self.turn else self.player_2.username}'s Turn",
+            content or f"{self.player_1.username if self.turn else self.player_2.username}'s Turn",
             components=await asyncio.gather(*rows),
         )
 
@@ -140,7 +144,6 @@ async def on_message(event: hikari.MessageCreateEvent):
         return
 
     if me and me.mention not in event.message.content:
-        print("here")
         return
 
     _, opponent_id = event.message.content.split(" ")
