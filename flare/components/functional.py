@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
 __all__: t.Sequence[str] = ("FunctionalComponent",)
 
 P = te.ParamSpec("P")
-T = t.TypeVar("T", bound="base.Component")
+T = t.TypeVar("T", bound="base.CallbackComponent")
 
 
 class FunctionalComponent(abc.ABC, t.Generic[T]):
