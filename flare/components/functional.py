@@ -21,16 +21,24 @@ T = t.TypeVar("T", bound="base.Component")
 
 
 class FunctionalComponent(abc.ABC, t.Generic[T]):
+    """
+    Decorator to wrap a component function callback so it can be treated as a
+    class internally. This should be inherited to create decorators for
+    specific component types.
+    """
 
     # This function is a python moment.
     # Just trust that it works.
     def __call__(self, callback_: t.Callable[te.Concatenate[context.Context, P], t.Any]) -> t.Callable[P, T]:
+        """
+        Create and return proxy class for `callback`.
+        """
         params = [
             dataclass.Field(param.name, param.default, param.annotation) for param in sigparse.sigparse(callback_)[1:]
         ]
 
         # This is a python moment.
-        class Inner(self.proxied, _dataclass_fields=params, **self.kwargs):  # type: ignore
+        class Inner(self.component_type, _dataclass_fields=params, **self.kwargs):  # type: ignore
             async def callback(self, ctx: context.Context):
                 kwargs = self._dataclass_values  # type: ignore
                 await callback_(ctx, **kwargs)  # type: ignore
@@ -40,11 +48,13 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
         return Inner  # type: ignore
 
     @abc.abstractproperty
-    def proxied(self) -> type[T]:
+    def component_type(self) -> type[T]:
+        """The component type."""
         ...
 
     @abc.abstractproperty
     def kwargs(self) -> dict[str, t.Any]:
+        """The kwargs for `__init_subclass__`"""
         ...
 
 
