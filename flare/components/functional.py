@@ -43,7 +43,7 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
                 kwargs = self._dataclass_values  # type: ignore
                 await callback_(ctx, **kwargs)  # type: ignore
 
-        Inner.__name__ = callable.__name__
+        Inner.__name__ = callback_.__name__
 
         return Inner  # type: ignore
 
