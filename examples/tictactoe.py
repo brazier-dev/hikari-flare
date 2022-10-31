@@ -105,17 +105,14 @@ class TicTacToe(flare.Button, label=" "):
             if res == CheckSolvedResult.Player1:
                 disable_all(rows)
                 content = f"{self.player_1.username} wins!"
-                return
             elif res == CheckSolvedResult.Player2:
                 disable_all(rows)
                 content = f"{self.player_2.username} wins!"
-                return
             elif res == CheckSolvedResult.Tie:
                 await ctx.edit_response(
                     f"Its a tie!",
                     components=await asyncio.gather(*rows),
                 )
-                return
         await ctx.edit_response(
             content or f"{self.player_1.username if self.turn else self.player_2.username}'s Turn",
             # The components must be awaited to update their custom id's.

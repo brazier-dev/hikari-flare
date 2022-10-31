@@ -28,8 +28,10 @@ class Button(CallbackComponent):
         style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
         disabled: bool = False,
         cookie: str | None = None,
+        class_vars: dict[str, t.Any] | None = None,
+        class_defaults: dict[str, t.Any] | None = None,
     ) -> None:
-        super().__init_subclass__(cookie)
+        super().__init_subclass__(cookie, class_vars, class_defaults)
         cls.__label = label
         cls.__emoji = emoji
         cls.__style = style

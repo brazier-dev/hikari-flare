@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 
 import hikari
+import sigparse
 from typing_extensions import Self
 
 from flare.components.base import CallbackComponent
@@ -48,8 +49,9 @@ class Select(CallbackComponent):
         max_values: int | None,
         placeholder: hikari.UndefinedOr[str],
         disabled: bool | None,
+        class_vars: dict[str, sigparse.ClassVar] | None = None,
     ) -> None:
-        super().__init_subclass__(cookie)
+        super().__init_subclass__(cookie, class_vars)
         cls.__options = options
         cls.__min_values = min_values
         cls.__max_values = max_values

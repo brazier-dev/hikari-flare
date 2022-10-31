@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import copy
-import dataclasses
 import hashlib
 import typing as t
 
@@ -67,25 +66,52 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
     _custom_id: str | None
     _cookie: t.ClassVar[str]
     _class_vars: t.ClassVar[dict[str, t.Any]]
+    _class_annotations: t.ClassVar[dict[str, t.Any]]
 
     def __init_subclass__(
         cls,
         cookie: str | None = None,
+        class_vars: dict[str, sigparse.ClassVar] | None = None,
+        class_defaults: dict[str, t.Any] | None = None,
     ) -> None:
-        cls = dataclasses.dataclass(cls)
-
         cls._custom_id = None
         cls._cookie = cookie or hashlib.blake2s(
             f"{cls.__name__}.{cls.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
 
-        cls._class_vars = {
+        cls._class_vars = class_vars or {
+            class_var.name: class_var.default
+            for class_var in sigparse.classparse(cls)
+            if not class_var.name.startswith("_")
+        }
+        cls._class_annotations = class_defaults or {
             class_var.name: class_var.annotation
             for class_var in sigparse.classparse(cls)
             if not class_var.name.startswith("_")
         }
 
         bootstrap.components[cls._cookie] = cls
+
+    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
+        left_over = list(self.__class__._class_vars.items())[len(args) :]
+
+        for name, value in zip(self.__class__._class_vars.keys(), args):
+            setattr(self, name, value)
+
+        for name, value in left_over:
+            setattr(self, name, kwargs.get(name, value))
+
+        self.__post_init__()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self.__dataclass_values.items())})"
+
+    def __post_init__(self) -> None:
+        ...
+
+    @property
+    def __dataclass_values(self) -> dict[str, t.Any]:
+        return {k: getattr(self, k) for k in self._class_vars.keys()}
 
     @property
     def custom_id(self) -> str:
@@ -97,7 +123,9 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
         return self._custom_id
 
     async def set_custom_id(self):
-        self._custom_id = await bootstrap.active_serde.serialize(self._cookie, self._class_vars, self.kw_args)
+        self._custom_id = await bootstrap.active_serde.serialize(
+            self._cookie, self._class_annotations, self.__dataclass_values
+        )
 
     @property
     def cookie(self) -> str:
@@ -174,10 +202,6 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
                 if isinstance(component, type(self)) and component.cookie == self.cookie:
                     out.append(component)
         return out
-
-    @property
-    def kw_args(self) -> dict[str, t.Any]:
-        return dataclasses.asdict(self)
 
 
 # MIT License
