@@ -18,6 +18,7 @@ class CheckSolvedResult(enum.IntEnum):
     Tie = 3
 
 
+# An algorythm to check if the game is solved.
 def check_solved(rows: t.MutableSequence[flare.Row]) -> CheckSolvedResult:
     x = 0
     o = 0
@@ -69,24 +70,32 @@ def disable_all(rows: t.MutableSequence[flare.Row]):
 
 
 class TicTacToe(flare.Button, label=" "):
+    # The column of this component.
     x: int
+    # The row of this component.
     y: int
 
+    # Player 1
     player_1: hikari.User
+    # Player 2
     player_2: hikari.User
 
+    # A bool to keep track of the turn.
     turn: bool = False
 
     async def callback(self, ctx: flare.Context):
 
         rows = await ctx.get_components()
 
+        # Iterate through the components to find the one that caused the event.
         for row in rows:
             for component in row:
+                # This is safe because only `TicTacToe` buttons are used in the message.
                 assert isinstance(component, TicTacToe)
 
                 component.turn = not component.turn
 
+                # Only set the component label if it is the one that caused the event.
                 if component.x == self.x and component.y == self.y:
                     component.set_label("X" if component.turn else "O").set_disabled(True)
 
@@ -109,10 +118,13 @@ class TicTacToe(flare.Button, label=" "):
                 return
         await ctx.edit_response(
             content or f"{self.player_1.username if self.turn else self.player_2.username}'s Turn",
+            # The components must be awaited to update their custom id's.
             components=await asyncio.gather(*rows),
         )
 
 
+# This is a converter for `hikari.User`. It allows `hikari.User`
+# to be used as a type hint.
 class UserConverter(flare.Converter[hikari.User]):
     async def to_str(self, obj: hikari.User) -> str:
         return str(hikari.Snowflake(obj))
@@ -130,9 +142,11 @@ class UserConverter(flare.Converter[hikari.User]):
         raise Exception("Could not fetch user. Bot is not `RESTAware` and user is not cached.")
 
 
+# Remember to add the converter to flare! Otherwise it will not work.
 flare.add_converter(hikari.User, UserConverter)
 
 
+# On message command thats triggered by typing `@<BOT> @<OPPONENT>`
 @bot.listen()
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human:
@@ -153,6 +167,7 @@ async def on_message(event: hikari.MessageCreateEvent):
     def get_tac(x: int, y: int) -> TicTacToe:
         return TicTacToe(x, y, event.message.author, opponent)
 
+    # The bot replies with a 3x3 of message components.
     await event.message.respond(
         f"{event.message.author}'s Turn",
         components=await asyncio.gather(
