@@ -7,9 +7,10 @@ from typing_extensions import Self
 
 from flare import dataclass
 from flare.components.base import CallbackComponent, Component
+from flare.components.functional import FunctionalComponent
 from flare.exceptions import ComponentError
 
-__all__: t.Sequence[str] = ("Button", "LinkButton")
+__all__: t.Sequence[str] = ("Button", "button", "LinkButton")
 
 P = t.ParamSpec("P")
 ButtonT = t.TypeVar("ButtonT", bound="Button")
@@ -92,6 +93,42 @@ class Button(CallbackComponent):
         button.set_is_disabled(self.disabled)
 
         button.add_to_container()
+
+
+class button(FunctionalComponent[Button]):
+    """
+    A decorator to create a `flare.Button`. This is a shorthand for when type
+    safety is not needed.
+    """
+
+    def __init__(
+        self,
+        *,
+        cookie: str | None = None,
+        label: str | None = None,
+        emoji: str | hikari.Emoji | None = None,
+        style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
+        disabled: bool = False,
+    ) -> None:
+        self.cookie = cookie
+        self.label = label
+        self.emoji = emoji
+        self.style = style
+        self.disabled = disabled
+
+    @property
+    def component_type(self) -> type[Button]:
+        return Button
+
+    @property
+    def kwargs(self) -> dict[str, t.Any]:
+        return {
+            "cookie": self.cookie,
+            "label": self.label,
+            "emoji": self.emoji,
+            "style": self.style,
+            "disabled": self.disabled,
+        }
 
 
 class LinkButton(Component):

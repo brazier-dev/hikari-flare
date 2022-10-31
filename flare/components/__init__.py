@@ -1,7 +1,6 @@
 from .base import *
 from .button import *
 from .select import *
-from .functional import *
 
 # MIT License
 #

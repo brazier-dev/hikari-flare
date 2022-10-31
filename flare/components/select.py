@@ -7,9 +7,10 @@ from typing_extensions import Self
 
 from flare import dataclass
 from flare.components.base import CallbackComponent
+from flare.components.functional import FunctionalComponent
 from flare.exceptions import ComponentError
 
-__all__: t.Final[t.Sequence[str]] = ("Select",)
+__all__: t.Final[t.Sequence[str]] = ("Select", "select")
 
 P = t.ParamSpec("P")
 
@@ -125,6 +126,45 @@ class Select(CallbackComponent):
             select.set_is_disabled(self.disabled)
         select.set_placeholder(self.placeholder)
         select.add_to_container()
+
+
+class select(FunctionalComponent[Select]):
+    """
+    A decorator to create a `flare.Select`. This is a shorthand for when type
+    safety is not needed.
+    """
+
+    def __init__(
+        self,
+        *,
+        cookie: str | None = None,
+        options: t.Sequence[tuple[str, str] | str] | None = None,
+        min_values: int | None = None,
+        max_values: int | None = None,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool | None = None,
+    ) -> None:
+        self.cookie = cookie
+        self.options = options
+        self.min_values = min_values
+        self.max_values = max_values
+        self.placeholder = placeholder
+        self.disabled = disabled
+
+    @property
+    def component_type(self) -> type[Select]:
+        return Select
+
+    @property
+    def kwargs(self) -> dict[str, t.Any]:
+        return {
+            "cookie": self.cookie,
+            "options": self.options,
+            "min_values": self.min_values,
+            "max_values": self.max_values,
+            "placeholder": self.placeholder,
+            "disabled": self.disabled,
+        }
 
 
 # MIT License
