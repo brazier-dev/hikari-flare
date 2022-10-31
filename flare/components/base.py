@@ -56,7 +56,7 @@ class SupportsCallback(t.Protocol):
         raise NotImplementedError
 
 
-class CallbackComponent(dataclass.Dataclass):
+class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.Dataclass):
     """
     An abstract class that all components with callbacks are derive from.
     """
