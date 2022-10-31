@@ -38,6 +38,7 @@ class Button(CallbackComponent):
         cls.__disabled = disabled
 
     def __post_init__(self):
+        super().__post_init__()
         self.label = self.__label
         self.emoji = self.__emoji
         self.style = self.__style

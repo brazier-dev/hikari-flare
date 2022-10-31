@@ -59,6 +59,7 @@ class Select(CallbackComponent):
         cls.__disabled = disabled
 
     def __post_init__(self):
+        super().__post_init__()
         self.options = self.__options
         self.min_values = self.__min_values
         self.max_values = self.__max_values

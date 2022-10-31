@@ -61,7 +61,6 @@ class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.D
     An abstract class that all components with callbacks are derive from.
     """
 
-    _custom_id: str | None
     _cookie: t.ClassVar[str]
 
     def __init_subclass__(
@@ -71,12 +70,14 @@ class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.D
     ) -> None:
         super().__init_subclass__(_dataclass_fields)
 
-        cls._custom_id = None
         cls._cookie = cookie or hashlib.blake2s(
             f"{cls.__name__}.{cls.__module__}".encode("latin1"), digest_size=8
         ).digest().decode("latin1")
 
         bootstrap.components[cls._cookie] = cls
+
+    def __post_init__(self) -> None:
+        self._custom_id: str | None = None
 
     @property
     def custom_id(self) -> str:
