@@ -44,7 +44,7 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
 bot.run()
 ```
 
-The API can also be accessed at a lower level if buttons need typed attributes.
+The API can also be accessed at a lower level if components need typed attributes.
 
 ```python
 class Button(flare.Button):
