@@ -20,7 +20,7 @@ P = te.ParamSpec("P")
 T = t.TypeVar("T", bound="base.Component")
 
 
-class FunctionalComponent(abc.ABC, t.Generic[T]):
+class _FunctionalComponent(abc.ABC, t.Generic[T]):
     """
     Decorator to wrap a component function callback so it can be treated as a
     class internally. This should be inherited to create decorators for
@@ -58,7 +58,7 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
         """The kwargs for `__init_subclass__`"""
 
 
-class button(FunctionalComponent[Button]):
+class button(_FunctionalComponent[Button]):
     """
     A decorator to create a `flare.Button`. This is a shorthand for when type
     safety is not needed.
@@ -93,7 +93,7 @@ class button(FunctionalComponent[Button]):
         }
 
 
-class select(FunctionalComponent[Select]):
+class select(_FunctionalComponent[Select]):
     """
     A decorator to create a `flare.Select`. This is a shorthand for when type
     safety is not needed.
