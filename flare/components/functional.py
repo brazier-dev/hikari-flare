@@ -37,8 +37,18 @@ class _FunctionalComponent(abc.ABC, t.Generic[T]):
             dataclass.Field(param.name, param.default, param.annotation) for param in sigparse.sigparse(callback_)[1:]
         ]
 
+        # If the user provides a cookie, use that cookie.
+        # If a user does not provide a cookie, create one based on the
+        # callback's module and name.
+        kwargs = self.kwargs
+        kwargs["cookie"] = (
+            kwargs["cookie"]
+            if kwargs.get("cookie") is not None
+            else base.write_cookie(f"{callback_.__module__}.{callback_.__name__}")
+        )
+
         # This is a python moment.
-        class Inner(self.component_type, _dataclass_fields=params, **self.kwargs):  # type: ignore
+        class Inner(self.component_type, _dataclass_fields=params, **kwargs):  # type: ignore
             async def callback(self, ctx: context.Context):
                 kwargs = self._dataclass_values  # type: ignore
                 await callback_(ctx, **kwargs)  # type: ignore

@@ -57,6 +57,10 @@ class SupportsCallback(t.Protocol):
         raise NotImplementedError
 
 
+def write_cookie(s: str) -> str:
+    return hashlib.blake2s(s.encode("latin1"), digest_size=8).digest().decode("latin1")
+
+
 class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.Dataclass):
     """
     An abstract class that all components with callbacks are derive from.
@@ -71,9 +75,7 @@ class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.D
     ) -> None:
         super().__init_subclass__(_dataclass_fields)
 
-        cls._cookie = cookie or hashlib.blake2s(
-            f"{cls.__name__}.{cls.__module__}".encode("latin1"), digest_size=8
-        ).digest().decode("latin1")
+        cls._cookie = cookie or write_cookie(f"{cls.__name__}.{cls.__module__}")
 
         bootstrap.components[cls._cookie] = cls
 
