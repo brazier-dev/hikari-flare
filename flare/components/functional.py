@@ -76,6 +76,7 @@ class button(_FunctionalComponent[Button]):
 
     def __init__(
         self,
+        *,
         cookie: str | None = None,
         label: str | None = None,
         emoji: str | hikari.Emoji | None = None,
@@ -111,6 +112,7 @@ class select(_FunctionalComponent[Select]):
 
     def __init__(
         self,
+        *,
         cookie: str | None = None,
         options: t.Sequence[tuple[str, str] | str] | None = None,
         min_values: int | None = None,
