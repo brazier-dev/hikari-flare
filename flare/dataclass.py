@@ -18,6 +18,11 @@ class Field:
 class Dataclass:
     """
     A dataclass impl used for Components.
+    This differs from the built-in dataclass because fields optionally can be
+    provided as a list of `dataclass.Field` objects instead of as class vars.
+
+    Similar to `dataclasses.dataclass`, `__post_init__` is called after the
+    object is constructed.
     """
 
     _fields: t.ClassVar[list[Field]]
@@ -29,6 +34,7 @@ class Dataclass:
         cls,
         fields: list[Field] | None = None,
     ) -> None:
+        # class vars are used for fields if fields were provided.
         cls._fields = fields or [
             Field(name=class_var.name, default=class_var.name, annotation=class_var.annotation)
             for class_var in sigparse.classparse(cls)

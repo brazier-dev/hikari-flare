@@ -51,16 +51,19 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
     @abc.abstractmethod
     def component_type(self) -> type[T]:
         """The component type."""
-        ...
 
     @property
     @abc.abstractmethod
     def kwargs(self) -> dict[str, t.Any]:
         """The kwargs for `__init_subclass__`"""
-        ...
 
 
 class button(FunctionalComponent[Button]):
+    """
+    A decorator to create a `flare.Button`. This is a shorthand for when type
+    safety is not needed.
+    """
+
     def __init__(
         self,
         cookie: str | None = None,
@@ -91,6 +94,11 @@ class button(FunctionalComponent[Button]):
 
 
 class select(FunctionalComponent[Select]):
+    """
+    A decorator to create a `flare.Select`. This is a shorthand for when type
+    safety is not needed.
+    """
+
     def __init__(
         self,
         cookie: str | None = None,
