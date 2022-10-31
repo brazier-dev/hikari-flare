@@ -3,10 +3,10 @@ from __future__ import annotations
 import typing as t
 
 import hikari
+from typing_extensions import Self
 
 from flare.components.base import CallbackComponent, Component
 from flare.exceptions import ComponentError
-from typing_extensions import Self
 
 __all__: t.Sequence[str] = ("Button", "LinkButton")
 

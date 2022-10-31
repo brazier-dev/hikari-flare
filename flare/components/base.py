@@ -5,16 +5,17 @@ import copy
 import dataclasses
 import hashlib
 import typing as t
-from typing_extensions import dataclass_transform
 
 import hikari
 import sigparse
+from typing_extensions import dataclass_transform
 
 from flare.exceptions import SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
     from flare import context, row
+    from flare.components import button, select
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
@@ -129,7 +130,42 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
             )
         except SerializerError:
             raise
-        return flare_component(**kwargs)  # type: ignore
+
+        component_inst = flare_component(**kwargs)  # type: ignore
+
+        if isinstance(component, hikari.ButtonComponent):
+            if t.TYPE_CHECKING:
+                assert isinstance(component_inst, "button.Button")
+
+            component_inst.set_label(
+                component.label
+            ).set_emoji(
+                component.emoji
+            ).set_style(
+                hikari.ButtonStyle(component.style)
+            ).set_disabled(
+                component.is_disabled
+            )
+        else:
+            if t.TYPE_CHECKING:
+                assert isinstance(component_inst, "select.Select")
+
+            component_inst.set_options(
+                *(
+                    (option.label, option.value)
+                    for option in component.options
+                )
+            ).set_min_values(
+                component.min_values
+            ).set_max_values(
+                component.max_values
+            ).set_placeholder(
+                component.placeholder or hikari.UNDEFINED
+            ).set_disabled(
+                component.is_disabled
+            )
+
+        return component_inst
 
     def _clone(self: CallbackComponentT) -> CallbackComponentT:
         return copy.copy(self)

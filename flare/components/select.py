@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import typing as t
-from typing_extensions import Self
 
 import hikari
+from typing_extensions import Self
 
 from flare.components.base import CallbackComponent
 from flare.exceptions import ComponentError
-
 
 __all__: t.Final[t.Sequence[str]] = ("Select",)
 
