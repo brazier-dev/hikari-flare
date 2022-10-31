@@ -137,29 +137,16 @@ class CallbackComponent(Component, SupportsCookie, SupportsCallback):
             if t.TYPE_CHECKING:
                 assert isinstance(component_inst, "button.Button")
 
-            component_inst.set_label(
-                component.label
-            ).set_emoji(
-                component.emoji
-            ).set_style(
+            component_inst.set_label(component.label).set_emoji(component.emoji).set_style(
                 hikari.ButtonStyle(component.style)
-            ).set_disabled(
-                component.is_disabled
-            )
+            ).set_disabled(component.is_disabled)
         else:
             if t.TYPE_CHECKING:
                 assert isinstance(component_inst, "select.Select")
 
-            component_inst.set_options(
-                *(
-                    (option.label, option.value)
-                    for option in component.options
-                )
-            ).set_min_values(
+            component_inst.set_options(*((option.label, option.value) for option in component.options)).set_min_values(
                 component.min_values
-            ).set_max_values(
-                component.max_values
-            ).set_placeholder(
+            ).set_max_values(component.max_values).set_placeholder(
                 component.placeholder or hikari.UNDEFINED
             ).set_disabled(
                 component.is_disabled
