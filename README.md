@@ -44,6 +44,19 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
 bot.run()
 ```
 
+The API can also be accessed at a lower level if buttons need typed attributes.
+
+```python
+class Button(flare.Button):
+    a: int
+    b: str
+
+    async def callback(self, ctx: flare.Context) -> None:
+        typing_extensions.reveal_type(self.a)  # int
+        typing_extensions.reveal_type(self.b)  # str
+        await ctx.respond("Hello flare!")
+```
+
 ## Converters
 
 Converters allow you to serialize and deserialize types.
