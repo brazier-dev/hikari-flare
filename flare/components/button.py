@@ -5,6 +5,7 @@ import typing as t
 import hikari
 from typing_extensions import Self
 
+from flare import dataclass
 from flare.components.base import CallbackComponent, Component
 from flare.exceptions import ComponentError
 
@@ -28,10 +29,9 @@ class Button(CallbackComponent):
         style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
         disabled: bool = False,
         cookie: str | None = None,
-        class_vars: dict[str, t.Any] | None = None,
-        class_defaults: dict[str, t.Any] | None = None,
+        _dataclass_fields: list[dataclass.Field] | None = None,
     ) -> None:
-        super().__init_subclass__(cookie, class_vars, class_defaults)
+        super().__init_subclass__(cookie, _dataclass_fields)
         cls.__label = label
         cls.__emoji = emoji
         cls.__style = style

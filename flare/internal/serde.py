@@ -168,7 +168,7 @@ class Serde(SerdeABC):
         if component_ is None:
             raise SerializerError(f"Component with cookie {cookie} does not exist.")
 
-        types = component_._class_annotations
+        types = component_._dataclass_annotations
 
         transformed_args: dict[str, typing.Any] = {}
 
