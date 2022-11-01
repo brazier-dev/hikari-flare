@@ -52,14 +52,14 @@ def check_solved(rows: t.MutableSequence[flare.Row]) -> CheckSolvedResult:
         return False
 
     if is_win(x):
-        return CheckSolvedResult.Player1
+        return CheckSolvedResult.PLAYER1
     if is_win(o):
-        return CheckSolvedResult.Player2
+        return CheckSolvedResult.PLAYER2
 
     if x + o == 511:
-        return CheckSolvedResult.Tie
+        return CheckSolvedResult.TIE
 
-    return CheckSolvedResult.Nothing
+    return CheckSolvedResult.NOTHING
 
 
 def disable_all(rows: t.MutableSequence[flare.Row]):
@@ -100,12 +100,12 @@ class TicTacToe(flare.Button, label=" "):
                 component.turn = not component.turn
 
         res = check_solved(rows)
-        if res == CheckSolvedResult.Nothing:
+        if res == CheckSolvedResult.NOTHING:
             content = f"{self.player_1.mention if self.turn else self.player_2.mention}'s Turn"
-        elif res == CheckSolvedResult.Player1:
+        elif res == CheckSolvedResult.PLAYER1:
             disable_all(rows)
             content = f"{self.player_1.mention} wins!"
-        elif res == CheckSolvedResult.Player2:
+        elif res == CheckSolvedResult.PLAYER2:
             disable_all(rows)
             content = f"{self.player_2.mention} wins!"
         else:
