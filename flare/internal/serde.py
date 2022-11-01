@@ -5,7 +5,7 @@ import typing as t
 
 from flare.converters import get_converter
 from flare.exceptions import SerializerError, SerializerVersionViolation
-from flare.utils import gather_iter
+from flare.utils import gather
 
 if t.TYPE_CHECKING:
     from flare.components import base
@@ -111,7 +111,7 @@ class Serde(SerdeABC):
             val = (await converter.to_str(val)).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
             return f"{val.replace(self.SEP, self.ESC_SEP)}"
 
-        out = self.SEP.join((f"{version}{cookie}", *await gather_iter(serialize_one(k, v) for k, v in types.items())))
+        out = self.SEP.join((f"{version}{cookie}", *await gather(serialize_one(k, v) for k, v in types.items())))
 
         if len(out) > 100:
             raise SerializerError(
@@ -147,7 +147,7 @@ class Serde(SerdeABC):
             cast_to = types[k]
             ret[k] = await get_converter(cast_to).from_str(v)
 
-        await gather_iter(convert_one(k, v) for k, v in kwargs.items())
+        await gather(convert_one(k, v) for k, v in kwargs.items())
 
         return ret
 

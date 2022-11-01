@@ -6,7 +6,7 @@ import hikari
 
 from flare.components import CallbackComponent, Component, LinkButton
 from flare.exceptions import RowMaxWidthError, SerializerError
-from flare.utils import gather_iter
+from flare.utils import gather
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
@@ -68,7 +68,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         async def gather_rows(action_row: hikari.PartialComponent) -> Row:
             assert isinstance(action_row, hikari.ActionRowComponent)
 
-            return Row(*await gather_iter(gather_components(components) for components in action_row))
+            return Row(*await gather(gather_components(components) for components in action_row))
 
         async def gather_components(component: hikari.PartialComponent):
             if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
@@ -85,7 +85,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
             else:
                 return await CallbackComponent.from_partial(component)
 
-        return await gather_iter(gather_rows(action_row) for action_row in message.components)
+        return await gather(gather_rows(action_row) for action_row in message.components)
 
     def build(self) -> t.MutableMapping[str, t.Any]:
         row = hikari.impl.ActionRowBuilder()

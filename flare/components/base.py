@@ -9,7 +9,11 @@ import typing as t
 import hikari
 import sigparse
 
-from flare.exceptions import MissingRequiredParameterError, SerializerError, UnsetIdError
+from flare.exceptions import (
+    MissingRequiredParameterError,
+    SerializerError,
+    UnsetIdError,
+)
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
