@@ -12,10 +12,10 @@ flare.install(bot)
 
 
 class CheckSolvedResult(enum.IntEnum):
-    Nothing = enum.auto()
-    Player1 = enum.auto()
-    Player2 = enum.auto()
-    Tie = enum.auto()
+    NOTHING = enum.auto()
+    PLAYER1 = enum.auto()
+    PLAYER2 = enum.auto()
+    TIE = enum.auto()
 
 
 # An algorythm to check if the game is solved.
