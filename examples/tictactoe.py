@@ -12,10 +12,10 @@ flare.install(bot)
 
 
 class CheckSolvedResult(enum.IntEnum):
-    Nothing = 0
-    Player1 = 1
-    Player2 = 2
-    Tie = 3
+    Nothing = enum.auto()
+    Player1 = enum.auto()
+    Player2 = enum.auto()
+    Tie = enum.auto()
 
 
 # An algorythm to check if the game is solved.
@@ -93,28 +93,30 @@ class TicTacToe(flare.Button, label=" "):
                 # This is safe because only `TicTacToe` buttons are used in the message.
                 assert isinstance(component, TicTacToe)
 
-                component.turn = not component.turn
-
                 # Only set the component label if it is the one that caused the event.
                 if component.x == self.x and component.y == self.y:
                     component.set_label("X" if component.turn else "O").set_disabled(True)
 
-        content = None
+                component.turn = not component.turn
+
         res = check_solved(rows)
-        if res != CheckSolvedResult.Nothing:
-            if res == CheckSolvedResult.Player1:
-                disable_all(rows)
-                content = f"{self.player_1.username} wins!"
-            elif res == CheckSolvedResult.Player2:
-                disable_all(rows)
-                content = f"{self.player_2.username} wins!"
-            elif res == CheckSolvedResult.Tie:
-                await ctx.edit_response(
-                    f"Its a tie!",
-                    components=await asyncio.gather(*rows),
-                )
+        if res == CheckSolvedResult.Nothing:
+            content = f"{self.player_1.mention if self.turn else self.player_2.mention}'s Turn"
+        elif res == CheckSolvedResult.Player1:
+            disable_all(rows)
+            content = f"{self.player_1.mention} (X) wins!"
+        elif res == CheckSolvedResult.Player2:
+            disable_all(rows)
+            content = f"{self.player_2.mention} (O) wins!"
+        else:
+            await ctx.edit_response(
+                f"Its a tie!",
+                components=await asyncio.gather(*rows),
+            )
+            return
+
         await ctx.edit_response(
-            content or f"{self.player_1.username if self.turn else self.player_2.username}'s Turn",
+            content,
             # The components must be awaited to update their custom id's.
             components=await asyncio.gather(*rows),
         )
@@ -166,7 +168,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 
     # The bot replies with a 3x3 of message components.
     await event.message.respond(
-        f"{event.message.author}'s Turn",
+        f"{event.message.author.mention}'s Turn",
         components=await asyncio.gather(
             flare.Row(
                 get_tac(0, 0),
