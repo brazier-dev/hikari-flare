@@ -2,7 +2,7 @@ import dataclasses
 import typing as t
 
 import sigparse
-import typing_extensions as te
+import typing_extensions
 
 __all__: t.Sequence[str] = ("Dataclass", "Field")
 
@@ -14,7 +14,7 @@ class Field:
     annotation: t.Any
 
 
-@te.dataclass_transform()
+@typing_extensions.dataclass_transform()
 class Dataclass:
     """
     A dataclass impl used for Components.

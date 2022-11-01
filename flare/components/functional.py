@@ -4,7 +4,7 @@ import abc
 import typing as t
 
 import sigparse
-import typing_extensions as te
+import typing_extensions
 
 from flare import dataclass
 from flare.components import base
@@ -14,7 +14,7 @@ if t.TYPE_CHECKING:
 
 __all__: t.Sequence[str] = ("FunctionalComponent",)
 
-P = te.ParamSpec("P")
+P = typing_extensions.ParamSpec("P")
 T = t.TypeVar("T", bound="base.CallbackComponent")
 
 
@@ -27,7 +27,9 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
 
     # This function is a python moment.
     # Just trust that it works.
-    def __call__(self, callback_: t.Callable[te.Concatenate[context.Context, P], t.Any]) -> t.Callable[P, T]:
+    def __call__(
+        self, callback_: t.Callable[typing_extensions.Concatenate[context.Context, P], t.Any]
+    ) -> t.Callable[P, T]:
         """
         Create and return proxy class for `callback`.
         """
