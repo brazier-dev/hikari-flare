@@ -104,10 +104,10 @@ class TicTacToe(flare.Button, label=" "):
             content = f"{self.player_1.mention if self.turn else self.player_2.mention}'s Turn"
         elif res == CheckSolvedResult.Player1:
             disable_all(rows)
-            content = f"{self.player_1.mention} (X) wins!"
+            content = f"{self.player_1.mention} wins!"
         elif res == CheckSolvedResult.Player2:
             disable_all(rows)
-            content = f"{self.player_2.mention} (O) wins!"
+            content = f"{self.player_2.mention} wins!"
         else:
             await ctx.edit_response(
                 f"Its a tie!",
