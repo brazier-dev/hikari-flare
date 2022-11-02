@@ -87,6 +87,10 @@ class TicTacToe(flare.Button, label=" "):
 
         rows = await ctx.get_components()
 
+        if ctx.author != (self.player_1 if self.turn else self.player_2):
+            await ctx.respond("You can't play! It is not your turn.", flags=hikari.MessageFlag.EPHEMERAL)
+            return
+
         # Iterate through the components to find the one that caused the event.
         for row in rows:
             for component in row:
@@ -101,7 +105,7 @@ class TicTacToe(flare.Button, label=" "):
 
         res = check_solved(rows)
         if res == CheckSolvedResult.NOTHING:
-            content = f"{self.player_1.mention if self.turn else self.player_2.mention}'s Turn"
+            content = f"{self.player_2.mention if self.turn else self.player_1.mention}'s Turn"
         elif res == CheckSolvedResult.PLAYER1:
             disable_all(rows)
             content = f"{self.player_1.mention} wins!"
