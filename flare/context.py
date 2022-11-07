@@ -66,7 +66,6 @@ class InteractionResponse:
         attachments: hikari.UndefinedOr[t.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[t.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             t.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -112,7 +111,6 @@ class InteractionResponse:
                 attachments=attachments,
                 embed=embed,
                 embeds=embeds,
-                replace_attachments=replace_attachments,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
@@ -127,7 +125,6 @@ class InteractionResponse:
             attachments=attachments,
             embed=embed,
             embeds=embeds,
-            replace_attachments=replace_attachments,
             mentions_everyone=mentions_everyone,
             user_mentions=user_mentions,
             role_mentions=role_mentions,
@@ -262,7 +259,6 @@ class Context:
         components: hikari.UndefinedOr[t.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[t.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        replace_attachments: bool = False,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[t.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -284,8 +280,6 @@ class Context:
                 An attachment to add to this message.
             attachments:
                 A sequence of attachments to add to this message.
-            replace_attachments:
-                Whether to replace the attachments with the provided ones.
             component:
                 A component to add to this message.
             components:
@@ -307,10 +301,6 @@ class Context:
             InteractionResponse: A proxy object representing the response to the interaction.
         """
         if self._issued_response:
-            if replace_attachments:
-                logger.warning(
-                    "Cannot replace attachments on an already issued response.\nThis is due to a bug in the modals branch of hikari."
-                )
             message = await self.interaction.execute(
                 content,
                 tts=tts,
@@ -335,7 +325,6 @@ class Context:
                 components=components,
                 attachment=attachment,
                 attachments=attachments,
-                replace_attachments=replace_attachments,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,
@@ -358,7 +347,6 @@ class Context:
         attachments: hikari.UndefinedOr[t.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[t.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             t.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -387,8 +375,6 @@ class Context:
                 An embed to add to this message.
             embeds:
                 A sequence of embeds to add to this message.
-            replace_attachments:
-                Whether to replace the attachments with the provided ones.
             mentions_everyone:
                 If True, mentioning @everyone will be allowed.
             user_mentions:
@@ -410,7 +396,6 @@ class Context:
                 attachments=attachments,
                 embed=embed,
                 embeds=embeds,
-                replace_attachments=replace_attachments,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
@@ -428,7 +413,6 @@ class Context:
                 tts=tts,
                 embed=embed,
                 embeds=embeds,
-                replace_attachments=replace_attachments,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
