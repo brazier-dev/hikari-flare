@@ -3,102 +3,67 @@ from __future__ import annotations
 import typing as t
 
 import hikari
+from typing_extensions import Self
 
+from flare import dataclass
 from flare.components.base import CallbackComponent, Component
+from flare.components.functional import FunctionalComponent
 from flare.exceptions import ComponentError
 
-if t.TYPE_CHECKING:
-    from flare import context
-
-__all__: t.Sequence[str] = ("button", "Button", "LinkButton")
+__all__: t.Sequence[str] = ("Button", "button", "LinkButton")
 
 P = t.ParamSpec("P")
-ButtonT = t.TypeVar("ButtonT", bound="Button[...]")
+ButtonT = t.TypeVar("ButtonT", bound="Button")
 
 
-class button:
-    """
-    Decorator for a button message component.
+class Button(CallbackComponent):
+    __label: t.ClassVar[str | None]
+    __emoji: t.ClassVar[hikari.Emoji | str | None]
+    __style: t.ClassVar[hikari.ButtonStyle]
+    __disabled: t.ClassVar[bool]
 
-    Args:
-        label:
-            The label on the button.
-        style:
-            The button style.
-        cookie:
-            An identifier to use for the button. A custom cookie can be supplied so
-            a shorter one is used in serializing and deserializing.
-        disabled:
-            Whether the button is disabled.
-        emoji:
-            The emoji on the button.
-    """
-
-    def __init__(
-        self,
+    def __init_subclass__(
+        cls,
+        *,
         label: str | None = None,
         emoji: hikari.Emoji | str | None = None,
         style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
         disabled: bool = False,
         cookie: str | None = None,
+        _dataclass_fields: list[dataclass.Field] | None = None,
     ) -> None:
-        self.label = label
-        self.emoji = emoji
-        self.disabled = disabled
-        self.style = style
-        self.cookie = cookie
+        super().__init_subclass__(cookie, _dataclass_fields)
+        cls.__label = label
+        cls.__emoji = emoji
+        cls.__style = style
+        cls.__disabled = disabled
 
-    def __call__(self, callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]]) -> Button[P]:
-        return Button(
-            callback=callback,
-            label=self.label,
-            emoji=self.emoji,
-            disabled=self.disabled,
-            style=self.style,
-            cookie=self.cookie,
-        )
-
-
-class Button(CallbackComponent[P]):
-    def __init__(
-        self,
-        *,
-        callback: t.Callable[t.Concatenate[context.Context, P], t.Awaitable[None]],
-        label: str | None,
-        emoji: hikari.Emoji | str | None,
-        style: hikari.ButtonStyle,
-        disabled: bool = False,
-        cookie: str | None,
-    ) -> None:
-        super().__init__(cookie, callback)
-        self.label = label
-        self.emoji = emoji
-        self.style = style
-        self.disabled = disabled
+    def __post_init__(self):
+        super().__post_init__()
+        self.label = self.__label
+        self.emoji = self.__emoji
+        self.style = self.__style
+        self.disabled = self.__disabled
 
     @property
     def width(self) -> int:
         return 1
 
-    def set_label(self: ButtonT, label: str | None) -> ButtonT:
-        clone = self._clone()
-        clone.label = label
-        return clone
+    def set_label(self, label: str | None) -> Self:
+        self.label = label
+        return self
 
-    def set_emoji(self: ButtonT, emoji: hikari.Emoji | str | None) -> ButtonT:
-        clone = self._clone()
-        clone.emoji = emoji
-        return clone
+    def set_emoji(self, emoji: hikari.Emoji | str | None) -> Self:
+        self.emoji = emoji
+        return self
 
-    def set_style(self: ButtonT, style: hikari.ButtonStyle) -> ButtonT:
-        clone = self._clone()
-        clone.style = style
-        return clone
+    def set_style(self, style: hikari.ButtonStyle) -> Self:
+        self.style = style
+        return self
 
-    def set_disabled(self: ButtonT, disabled: bool) -> ButtonT:
-        clone = self._clone()
-        clone.disabled = disabled
-        return clone
+    def set_disabled(self, disabled: bool) -> Self:
+        self.disabled = disabled
+        return self
 
     def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
         """
@@ -116,6 +81,7 @@ class Button(CallbackComponent[P]):
         if self.label:
             button.set_label(self.label)
 
+        emoji: hikari.Emoji | hikari.UndefinedType
         if isinstance(self.emoji, str):
             emoji = hikari.Emoji.parse(self.emoji)
         else:
@@ -127,6 +93,42 @@ class Button(CallbackComponent[P]):
         button.set_is_disabled(self.disabled)
 
         button.add_to_container()
+
+
+class button(FunctionalComponent[Button]):
+    """
+    A decorator to create a `flare.Button`. This is a shorthand for when type
+    safety is not needed.
+    """
+
+    def __init__(
+        self,
+        *,
+        cookie: str | None = None,
+        label: str | None = None,
+        emoji: str | hikari.Emoji | None = None,
+        style: hikari.ButtonStyle = hikari.ButtonStyle.PRIMARY,
+        disabled: bool = False,
+    ) -> None:
+        self.cookie = cookie
+        self.label = label
+        self.emoji = emoji
+        self.style = style
+        self.disabled = disabled
+
+    @property
+    def component_type(self) -> type[Button]:
+        return Button
+
+    @property
+    def kwargs(self) -> dict[str, t.Any]:
+        return {
+            "cookie": self.cookie,
+            "label": self.label,
+            "emoji": self.emoji,
+            "style": self.style,
+            "disabled": self.disabled,
+        }
 
 
 class LinkButton(Component):

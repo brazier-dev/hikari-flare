@@ -7,9 +7,11 @@ from flare.internal.bootstrap import install
 from flare.row import Row
 
 __all__: typing.Sequence[str] = (
-    "button",
     "LinkButton",
+    "button",
+    "Button",
     "select",
+    "Select",
     "Context",
     "Converter",
     "add_converter",
