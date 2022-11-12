@@ -7,9 +7,6 @@ import typing as t
 
 import hikari
 
-from flare.exceptions import (
-    SerializerError,
-)
 from flare import dataclass
 from flare.exceptions import CustomIDNotSetError, SerializerError
 from flare.internal import bootstrap
