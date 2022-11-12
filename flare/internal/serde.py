@@ -34,7 +34,7 @@ class SerdeABC(abc.ABC):
     @abc.abstractmethod
     async def deserialize(
         self, custom_id: str, map: dict[str, t.Any]
-    ) -> tuple[base.CallbackComponent[...], dict[str, t.Any]]:
+    ) -> tuple[type[base.CallbackComponent], dict[str, t.Any]]:
         """
         Decode a custom_id for a component.
 
@@ -153,7 +153,7 @@ class Serde(SerdeABC):
 
     async def deserialize(
         self, custom_id: str, map: dict[str, t.Any]
-    ) -> tuple[base.CallbackComponent[...], dict[str, t.Any]]:
+    ) -> tuple[type[base.CallbackComponent], dict[str, t.Any]]:
         if self.VER is not None:  # Allow for no version to disable verification
             version = await get_converter(int).from_str(custom_id[0])
 
@@ -171,7 +171,7 @@ class Serde(SerdeABC):
         if component_ is None:
             raise SerializerError(f"Component with cookie {cookie} does not exist.")
 
-        types = component_.function_params
+        types = component_._dataclass_annotations
 
         transformed_args: dict[str, t.Any] = {}
 

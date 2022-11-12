@@ -27,7 +27,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         ...
 
     @t.overload
-    def __getitem__(self, value: slice) -> t.Sequence[Component]:
+    def __getitem__(self, value: slice) -> t.MutableSequence[Component]:
         ...
 
     def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component, t.Sequence[Component]]:

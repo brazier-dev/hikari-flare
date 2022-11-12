@@ -27,12 +27,12 @@ class MissingRequiredParameterError(ComponentError):
     """Exception raised when a required parameter (or parameters) for a component is missing."""
 
 
-class UnsetIdError(ComponentError):
-    """Exception raised when component custom is not set."""
-
-
 class RowMaxWidthError(ComponentError):
     """Exception raised when a row exceeds the maximum width."""
+
+
+class CustomIDNotSetError(ComponentError):
+    """Raised when a component's custom ID is not set because the row it is in was not awaited."""
 
 
 # MIT License

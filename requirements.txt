@@ -1,2 +1,3 @@
-hikari>=2.0.0.dev111
+hikari>=2.0.0.dev112
 sigparse>=2.0.0
+typing-extensions>=4.4.0
