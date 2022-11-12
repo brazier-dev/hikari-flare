@@ -5,6 +5,7 @@ from flare.context import Context
 from flare.converters import Converter, add_converter
 from flare.internal.bootstrap import install
 from flare.row import Row
+from flare.utils import gather_iter
 
 __all__: typing.Sequence[str] = (
     "LinkButton",
@@ -17,6 +18,7 @@ __all__: typing.Sequence[str] = (
     "add_converter",
     "install",
     "Row",
+    "gather_iter",
 )
 
 __version__ = "0.1.0"
