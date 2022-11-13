@@ -129,7 +129,12 @@ class Serde(SerdeABC):
             converter = get_converter(v)
             return self.escape(await converter.to_str(val)) if val is not None else self.NULL
 
-        out = self.SEP.join((f"{version}{cookie}", *await gather_iter(serialize_one(k, v) for k, v in types.items())))
+        out = self.SEP.join(
+            (
+                f"{self.escape(version)}{self.escape(cookie)}",
+                *await gather_iter(serialize_one(k, v) for k, v in types.items()),
+            )
+        )
 
         if len(out) > 100:
             raise SerializerError(
@@ -196,6 +201,8 @@ class Serde(SerdeABC):
             custom_id = custom_id[1:]
 
         cookie, *args = self.split_on_sep(self.unescape(custom_id))
+
+        print(cookie, *args)
 
         component_ = map.get(self.tuple_list_to_string(cookie))
 
