@@ -60,6 +60,8 @@ class Serde(SerdeABC):
         self._NULL: str = null
         self._VER: int | None = version
 
+        self._increment = 0
+
         if len(sep) != 1:
             raise ValueError("Separator must be a single character.")
 
@@ -91,6 +93,13 @@ class Serde(SerdeABC):
         If None, the serializer will not attempt to verify the version of the serialized data.
         """
         return self._VER
+
+    async def get_inc(self) -> str:
+        self._increment += 1
+        if self._increment > 65535:
+            self._increment = 0
+
+        return await get_converter(int).to_str(self._increment)
 
     def escape(self, string: str) -> str:
         """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
