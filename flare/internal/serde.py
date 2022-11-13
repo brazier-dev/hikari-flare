@@ -126,8 +126,7 @@ class Serde(SerdeABC):
         async def serialize_one(k: str, v: t.Any) -> str:
             val = kwargs.get(k)
             converter = get_converter(v)
-            val = await converter.to_str(val) if val is not None else self.NULL
-            return self.escape(val)
+            return self.escape(await converter.to_str(val)) if val is not None else self.NULL
 
         out = self.SEP.join((f"{version}{cookie}", *await gather_iter(serialize_one(k, v) for k, v in types.items())))
 
@@ -207,7 +206,7 @@ class Serde(SerdeABC):
 
         for k, arg in zip(types.keys(), args):
             if len(arg) == 1:
-                if arg[0] == (self.NULL, True):
+                if arg[0] == (self.NULL, False):
                     transformed_args[k] = None
                     continue
             transformed_args[k] = self.tuple_list_to_string(arg)
