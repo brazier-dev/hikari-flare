@@ -93,6 +93,7 @@ class Serde(SerdeABC):
         return self._VER
 
     def escape(self, string: str) -> str:
+        """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
         out: list[str] = []
         for char in string:
             if char in [self.ESC, self.NULL, self.SEP]:
@@ -102,7 +103,7 @@ class Serde(SerdeABC):
         return "".join(out)
 
     def unescape(self, string: str) -> list[tuple[str, bool]]:
-        """Returns a list of all characters in the string"""
+        """Returns a list of tuples signifying (the character, whether it was escaped)"""
         out: list[tuple[str, bool]] = []
         last_was_esc = False
 
@@ -161,6 +162,7 @@ class Serde(SerdeABC):
 
     @staticmethod
     def tuple_list_to_string(string: list[tuple[str, bool]]) -> str:
+        """Conbine a list of tuples into a string, ignoring the second value."""
         out: list[str] = []
         for char, _ in string:
             out.append(char)
