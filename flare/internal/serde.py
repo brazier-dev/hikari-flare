@@ -73,7 +73,7 @@ class Serde(SerdeABC):
         sep: str = "\x81",
         null: str = "\x82",
         esc: str = "\\",
-        increment_length: int = 4,
+        increment_length: int = 3,
         version: int | None = 0,
     ) -> None:
         self._SEP: str = sep
@@ -234,7 +234,6 @@ class Serde(SerdeABC):
 
             custom_id = custom_id[1:]
 
-        # Remove the increment
         custom_id = custom_id[self._increment_length :]
 
         cookie, *args = self.split_on_sep(self.unescape(custom_id))
