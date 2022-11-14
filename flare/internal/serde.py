@@ -85,16 +85,6 @@ class Serde(SerdeABC):
         return self._NULL
 
     @property
-    def ESC_NULL(self) -> str:
-        """The escape sequence for the null character."""
-        return f"{self.ESC}{self.NULL}"
-
-    @property
-    def ESC_SEP(self) -> str:
-        """The escape sequence for the separator."""
-        return f"{self.ESC}{self.SEP}"
-
-    @property
     def VER(self) -> int | None:
         """
         The version of the serialization format.
@@ -102,24 +92,59 @@ class Serde(SerdeABC):
         """
         return self._VER
 
+    def escape(self, string: str) -> str:
+        """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
+        out: list[str] = []
+        for char in string:
+            if char in [self.ESC, self.NULL, self.SEP]:
+                out.append(f"{self.ESC}{char}")
+            else:
+                out.append(char)
+        return "".join(out)
+
+    def unescape(self, string: str) -> list[tuple[str, bool]]:
+        """Returns a list of tuples signifying (the character, whether it was escaped)"""
+        out: list[tuple[str, bool]] = []
+        last_was_esc = False
+
+        for char in string:
+            if not last_was_esc and char != self.ESC:
+                out.append((char, False))
+                continue
+
+            if last_was_esc:
+                out.append((char, True))
+                last_was_esc = False
+                continue
+
+            last_was_esc = True
+
+        return out
+
     async def serialize(self, cookie: str, types: dict[str, t.Any], kwargs: dict[str, t.Any]) -> str:
         version = "" if self.VER is None else await get_converter(int).to_str(self.VER)
 
         async def serialize_one(k: str, v: t.Any) -> str:
             val = kwargs.get(k)
             converter = get_converter(v)
-            val = (await converter.to_str(val)).replace(self.NULL, self.ESC_NULL) if val is not None else self.NULL
-            return f"{val.replace(self.SEP, self.ESC_SEP)}"
+            return self.escape(await converter.to_str(val)) if val is not None else self.NULL
 
-        out = self.SEP.join((f"{version}{cookie}", *await gather_iter(serialize_one(k, v) for k, v in types.items())))
+        out = self.SEP.join(
+            (
+                f"{self.escape(version)}{self.escape(cookie)}",
+                *await gather_iter(serialize_one(k, v) for k, v in types.items()),
+            )
+        )
 
         if len(out) > 100:
             raise SerializerError(
-                f"The serialized custom_id for component {cookie} may be too long. Try reducing the number of parameters the component takes.\nGot length: {len(out)} Expected length: 100 or less"
+                f"The serialized custom_id for component {cookie} may be too long."
+                " Try reducing the number of parameters the component takes."
+                f" Got length: {len(out)} Expected length: 100 or less"
             )
         return out
 
-    def split_on_sep(self, string: str) -> list[str]:
+    def split_on_sep(self, string: list[tuple[str, bool]]) -> list[list[tuple[str, bool]]]:
         """Split the provided string on the separator, but ignore separators that are escaped.
 
         Args:
@@ -130,20 +155,31 @@ class Serde(SerdeABC):
             list[str]
                 The split string.
         """
-        out: list[list[str]] = [[string[0]]]
+        out: list[list[tuple[str, bool]]] = [[]]
 
-        for last, char in zip(string[:-1], string[1:]):
-            if last != self.ESC and char == self.SEP:
+        for char, is_escaped in string:
+            if char == self.SEP and not is_escaped:
                 out.append([])
             else:
-                out[-1] += [char]
+                out[-1].append((char, is_escaped))
 
-        return ["".join(row).replace(self.ESC_SEP, self.SEP) for row in out]
+        return out
 
-    async def _cast_kwargs(self, kwargs: dict[str, t.Any], types: dict[str, t.Any]) -> dict[str, t.Any]:
+    @staticmethod
+    def tuple_list_to_string(string: list[tuple[str, bool]]) -> str:
+        """Conbine a list of tuples into a string, ignoring the second value."""
+        out: list[str] = []
+        for char, _ in string:
+            out.append(char)
+        return "".join(out)
+
+    async def cast_kwargs(self, kwargs: dict[str, t.Any], types: dict[str, t.Any]) -> dict[str, t.Any]:
         ret: dict[str, t.Any] = {}
 
-        async def convert_one(k: str, v: t.Any):
+        async def convert_one(k: str, v: t.Any) -> None:
+            if v is None:
+                ret[k] = None
+                return
             cast_to = types[k]
             ret[k] = await get_converter(cast_to).from_str(v)
 
@@ -164,9 +200,11 @@ class Serde(SerdeABC):
 
             custom_id = custom_id[1:]
 
-        cookie, *args = self.split_on_sep(custom_id)
+        cookie, *args = self.split_on_sep(self.unescape(custom_id))
 
-        component_ = map.get(cookie)
+        print(cookie, *args)
+
+        component_ = map.get(self.tuple_list_to_string(cookie))
 
         if component_ is None:
             raise SerializerError(f"Component with cookie {cookie} does not exist.")
@@ -176,8 +214,10 @@ class Serde(SerdeABC):
         transformed_args: dict[str, t.Any] = {}
 
         for k, arg in zip(types.keys(), args):
-            if arg != self.NULL:
-                arg = arg.replace(self.ESC_NULL, self.NULL)
-                transformed_args[k] = arg
+            if len(arg) == 1:
+                if arg[0] == (self.NULL, False):
+                    transformed_args[k] = None
+                    continue
+            transformed_args[k] = self.tuple_list_to_string(arg)
 
-        return (component_, await self._cast_kwargs(transformed_args, types))
+        return (component_, await self.cast_kwargs(transformed_args, types))
