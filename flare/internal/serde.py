@@ -81,9 +81,6 @@ class Serde(SerdeABC):
         self._NULL: str = null
         self._VER: int | None = version
 
-        # Unique number for all components. These numbers are repeated after 2^16
-        # but that is ok because it is unrealilistic to run into conflicts in one
-        # message.
         self._increment_length = increment_length
         self._increment = 0
 
