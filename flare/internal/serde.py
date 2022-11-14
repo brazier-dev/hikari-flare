@@ -53,10 +53,29 @@ class Serde(SerdeABC):
     For simple behaviour changes it may be sufficient to subclass this class, but if you desire to completely
     overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
 
-    With this serializer, serialized field length must be less than (97-num_fields).
+    Args:
+        sep:
+            The character used to serperate fields.
+        null:
+            The character used to signify `None`.
+        esc:
+            The escape character.
+        version:
+            The serializer version number.
+        increment_length:
+            `increment` is a unique number to allow buttons for the same values in the same
+            message. `increment_length` can be set to `0` if identical buttons are never used
+            in the same message.
     """
 
-    def __init__(self, sep: str = "\x81", null: str = "\x82", esc: str = "\\", version: int | None = 0) -> None:
+    def __init__(
+        self,
+        sep: str = "\x81",
+        null: str = "\x82",
+        esc: str = "\\",
+        increment_length: int = 4,
+        version: int | None = 0,
+    ) -> None:
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
@@ -65,6 +84,7 @@ class Serde(SerdeABC):
         # Unique number for all components. These numbers are repeated after 2^16
         # but that is ok because it is unrealilistic to run into conflicts in one
         # message.
+        self._increment_length = increment_length
         self._increment = 0
 
         if len(sep) != 1:
@@ -101,10 +121,10 @@ class Serde(SerdeABC):
 
     def get_inc(self) -> str:
         self._increment += 1
-        if self._increment > 65535:
+        if self._increment > 2**self._increment_length - 1:
             self._increment = 0
 
-        return self._increment.to_bytes(2, "little").decode("latin1")
+        return self._increment.to_bytes(self._increment_length, "little").decode("latin1")
 
     def escape(self, string: str) -> str:
         """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
@@ -215,7 +235,7 @@ class Serde(SerdeABC):
             custom_id = custom_id[1:]
 
         # Remove the increment
-        custom_id = custom_id[2:]
+        custom_id = custom_id[self._increment_length :]
 
         cookie, *args = self.split_on_sep(self.unescape(custom_id))
 
