@@ -52,6 +52,8 @@ class Serde(SerdeABC):
 
     For simple behaviour changes it may be sufficient to subclass this class, but if you desire to completely
     overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
+
+    With this serializer, serialized field length must be less than (97-num_fields).
     """
 
     def __init__(self, sep: str = "\x81", null: str = "\x82", esc: str = "\\", version: int | None = 0) -> None:
@@ -60,6 +62,9 @@ class Serde(SerdeABC):
         self._NULL: str = null
         self._VER: int | None = version
 
+        # Unique number for all components. These numbers are repeated after 2^16
+        # but that is ok because it is unrealilistic to run into conflicts in one
+        # message.
         self._increment = 0
 
         if len(sep) != 1:
@@ -94,12 +99,12 @@ class Serde(SerdeABC):
         """
         return self._VER
 
-    async def get_inc(self) -> str:
+    def get_inc(self) -> str:
         self._increment += 1
         if self._increment > 65535:
             self._increment = 0
 
-        return await get_converter(int).to_str(self._increment)
+        return self._increment.to_bytes(2, "little").decode("latin1")
 
     def escape(self, string: str) -> str:
         """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
@@ -140,7 +145,7 @@ class Serde(SerdeABC):
 
         out = self.SEP.join(
             (
-                f"{self.escape(version)}{self.escape(cookie)}",
+                f"{self.escape(version)}{self.get_inc()}{self.escape(cookie)}",
                 *await gather_iter(serialize_one(k, v) for k, v in types.items()),
             )
         )
@@ -208,6 +213,9 @@ class Serde(SerdeABC):
                 )
 
             custom_id = custom_id[1:]
+
+        # Remove the increment
+        custom_id = custom_id[2:]
 
         cookie, *args = self.split_on_sep(self.unescape(custom_id))
 
