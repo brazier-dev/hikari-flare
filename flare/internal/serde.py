@@ -60,12 +60,12 @@ class Serde(SerdeABC):
             The character used to signify `None`.
         esc:
             The escape character.
-        version:
-            The serializer version number.
         increment_length:
             `increment` is a unique number to allow buttons for the same values in the same
             message. `increment_length` can be set to `0` if identical buttons are never used
             in the same message.
+        version:
+            The serializer version number.
     """
 
     def __init__(
