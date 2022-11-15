@@ -36,7 +36,7 @@ class Dataclass:
     ) -> None:
         # class vars are used for fields if fields were provided.
         cls._fields = fields or [
-            Field(name=class_var.name, default=class_var.name, annotation=class_var.annotation)
+            Field(name=class_var.name, default=class_var.default, annotation=class_var.annotation)
             for class_var in sigparse.classparse(cls)
             if not class_var.name.startswith("_")
         ]
