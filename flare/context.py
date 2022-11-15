@@ -236,7 +236,7 @@ class Context:
         """Returns the flare components for the interaction this context is proxying"""
         return await row.Row.from_message(self.message)
 
-    async def iter_components(self) -> t.AsyncIterable[tuple[int, int, components.Component]]:
+    async def enumerate_components(self) -> t.AsyncIterable[tuple[int, int, components.Component]]:
         """
         Function to iterate through all the components and their row number and column number.
 
@@ -245,7 +245,7 @@ class Context:
             # `row` is the x coordinate.
             # `column` is the y coordinate.
 
-            async for row, column, component in ctx.iter_components():
+            async for row, column, component in ctx.enumerate_components():
                 ...
         """
         for row_number, row in enumerate(await self.get_components()):
