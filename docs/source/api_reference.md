@@ -19,4 +19,5 @@ If you think anything is missing, feel free to open an issue or pull request.
    api_references/converters
    api_references/exceptions
    api_references/internals
+   api_references/iterators
 ```
