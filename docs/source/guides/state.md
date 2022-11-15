@@ -13,26 +13,22 @@ async def button(
     ...
 ```
 
-You will be forced to supply `arg` in the `button.set()` method, but `kwarg`
-will be optional. The signature of `button.set()` will be:
+You will be forced to supply `arg` in the `button()` method, but `kwarg`
+will be optional. The signature of `button()` will be:
 ```python
 def set(arg: int, kwarg: int = 0):
     ...
 ```
 
-When calling `button.set()`, if you do not provide arguments correctly, type
+When calling `button()`, if you do not provide arguments correctly, type
 errors will be raised.
 
 ```python
-button.set(1)               # Ok!
-button.set(1, 2)            # Ok!
-button.set(arg=1, kwarg=2)  # Ok!
-button.set()                # Type Error: Missing argument `arg`.
-button.set(1, invalid=5)    # Type Error: `invalid` is not a keyword argument.
-```
-
-```{warning}
-Mypy [does not support](https://github.com/python/mypy/issues/13403) this typing.
+button(1)               # Ok!
+button(1, 2)            # Ok!
+button(arg=1, kwarg=2)  # Ok!
+button()                # Type Error: Missing argument `arg`.
+button(1, invalid=5)    # Type Error: `invalid` is not a keyword argument.
 ```
 
 Required keyword arguments are also supported.
@@ -46,8 +42,8 @@ async def button(
 ):
     ...
 
-button.set(required_kwarg=10)  # Ok!
-button.set()                   # Type Error
+button(required_kwarg=10)  # Ok!
+button()                   # Type Error
 ```
 
 
@@ -62,9 +58,8 @@ async def button(
     ctx: flare.Context,
     number: int,
 ) -> None: 
-    print(number)
     await ctx.edit_response(
-        component=flare.Row(button.set(number=number+1))
+        component=flare.Row(button(number=number+1))
     )
 ```
 
@@ -88,12 +83,6 @@ async def button(
 
 This list can be modified to change modified to edit components.
 
-```{note}
-`component.set()` clones components. It does not modify them in place.
-```
-
-A helper method is also provided to help edit components.
-
 ```python
 @flare.button(label="Click me!")
 async def counter_button(
@@ -104,9 +93,11 @@ async def counter_button(
 
     # Get all the components as a list of rows.
     rows = await ctx.get_components()
+
     # Edit the values for `counter_button` in the list of
     # rows.
-    counter_button.set_in(rows, number=number)
+    me = rows[0][0]
+    me.number += 1
 
     await ctx.edit_response(
         content=number,
