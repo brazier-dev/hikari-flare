@@ -16,7 +16,7 @@ async def button(
 You will be forced to supply `arg` in the `button()` method, but `kwarg`
 will be optional. The signature of `button()` will be:
 ```python
-def set(arg: int, kwarg: int = 0):
+def __init__(arg: int, kwarg: int = 0):
     ...
 ```
 
