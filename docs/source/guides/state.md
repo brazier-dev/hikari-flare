@@ -49,7 +49,7 @@ button()                   # Type Error
 
 # Editing Components
 
-Components can be edited to update state. THe simplist way to edit components
+Components can be edited to update state. The simplist way to edit components
 is to create all of them again.
 
 ```python
@@ -63,7 +63,7 @@ async def button(
     )
 ```
 
-There is also a shortcut to return all the rows in the message `flare.Context`
+There is also a shortcut to return all the components in the message `flare.Context`
 is proxying.
 
 ```python
@@ -81,7 +81,7 @@ async def button(
             print(component)
 ```
 
-This list can be modified to change modified to edit components.
+This list can be mutated to change modified to edit components.
 
 ```python
 @flare.button(label="Click me!")
