@@ -28,7 +28,7 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
         interaction=event.interaction,
     )
 
-    await component.callback(ctx, **kwargs)
+    await component(**kwargs).callback(ctx)  # type: ignore
 
 
 # MIT License

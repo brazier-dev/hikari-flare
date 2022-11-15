@@ -6,6 +6,7 @@ import hikari
 
 from flare.components import CallbackComponent, Component, LinkButton
 from flare.exceptions import RowMaxWidthError, SerializerError
+from flare.utils import gather_iter
 
 
 class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
@@ -26,7 +27,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         ...
 
     @t.overload
-    def __getitem__(self, value: slice) -> t.Sequence[Component]:
+    def __getitem__(self, value: slice) -> t.MutableSequence[Component]:
         ...
 
     def __getitem__(self, value: t.Union[slice, int]) -> t.Union[Component, t.Sequence[Component]]:
@@ -52,6 +53,28 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         return set_custom_ids().__await__()
 
     @classmethod
+    async def __gather_rows(cls, action_row: hikari.PartialComponent) -> Row:
+        assert isinstance(action_row, hikari.ActionRowComponent)
+
+        return Row(*await gather_iter(cls.__gather_components(components) for components in action_row))
+
+    @staticmethod
+    async def __gather_components(component: hikari.PartialComponent):
+        if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
+            assert component.url
+
+            if not (component.label or component.emoji):
+                raise SerializerError("Link button does not have label or emoji.")
+            # This is a valid overload users shouldn't be able to use.
+            return LinkButton(
+                url=component.url,
+                label=component.label,  # type: ignore
+                emoji=component.emoji,  # type: ignore
+            )
+        else:
+            return await CallbackComponent.from_partial(component)
+
+    @classmethod
     async def from_message(cls, message: hikari.Message) -> t.MutableSequence[Row]:
         """Create a row from a message's components.
 
@@ -63,31 +86,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
             Row:
                 The created rows from the message's components.
         """
-        rows: list[Row] = []
-
-        for action_row in message.components:
-            assert isinstance(action_row, hikari.ActionRowComponent)
-            rows.append(Row())
-
-            for component in action_row.components:
-                if isinstance(component, hikari.ButtonComponent) and component.style is hikari.ButtonStyle.LINK:
-                    assert component.url
-
-                    if not (component.label or component.emoji):
-                        raise SerializerError("Link button does not have label or emoji.")
-
-                    rows[-1].append(
-                        # This is a valid overload users shouldn't be able to use.
-                        LinkButton(
-                            url=component.url,
-                            label=component.label,  # type: ignore
-                            emoji=component.emoji,  # type: ignore
-                        )
-                    )
-                else:
-                    rows[-1].append(await CallbackComponent.from_partial(component))
-
-        return rows
+        return await gather_iter(cls.__gather_rows(action_row) for action_row in message.components)
 
     def build(self) -> t.MutableMapping[str, t.Any]:
         row = hikari.impl.ActionRowBuilder()

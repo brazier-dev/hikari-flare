@@ -30,14 +30,13 @@ flare.install(bot)
 async def counter_button(
     ctx: flare.Context,
     # The argument `n` is saved as the state. This argument defaults to 0 if no
-    # value is specified in `counter_button.set()` or `counter_button.set()` is
-    # not used.
+    # value is specified in `counter_button()`.
     n: int = 0,
 ) -> None:
     n += 1
     await ctx.edit_response(
         # The components are edited to update the state.
-        component=await flare.Row(counter_button.set_label(f"Clicked {n} Times!").set(n=n))
+        component=await flare.Row(counter_button(n=n).set_label(f"Clicked {n} Times!"))
     )
 
 
@@ -52,7 +51,7 @@ async def on_message(event: hikari.MessageCreateEvent):
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
             # When responding to the interaction, use the default values.
-            component=await flare.Row(counter_button)
+            component=await flare.Row(counter_button())
         )
 
 bot.run()
