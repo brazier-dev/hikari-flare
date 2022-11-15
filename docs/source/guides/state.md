@@ -105,3 +105,31 @@ async def counter_button(
         components=await asyncio.gather(*rows),
     )
 ```
+
+# Complex Buttons
+
+Dataclass-like syntax can be used to create buttons with type safe attributes.
+This class is constructed identically to how a dataclass is constructed.
+
+```python
+class Button(flare.Button, label="Label"):
+    a: int
+    b: int = 5
+
+    async def callback(self, ctx: flare.Context):
+        reveal_type(self.a)  # int
+        reveal_type(self.b)  # int
+
+        print(self.a)
+        print(self.b)
+
+        # Type safe component attribute editing
+        self.a = 5
+        self.b = 10
+
+
+        await ctx.edit_response(
+            content=number,
+            component=await flare.Row(self),
+        )
+```
