@@ -162,7 +162,7 @@ class Serde(SerdeABC):
 
         out = self.SEP.join(
             (
-                f"{self.escape(version)}{self.get_inc()}{self.escape(cookie)}",
+                f"{version}{self.get_inc()}{self.escape(cookie)}",
                 *await gather_iter(serialize_one(k, v) for k, v in types.items()),
             )
         )
