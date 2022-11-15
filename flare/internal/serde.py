@@ -52,13 +52,37 @@ class Serde(SerdeABC):
 
     For simple behaviour changes it may be sufficient to subclass this class, but if you desire to completely
     overhaul serialization and deserialization, you may wish to only subclass SerdeABC instead.
+
+    Args:
+        sep:
+            The character used to serperate fields.
+        null:
+            The character used to signify `None`.
+        esc:
+            The escape character.
+        increment_length:
+            `increment` is a unique number to allow buttons for the same values in the same
+            message. `increment_length` can be set to `0` if identical buttons are never used
+            in the same message.
+        version:
+            The serializer version number.
     """
 
-    def __init__(self, sep: str = "\x81", null: str = "\x82", esc: str = "\\", version: int | None = 0) -> None:
+    def __init__(
+        self,
+        sep: str = "\x81",
+        null: str = "\x82",
+        esc: str = "\\",
+        increment_length: int = 3,
+        version: int | None = 0,
+    ) -> None:
         self._SEP: str = sep
         self._ESC: str = esc
         self._NULL: str = null
         self._VER: int | None = version
+
+        self._increment_length = increment_length
+        self._increment = 0
 
         if len(sep) != 1:
             raise ValueError("Separator must be a single character.")
@@ -91,6 +115,13 @@ class Serde(SerdeABC):
         If None, the serializer will not attempt to verify the version of the serialized data.
         """
         return self._VER
+
+    def get_inc(self) -> str:
+        self._increment += 1
+        if self._increment > 2**self._increment_length - 1:
+            self._increment = 0
+
+        return self._increment.to_bytes(self._increment_length, "little").decode("latin1")
 
     def escape(self, string: str) -> str:
         """Escape a string using `self.ESC`, `self.NULL` and `self.SEP`."""
@@ -131,7 +162,7 @@ class Serde(SerdeABC):
 
         out = self.SEP.join(
             (
-                f"{self.escape(version)}{self.escape(cookie)}",
+                f"{version}{self.get_inc()}{self.escape(cookie)}",
                 *await gather_iter(serialize_one(k, v) for k, v in types.items()),
             )
         )
@@ -200,9 +231,9 @@ class Serde(SerdeABC):
 
             custom_id = custom_id[1:]
 
-        cookie, *args = self.split_on_sep(self.unescape(custom_id))
+        custom_id = custom_id[self._increment_length :]
 
-        print(cookie, *args)
+        cookie, *args = self.split_on_sep(self.unescape(custom_id))
 
         component_ = map.get(self.tuple_list_to_string(cookie))
 
