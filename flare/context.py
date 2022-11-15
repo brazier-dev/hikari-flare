@@ -252,6 +252,19 @@ class Context:
             for column_number, component in enumerate(row):
                 yield (row_number, column_number, component)
 
+    async def flatten_components(self) -> t.AsyncIterable[components.Component]:
+        """
+        Function to iterate through all the components with a single for loop.
+
+        .. code-block:: python
+
+            async for component in ctx.flatten_components():
+                ...
+        """
+        for row in await self.get_components():
+            for component in row:
+                yield component
+
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.
 
