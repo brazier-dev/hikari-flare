@@ -6,7 +6,7 @@ import typing as t
 import hikari
 from hikari.snowflakes import Snowflake
 
-from flare import row, components
+from flare import components, row
 
 __all__: t.Sequence[str] = ("Context", "InteractionResponse")
 
