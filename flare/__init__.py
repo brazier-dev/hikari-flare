@@ -3,6 +3,7 @@ import typing
 from flare.components import *
 from flare.context import Context
 from flare.converters import Converter, add_converter
+from flare.iterators import flatten, enumerate
 from flare.internal.bootstrap import install
 from flare.row import Row
 from flare.utils import gather_iter
@@ -17,6 +18,8 @@ __all__: typing.Sequence[str] = (
     "Converter",
     "add_converter",
     "install",
+    "flatten",
+    "enumerate",
     "Row",
     "gather_iter",
 )

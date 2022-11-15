@@ -6,7 +6,7 @@ import typing as t
 import hikari
 from hikari.snowflakes import Snowflake
 
-from flare import components, row
+from flare import row
 
 __all__: t.Sequence[str] = ("Context", "InteractionResponse")
 
@@ -235,35 +235,6 @@ class Context:
     async def get_components(self) -> t.MutableSequence[row.Row]:
         """Returns the flare components for the interaction this context is proxying"""
         return await row.Row.from_message(self.message)
-
-    async def enumerate_components(self) -> t.AsyncIterable[tuple[int, int, components.Component]]:
-        """
-        Function to iterate through all the components and their row number and column number.
-
-        .. code-block:: python
-
-            # `row` is the x coordinate.
-            # `column` is the y coordinate.
-
-            async for row, column, component in ctx.enumerate_components():
-                ...
-        """
-        for row_number, row in enumerate(await self.get_components()):
-            for column_number, component in enumerate(row):
-                yield (row_number, column_number, component)
-
-    async def flatten_components(self) -> t.AsyncIterable[components.Component]:
-        """
-        Function to iterate through all the components with a single for loop.
-
-        .. code-block:: python
-
-            async for component in ctx.flatten_components():
-                ...
-        """
-        for row in await self.get_components():
-            for component in row:
-                yield component
 
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.
