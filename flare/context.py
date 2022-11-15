@@ -238,19 +238,19 @@ class Context:
 
     async def iter_components(self) -> t.AsyncIterable[tuple[int, int, components.Component]]:
         """
-        Function to iterate through all the components and their column number and row now.
+        Function to iterate through all the components and their row number and column number.
 
         .. code-block:: python
 
-            # `column` is the x coordinate.
-            # `row` is the y coordinate.
+            # `row` is the x coordinate.
+            # `column` is the y coordinate.
 
-            async for column, row, component in ctx.iter_components():
+            async for row, column, component in ctx.iter_components():
                 ...
         """
-        for column_number, row in enumerate(await self.get_components()):
-            for row_number, component in enumerate(row):
-                yield (column_number, row_number, component)
+        for row_number, row in enumerate(await self.get_components()):
+            for column_number, component in enumerate(row):
+                yield (row_number, column_number, component)
 
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.
