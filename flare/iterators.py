@@ -1,6 +1,5 @@
-import typing as t
 import builtins
-
+import typing as t
 
 __all__: t.Sequence[str] = (
     "enumerate",
