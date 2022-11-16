@@ -24,6 +24,7 @@ async def counter_button(
     n: int = 0,
 ) -> None:
     components = await ctx.get_components()
+    # `counter_button` is row 0, coulumn 0.
     components[0][0] = counter_button(n + 1).set_label(f"Clicked {n+1} Times.")
 
     await ctx.edit_response(components=await asyncio.gather(*components))
@@ -40,6 +41,7 @@ async def counter_button(
 async def select_menu(ctx: flare.Context, hidden_value: int):
     await ctx.respond(
         # fmt: off
+        # `ctx.values` is an array of all values the user selected.
         f"The selected value is: {ctx.values[0]}"
         f"\nThe hidden number is: {hidden_value}"
         # fmt: on
