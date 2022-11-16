@@ -1,7 +1,6 @@
 import os
 import re
 import types
-import subprocess
 
 from setuptools import find_namespace_packages, setup
 
