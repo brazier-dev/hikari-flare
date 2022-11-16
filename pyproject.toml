@@ -1,3 +1,51 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hikari-flare"
+description = "Stateless component manager for hikari with type-safe API."
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "hikari>=2.0.0.dev112",
+    "sigparse>=2.0.0",
+    "typing-extensions>=4.4.0",
+    "colorama; platform_system=='Windows'",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "black>=22.10.0",
+    "nox>=2022.8.7",
+    "codespell>=2.2.2",
+    "pyright>=1.1.276",
+    "pytest>=7.1.3",
+]
+doc = ["furo~=2022.1.2", "sphinx==4.4.0", "myst-parser==0.18.1"]
+
+[tool.setuptools]
+packages = ["flare"]
+
+[tool.setuptools.dynamic]
+version = { file = "flare/__version__" }
+
 [tool.pyright]
 include = ["flare"]
 exclude = ["tests"]

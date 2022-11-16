@@ -7,6 +7,8 @@ from flare.internal.bootstrap import install
 from flare.row import Row
 from flare.utils import gather_iter
 
+import importlib.metadata
+
 __all__: typing.Sequence[str] = (
     "LinkButton",
     "button",
@@ -21,7 +23,7 @@ __all__: typing.Sequence[str] = (
     "gather_iter",
 )
 
-__version__ = "0.1.0"
+__version__ = importlib.metadata.version("hikari-flare")
 
 # MIT License
 #
