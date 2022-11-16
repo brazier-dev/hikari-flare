@@ -58,7 +58,6 @@ async def on_message(event: hikari.MessageCreateEvent):
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         await event.message.respond(
-            # When responding to the interaction, use the default values.
             components=await asyncio.gather(
                 flare.Row(counter_button(0)),
                 flare.Row(select_menu(15)),
