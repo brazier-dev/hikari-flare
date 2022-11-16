@@ -1,3 +1,4 @@
+import importlib.metadata
 import typing
 
 from flare.components import *
@@ -6,8 +7,6 @@ from flare.converters import Converter, add_converter
 from flare.internal.bootstrap import install
 from flare.row import Row
 from flare.utils import gather_iter
-
-import importlib.metadata
 
 __all__: typing.Sequence[str] = (
     "LinkButton",
