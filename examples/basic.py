@@ -47,6 +47,7 @@ async def select_menu(ctx: flare.Context, hidden_value: int):
         # fmt: on
     )
 
+# On message command thats triggered by typing `@<BOT>`
 @bot.listen()
 async def on_message(event: hikari.MessageCreateEvent):
     if event.message.author.is_bot or not event.message.content:
