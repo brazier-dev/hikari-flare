@@ -48,6 +48,6 @@ def pytest(session: nox.Session) -> None:
     session.run("pytest", "tests")
 
 
-@pip_session(".", ".[doc]")
+@pip_session(".", "furo", "sphinx", "myst-parser")
 def sphinx(session: nox.Session) -> None:
     session.run("python", "-m", "sphinx.cmd.build", "docs/source", "docs/build", "-b", "html")

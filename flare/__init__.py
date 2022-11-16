@@ -1,4 +1,3 @@
-import importlib.metadata
 import typing
 
 from flare.components import *
@@ -22,7 +21,7 @@ __all__: typing.Sequence[str] = (
     "gather_iter",
 )
 
-__version__ = importlib.metadata.version("hikari-flare")
+__version__ = "0.1.0"
 
 # MIT License
 #
