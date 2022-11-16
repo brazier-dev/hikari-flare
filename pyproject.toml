@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hikari-flare"
 description = "Stateless component manager for hikari with type-safe API."
+version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 license = { file = "LICENSE" }
@@ -28,7 +29,6 @@ dependencies = [
     "typing-extensions>=4.4.0",
     "colorama; platform_system=='Windows'",
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
@@ -42,9 +42,6 @@ doc = ["furo~=2022.1.2", "sphinx==4.4.0", "myst-parser==0.18.1"]
 
 [tool.setuptools]
 packages = ["flare"]
-
-[tool.setuptools.dynamic]
-version = { file = "flare/__version__" }
 
 [tool.pyright]
 include = ["flare"]
