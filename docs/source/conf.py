@@ -15,23 +15,14 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
 
-import re
+import importlib.metadata
 
 # -- Project information -----------------------------------------------------
 
 project = "hikari-flare"
 copyright = "2022, Lunarmagpie"
 author = "Lunarmagpie"
-
-with open("../../flare/__init__.py") as fp:
-    file = fp.read()
-
-if _match := re.search(r"__version__ = \"([^\"]+)", file):
-    version = _match.group(1)
-    release = version
-else:
-    raise RuntimeError("Improperly formatted flare/__init__.py file")
-
+version = importlib.metadata.version("hikari-flare")
 master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
