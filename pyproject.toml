@@ -33,9 +33,6 @@ dependencies = [
 [tool.setuptools]
 packages = ["flare"]
 
-[tool.setuptools.dynamic]
-version = { attr = "flare.__version__" }
-
 [tool.pyright]
 include = ["flare"]
 exclude = ["tests"]
