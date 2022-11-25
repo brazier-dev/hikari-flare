@@ -28,7 +28,7 @@ dependencies = [
   "colorama; platform_system=='Windows'",
 ]
 description = "Stateless component manager for hikari with type-safe API."
-license = {file = "LICENSE"}
+license = {text = "MIT"}
 name = "hikari-flare"
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
