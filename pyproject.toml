@@ -1,50 +1,57 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
 
 [project]
-name = "hikari-flare"
-description = "Stateless component manager for hikari with type-safe API."
-version = "0.1.0"
-readme = "README.md"
-requires-python = ">=3.10,<3.12"
-license = { file = "LICENSE" }
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Framework :: AsyncIO",
-    "Intended Audience :: Developers",
-    "Natural Language :: English",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: 3 :: Only",
-    "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Application Frameworks",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: AsyncIO",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "hikari>=2.0.0.dev112",
-    "sigparse>=2.0.0",
-    "typing-extensions>=4.4.0",
-    "colorama; platform_system=='Windows'",
+  "hikari>=2.0.0.dev112",
+  "sigparse>=2.0.0",
+  "typing-extensions>=4.4.0",
+  "colorama; platform_system=='Windows'",
 ]
+description = "Stateless component manager for hikari with type-safe API."
+license = {text = "MIT"}
+maintainers = [
+  {name = "Lunarmagpie", email = "Bambolambo0@gmail.com"},
+  {name = "HyperGH", email = "46067571+HyperGH@users.noreply.github.com"},
+]
+name = "hikari-flare"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+version = "0.1.0"
+
+[project.urls]
+Repository = "https://github.com/brazier-dev/hikari-flare/"
 
 [tool.setuptools]
 packages = ["flare"]
 
 [tool.pyright]
-include = ["flare"]
 exclude = ["tests"]
+include = ["flare"]
 pythonVersion = "3.10"
-typeCheckingMode = "strict"
 reportImportCycles = false
 reportPrivateUsage = false
+typeCheckingMode = "strict"
 
 [tool.black]
+include = ".*py$"
 line-length = 120
 target-version = ["py310"]
-include = ".*py$"
 
 [tool.isort]
 profile = "black"
