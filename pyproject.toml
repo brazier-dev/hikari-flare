@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = ["setuptools", "setuptools-scm"]
 
 [project]
-authros = [
+authors = [
   {name = "Lunarmagpie", email = "Bambolambo0@gmail.com"},
   {name = "HyperGH", email = "46067571+HyperGH@users.noreply.github.com"},
 ]
