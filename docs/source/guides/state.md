@@ -43,7 +43,7 @@ async def button(
     ...
 
 button(required_kwarg=10)  # Ok!
-button()                   # Type Error
+button()                   # Type Error. Missing `required_kwarg`.
 ```
 
 
@@ -59,7 +59,7 @@ async def button(
     number: int,
 ) -> None: 
     await ctx.edit_response(
-        component=await flare.Row(button(number=number+1))
+        component=await flare.Row(button(number=number+1).set_label(str(number+1)))
     )
 ```
 
@@ -77,7 +77,7 @@ async def button(
 
     # Print all of the components
     for row in rows:
-        for component in components:
+        for component in row:
             print(component)
 ```
 
@@ -85,7 +85,7 @@ This list can be mutated to change modified to edit components.
 
 ```python
 @flare.button(label="Click me!")
-async def counter_button(
+async def button(
     ctx: flare.Context,
     number: int,
 ) -> None:
@@ -94,8 +94,7 @@ async def counter_button(
     # Get all the components as a list of rows.
     rows = await ctx.get_components()
 
-    # Edit the values for `counter_button` in the list of
-    # rows.
+    # Edit the values for `button` in the list of rows.
     me = rows[0][0]
     me.number += 1
 
@@ -126,7 +125,6 @@ class Button(flare.Button, label="Label"):
         # Type safe component attribute editing
         self.a = 5
         self.b = 10
-
 
         await ctx.edit_response(
             content=number,
