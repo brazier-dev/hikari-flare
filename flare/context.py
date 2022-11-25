@@ -214,6 +214,10 @@ class Context:
         """The ID of the guild the context represents. Will be None in DMs."""
         return self._interaction.guild_id
 
+    @property
+    def values(self) -> t.Sequence[str]:
+        return self.interaction.values
+
     def _create_response(self, message: t.Optional[hikari.Message] = None) -> InteractionResponse:
         """Create a new response and add it to the list of tracked responses."""
         if not message:
