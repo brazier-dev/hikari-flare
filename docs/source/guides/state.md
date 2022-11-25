@@ -16,7 +16,7 @@ async def button(
 You will be forced to supply `arg` in the `button()` method, but `kwarg`
 will be optional. The signature of `button()` will be:
 ```python
-def __init__(arg: int, kwarg: int = 0):
+def button(arg: int, kwarg: int = 0):
     ...
 ```
 
@@ -59,7 +59,7 @@ async def button(
     number: int,
 ) -> None: 
     await ctx.edit_response(
-        component=flare.Row(button(number=number+1))
+        component=await flare.Row(button(number=number+1))
     )
 ```
 
@@ -73,7 +73,7 @@ async def button(
     number: int,
 ) -> None: 
     # Returns all the components that this `ctx` proxies as `typing.Sequence[flare.Row]`.
-    rows = ctx.get_components()
+    rows = await ctx.get_components()
 
     # Print all of the components
     for row in rows:
