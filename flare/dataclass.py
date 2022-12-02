@@ -44,18 +44,26 @@ class Dataclass:
         cls._dataclass_annotations = {field.name: field.annotation for field in cls._fields}
 
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
+        self._datastore: dict[str, t.Any] = {}
+        """Mapping of field names to field values."""
+
         left_over = list(self.__class__._fields)[len(args) :]
 
         for field, value in zip(self.__class__._fields, args):
-            setattr(self, field.name, value)
+            self._datastore[field.name] = value
 
         for field in left_over:
-            setattr(self, field.name, kwargs.get(field.name, field.default))
+            self._datastore[field.name] = kwargs.get(field.name, field.default)
 
         self.__post_init__()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self._dataclass_values.items())})"
+
+    def __getattr__(self, name: str) -> t.Any:
+        if name in self._datastore:
+            return self._datastore[name]
+        return super().__getattribute__(name)
 
     def __post_init__(self) -> None:
         ...
