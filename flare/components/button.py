@@ -65,7 +65,7 @@ class Button(CallbackComponent):
         self.disabled = disabled
         return self
 
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
         """
         Build the button into the passed action row.
         """
@@ -191,7 +191,7 @@ class LinkButton(Component):
     def custom_id(self) -> str:
         return self.url
 
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
         button = action_row.add_button(hikari.ButtonStyle.LINK, self.url)
 
         if self.label:
