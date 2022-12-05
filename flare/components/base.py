@@ -25,7 +25,7 @@ CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent")
 
 class Component(abc.ABC):
     @abc.abstractmethod
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
         """Build and append a flare component to a hikari action row."""
         ...
 

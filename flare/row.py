@@ -53,9 +53,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         return set_custom_ids().__await__()
 
     @classmethod
-    async def __gather_rows(cls, action_row: hikari.PartialComponent) -> Row:
-        assert isinstance(action_row, hikari.ActionRowComponent)
-
+    async def __gather_rows(cls, action_row: hikari.MessageActionRowComponent) -> Row:
         return Row(*await gather_iter(cls.__gather_components(components) for components in action_row))
 
     @staticmethod
@@ -89,7 +87,7 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component]):
         return await gather_iter(cls.__gather_rows(action_row) for action_row in message.components)
 
     def build(self) -> t.MutableMapping[str, t.Any]:
-        row = hikari.impl.ActionRowBuilder()
+        row = hikari.impl.MessageActionRowBuilder()
 
         for component in self._components:
             component.build(row)

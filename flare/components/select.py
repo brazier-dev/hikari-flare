@@ -91,7 +91,7 @@ class Select(CallbackComponent):
         self.disabled = disabled
         return self
 
-    def build(self, action_row: hikari.api.ActionRowBuilder) -> None:
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
         """
         Build the select menu into the passed in action row.
         """
