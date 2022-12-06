@@ -2,7 +2,7 @@ import typing as t
 
 import hikari
 
-from flare.components.modal import ModalComponent, TextInput
+from flare.components.modal import TextInput
 from flare.context.base import PartialContext
 
 __all__: t.Sequence[str] = ("ModalContext",)
@@ -11,7 +11,7 @@ __all__: t.Sequence[str] = ("ModalContext",)
 class ModalContext(PartialContext[hikari.ModalInteraction]):
     @property
     def components(self) -> t.Sequence[hikari.ModalActionRowComponent]:
-        return ModalComponent.from_component
+        return self.interaction.components
 
     @property
     def values(self) -> t.Sequence[str | None]:
