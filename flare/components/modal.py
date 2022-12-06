@@ -4,6 +4,7 @@ import abc
 import typing as t
 
 import hikari
+from typing_extensions import Self
 
 from flare import utils
 from flare.components.base import (
@@ -12,9 +13,11 @@ from flare.components.base import (
     SupportsCookie,
     write_cookie,
 )
-from flare.context import ModalContext
 from flare.dataclass import Dataclass
 from flare.internal import bootstrap
+
+if t.TYPE_CHECKING:
+    from flare.context import ModalContext
 
 
 class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
@@ -23,7 +26,7 @@ class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
         ...
 
 
-class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass, t.MutableSequence[ModalComponent]):
+class Modal(SupportsCallback["ModalContext"], SupportsCookie, Dataclass, t.MutableSequence[ModalComponent]):
     __cookie: t.ClassVar[str]
     __title: t.ClassVar[str]
 
@@ -132,6 +135,30 @@ class TextInput(ModalComponent):
     def custom_id(self) -> str:
         """A custom_id for a component."""
         return self._custom_id
+
+    def set_style(self, style: hikari.TextInputStyle) -> Self:
+        self.style = style
+        return self
+
+    def set_min_length(self, min_length: int | None) -> Self:
+        self.min_length = min_length
+        return self
+
+    def set_max_length(self, max_length: hikari.TextInputStyle) -> Self:
+        self.max_length = max_length
+        return self
+
+    def set_required(self, required: bool | None) -> Self:
+        self.required = required
+        return self
+
+    def set_value(self, value: str | None) -> Self:
+        self.value = value
+        return self
+
+    def set_placeholder(self, placeholder: str | None) -> Self:
+        self.placeholder = placeholder
+        return self
 
     def build(self, action_row: hikari.api.ModalActionRowBuilder) -> None:
         """Build and append a flare component to a hikari action row."""
