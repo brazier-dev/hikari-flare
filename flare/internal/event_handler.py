@@ -31,7 +31,7 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
     else:
         ctx = ModalContext(interaction=event.interaction)
 
-    await component(**kwargs).callback(ctx)  # type: ignore
+    await component(**kwargs, _ctx=ctx).callback(ctx)  # type: ignore
 
 
 # MIT License

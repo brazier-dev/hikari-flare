@@ -26,7 +26,7 @@ class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
         ...
 
 
-class Modal(SupportsCallback["ModalContext"], SupportsCookie, Dataclass, t.MutableSequence[ModalComponent]):
+class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[ModalComponent], Dataclass):
     __cookie: t.ClassVar[str]
     __title: t.ClassVar[str]
 
@@ -36,9 +36,16 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, Dataclass, t.Mutab
         bootstrap.components[cls.__cookie] = cls
         super().__init_subclass__()
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _ctx: ModalContext | None = None) -> None:
         self.title = self.__title
         self._components = [v for v in self._dataclass_values.values() if isinstance(v, ModalComponent)]
+
+        if _ctx:
+            for value, component in zip(
+                _ctx.values, [component for component in self._components if isinstance(component, TextInput)]
+            ):
+                component.value = value
+
         return super().__post_init__()
 
     @t.overload

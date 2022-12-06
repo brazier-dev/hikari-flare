@@ -53,9 +53,9 @@ class Dataclass:
             self._datastore[field.name] = value
 
         for field in left_over:
-            self._datastore[field.name] = kwargs.get(field.name, field.default)
+            self._datastore[field.name] = kwargs.pop(field.name, field.default)
 
-        self.__post_init__()
+        self.__post_init__(**kwargs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self._dataclass_values.items())})"
