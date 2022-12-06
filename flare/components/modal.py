@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import abc
 import typing as t
 
@@ -15,7 +17,13 @@ from flare.dataclass import Dataclass
 from flare.internal import bootstrap
 
 
-class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass):
+class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
+    @abc.abstractmethod
+    def _set_custom_id(self, custom_id: str) -> None:
+        ...
+
+
+class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass, t.MutableSequence[ModalComponent]):
     __cookie: t.ClassVar[str]
     __title: t.ClassVar[str]
 
@@ -27,7 +35,31 @@ class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass):
 
     def __post_init__(self) -> None:
         self.title = self.__title
+        self._components = [v for v in self._dataclass_values.values() if isinstance(v, ModalComponent)]
         return super().__post_init__()
+
+    @t.overload
+    def __getitem__(self, value: int) -> ModalComponent:
+        ...
+
+    @t.overload
+    def __getitem__(self, value: slice) -> t.MutableSequence[ModalComponent]:
+        ...
+
+    def __getitem__(self, value: t.Union[slice, int]) -> t.Union[ModalComponent, t.Sequence[ModalComponent]]:
+        return self._components[value]
+
+    def __len__(self) -> int:
+        return len(self._components)
+
+    def __setitem__(self, key: int, value: ModalComponent) -> None:
+        self._components[key] = value
+
+    def __delitem__(self, key: int) -> None:
+        del self._components[key]
+
+    def insert(self, index: int, value: ModalComponent) -> None:
+        self._components.insert(index, value)
 
     @property
     def cookie(self) -> str:
@@ -40,10 +72,8 @@ class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass):
         out: list[hikari.api.ModalActionRowBuilder] = []
 
         row_number = 0
-        for component in self._dataclass_values.values():
-            if not isinstance(component, ModalComponent):
-                continue
-            component.set_custom_id(str(row_number))
+        for component in self._components:
+            component._set_custom_id(str(row_number))
             row = hikari.impl.ModalActionRowBuilder()
             component.build(row)
             out.append(row)
@@ -65,12 +95,6 @@ class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass):
             self._without_modal_component(self._dataclass_values),
         )
         await inter.create_modal_response(self.title, custom_id, components=self.build())
-
-
-class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
-    @abc.abstractmethod
-    def set_custom_id(self, custom_id: str) -> None:
-        ...
 
 
 class TextInput(ModalComponent):
@@ -101,7 +125,7 @@ class TextInput(ModalComponent):
         """
         return 5
 
-    def set_custom_id(self, custom_id: str):
+    def _set_custom_id(self, custom_id: str):
         self._custom_id = custom_id
 
     @property

@@ -60,18 +60,25 @@ class Dataclass:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self._dataclass_values.items())})"
 
-    def __getattribute__(self, name: str) -> t.Any:
-        datastore = super().__getattribute__("_datastore")
-        if name in datastore:
-            return datastore[name]
-        return super().__getattribute__(name)
-
     def __post_init__(self) -> None:
         ...
 
     @property
     def _dataclass_values(self) -> dict[str, t.Any]:
         return {field.name: getattr(self, field.name) for field in self._fields}
+
+
+# This is done so the type checking doesn't think theres a `__getattribute__` function.
+# That way the type checker doesn't return `t.Any` when you access a variable that
+# doesn't exist.
+def _getattribute(self: Dataclass, name: str) -> t.Any:
+    datastore = super(Dataclass, self).__getattribute__("_datastore")
+    if name in datastore:
+        return datastore[name]
+    return super(Dataclass, self).__getattribute__(name)
+
+
+Dataclass.__getattribute__ = _getattribute  # type: ignore
 
 
 # MIT License

@@ -11,3 +11,7 @@ class ModalContext(PartialContext[hikari.ModalInteraction]):
     @property
     def components(self) -> t.Sequence[hikari.ModalActionRowComponent]:
         return self.interaction.components
+
+    @property
+    def values(self) -> t.Sequence[str]:
+        return [component.value for component in self.components]
