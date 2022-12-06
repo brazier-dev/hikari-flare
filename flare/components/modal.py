@@ -96,7 +96,7 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
             if not isinstance(v, ModalComponent) and not utils.any_issubclass(v, ModalComponent)
         }
 
-    async def send(self, inter: hikari.CommandInteraction):
+    async def send(self, inter: hikari.ModalResponseMixin):
         custom_id = await bootstrap.active_serde.serialize(
             self.__cookie,
             self._without_modal_component(self._dataclass_annotations),
