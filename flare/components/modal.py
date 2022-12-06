@@ -81,13 +81,11 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
     def build(self) -> list[hikari.api.ModalActionRowBuilder]:
         out: list[hikari.api.ModalActionRowBuilder] = []
 
-        row_number = 0
-        for component in self._components:
+        for row_number, component in enumerate(self._components):
             component._set_custom_id(str(row_number))
             row = hikari.impl.ModalActionRowBuilder()
             component.build(row)
             out.append(row)
-            row_number += 1
 
         return out
 
