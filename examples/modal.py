@@ -7,6 +7,11 @@ flare.install(bot)
 
 
 class ModalTest(flare.Modal, title="My Title"):
+    # Values to save
+    a: int
+    b: str = "1234"
+
+    # Your text inputs
     text_input: flare.TextInput = flare.TextInput(label="Test label")
     text_input_2: flare.TextInput = flare.TextInput(label="Test label 2")
 
@@ -23,7 +28,7 @@ class ModalTest(flare.Modal, title="My Title"):
 
 # Function that has `interaction` as an arg.This represents a result from your command handler.
 async def magic_function(interaction: hikari.ModalResponseMixin):
-    modal = ModalTest()
+    modal = ModalTest(5)
     await modal.send(interaction)
 
 
