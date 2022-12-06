@@ -16,7 +16,8 @@ class ModalTest(flare.Modal, title="My Title"):
     text_input_2: flare.TextInput = flare.TextInput(label="Test label 2")
 
     async def callback(self, ctx: flare.ModalContext) -> None:
-        # You can access text inputs with `self.text_input`
+        # You can access text inputs with `self.text_input`.
+        # These will be the first two cells in `ctx.values`.
         print(self.text_input.value)
         print(self.text_input_2.value)
 
@@ -27,7 +28,7 @@ class ModalTest(flare.Modal, title="My Title"):
 
 
 # Function that has `interaction` as an arg.This represents a result from your command handler.
-async def magic_function(interaction: hikari.ModalResponseMixin):
+async def magic_entrypoint(interaction: hikari.CommandInteraction | hikari.ComponentInteraction):
     modal = ModalTest(5)
     await modal.send(interaction)
 
