@@ -61,6 +61,10 @@ class Dataclass:
         return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self._dataclass_values.items())})"
 
     def __post_init__(self) -> None:
+        """
+        Method called after `__init__`. Any kwargs passed into `__init__` that aren't
+        part of the dataclass will be passed into __post_int__.
+        """
         ...
 
     @property
