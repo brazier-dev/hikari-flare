@@ -3,13 +3,19 @@ import typing as t
 
 import hikari
 
-from flare.internal import bootstrap
-from flare.dataclass import Dataclass
-from flare.components.base import SupportsCallback, Component, SupportsCookie, write_cookie
 from flare import utils
+from flare.components.base import (
+    Component,
+    SupportsCallback,
+    SupportsCookie,
+    write_cookie,
+)
+from flare.context import ModalContext
+from flare.dataclass import Dataclass
+from flare.internal import bootstrap
 
 
-class Modal(SupportsCallback, SupportsCookie, Dataclass):
+class Modal(SupportsCallback[ModalContext], SupportsCookie, Dataclass):
     __cookie: t.ClassVar[str]
     __title: t.ClassVar[str]
 

@@ -1,10 +1,9 @@
 import typing as t
+
 import hikari
 
 from flare import row
-
 from flare.context.base import PartialContext
-
 
 __all__: t.Sequence[str] = ("Context",)
 

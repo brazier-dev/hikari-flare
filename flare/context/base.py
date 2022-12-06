@@ -6,7 +6,6 @@ import typing as t
 import hikari
 from hikari.snowflakes import Snowflake
 
-
 __all__: t.Sequence[str] = ("PartialContext", "InteractionResponse")
 
 logger = logging.getLogger("__name__")

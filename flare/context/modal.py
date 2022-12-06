@@ -1,7 +1,8 @@
-from flare.context.base import PartialContext
-import hikari
 import typing as t
 
+import hikari
+
+from flare.context.base import PartialContext
 
 __all__: t.Sequence[str] = ("ModalContext",)
 
