@@ -60,9 +60,10 @@ class Dataclass:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(f'{k}={repr(v)}' for k,v in self._dataclass_values.items())})"
 
-    def __getattr__(self, name: str) -> t.Any:
-        if name in self._datastore:
-            return self._datastore[name]
+    def __getattribute__(self, name: str) -> t.Any:
+        datastore = super().__getattribute__("_datastore")
+        if name in datastore:
+            return datastore[name]
         return super().__getattribute__(name)
 
     def __post_init__(self) -> None:

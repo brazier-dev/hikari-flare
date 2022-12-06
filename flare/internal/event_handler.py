@@ -13,7 +13,7 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
     """
     Function called to respond to an interaction.
     """
-    if not isinstance(event.interaction, hikari.ComponentInteraction):
+    if not isinstance(event.interaction, (hikari.ComponentInteraction, hikari.ModalInteraction)):
         return
 
     try:

@@ -18,14 +18,15 @@ if t.TYPE_CHECKING:
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
+T = t.TypeVar("T", bound=hikari.api.ComponentBuilder)
 P = t.ParamSpec("P")
 
 CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent")
 
 
-class Component(abc.ABC):
+class Component(abc.ABC, t.Generic[T]):
     @abc.abstractmethod
-    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+    def build(self, action_row: T) -> None:
         """Build and append a flare component to a hikari action row."""
         ...
 
@@ -61,7 +62,9 @@ def write_cookie(s: str) -> str:
     return hashlib.blake2s(s.encode("latin1"), digest_size=8).digest().decode("latin1")
 
 
-class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.Dataclass):
+class CallbackComponent(
+    Component[hikari.api.MessageActionRowBuilder], SupportsCallback, SupportsCookie, dataclass.Dataclass
+):
     """
     An abstract class that all components with callbacks are derive from.
     """

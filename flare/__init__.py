@@ -12,6 +12,8 @@ __all__: typing.Sequence[str] = (
     "LinkButton",
     "button",
     "Button",
+    "Modal",
+    "TextInput",
     "select",
     "Select",
     "Context",
