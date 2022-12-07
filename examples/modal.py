@@ -12,8 +12,8 @@ class ModalTest(flare.Modal, title="My Title"):
     b: str = "1234"
 
     # Your text inputs
-    text_input: flare.TextInput = flare.TextInput(label="Test label")
-    text_input_2: flare.TextInput = flare.TextInput(label="Test label 2")
+    text_input: flare.TextInput = flare.TextInput(label="Row 1")
+    text_input_2: flare.TextInput = flare.TextInput(label="Row 2")
 
     async def callback(self, ctx: flare.ModalContext) -> None:
         # You can access text inputs with `self.text_input`.
@@ -30,6 +30,11 @@ class ModalTest(flare.Modal, title="My Title"):
 # Function that has `interaction` as an arg.This represents a result from your command handler.
 async def magic_entrypoint(interaction: hikari.CommandInteraction | hikari.ComponentInteraction):
     modal = ModalTest(5)
+
+    # Modal is `MutableMapping[TextInput]`.
+    # Extra `TextInput`'s can be appended.
+    modal.append(flare.TextInput(label="Added row."))
+
     await modal.send(interaction)
 
 
