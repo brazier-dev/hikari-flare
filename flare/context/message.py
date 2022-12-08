@@ -5,10 +5,10 @@ import hikari
 from flare import row
 from flare.context.base import PartialContext
 
-__all__: t.Sequence[str] = ("Context",)
+__all__: t.Sequence[str] = ("MessageContext",)
 
 
-class Context(PartialContext[hikari.ComponentInteraction]):
+class MessageContext(PartialContext[hikari.ComponentInteraction]):
     @property
     def message(self) -> hikari.Message:
         """The message this context is proxying."""

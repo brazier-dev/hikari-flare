@@ -11,14 +11,14 @@ flare.install(bot)
 
 @flare.button(label="Test Button", style=hikari.ButtonStyle.PRIMARY)
 async def test_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
 ) -> None:
     await ctx.respond(content="Hello World!")
 
 
 @flare.button(label="Click me!")
 async def counter_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     # The argument `n` is saved as the state. This argument defaults to 0 if no
     # value is specified in `counter_button()`.
     n: int = 0,
@@ -38,7 +38,7 @@ async def counter_button(
         "Option 3",
     ],
 )
-async def select_menu(ctx: flare.Context, hidden_value: int):
+async def select_menu(ctx: flare.MessageContext, hidden_value: int):
     await ctx.respond(
         # fmt: off
         # `ctx.values` is an array of all values the user selected.

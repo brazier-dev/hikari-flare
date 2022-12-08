@@ -83,7 +83,7 @@ class TicTacToe(flare.Button, label=" "):
     # A bool to keep track of the turn.
     turn: bool = False
 
-    async def callback(self, ctx: flare.Context):
+    async def callback(self, ctx: flare.MessageContext):
 
         rows = await ctx.get_components()
 

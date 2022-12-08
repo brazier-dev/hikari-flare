@@ -28,7 +28,7 @@ flare.install(bot)
 
 @flare.button(label="Click me!")
 async def counter_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     # The argument `n` is saved as the state. This argument defaults to 0 if no
     # value is specified in `counter_button()`.
     n: int = 0,

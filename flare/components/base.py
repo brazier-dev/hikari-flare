@@ -15,7 +15,7 @@ if t.TYPE_CHECKING:
     from flare import row
     from flare.components.button import Button
     from flare.components.select import Select
-    from flare.context import Context, PartialContext
+    from flare.context import MessageContext, PartialContext
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
@@ -65,7 +65,7 @@ def write_cookie(s: str) -> str:
 
 
 class CallbackComponent(
-    Component[hikari.api.MessageActionRowBuilder], SupportsCallback["Context"], SupportsCookie, dataclass.Dataclass
+    Component[hikari.api.MessageActionRowBuilder], SupportsCallback["MessageContext"], SupportsCookie, dataclass.Dataclass
 ):
     """
     An abstract class that all components with callbacks are derive from.

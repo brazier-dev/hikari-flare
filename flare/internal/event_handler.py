@@ -2,7 +2,7 @@ import logging
 
 import hikari
 
-from flare.context import Context, ModalContext
+from flare.context import MessageContext, ModalContext
 from flare.exceptions import SerializerError
 from flare.internal import bootstrap
 
@@ -25,7 +25,7 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
         return
 
     if isinstance(event.interaction, hikari.ComponentInteraction):
-        ctx = Context(
+        ctx = MessageContext(
             interaction=event.interaction,
         )
     else:
