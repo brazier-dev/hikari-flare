@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing as t
+import copy
 
 import hikari
 from typing_extensions import Self
@@ -38,7 +39,14 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
 
     def __post_init__(self, _ctx: ModalContext | None = None) -> None:
         self.title = self.__title
-        self._components = [v for v in self._dataclass_values.values() if isinstance(v, ModalComponent)]
+
+        self._components: list[ModalComponent] = []
+
+        for attr, value in self._dataclass_values.items():
+            if isinstance(value, ModalComponent):
+                clone = copy.copy(value)
+                setattr(self, attr, clone)
+                self._components.append(clone)
 
         if _ctx:
             for value, component in zip(

@@ -44,16 +44,15 @@ class Dataclass:
         cls._dataclass_annotations = {field.name: field.annotation for field in cls._fields}
 
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
-        self._datastore: dict[str, t.Any] = {}
         """Mapping of field names to field values."""
 
         left_over = list(self.__class__._fields)[len(args) :]
 
         for field, value in zip(self.__class__._fields, args):
-            self._datastore[field.name] = value
+            setattr(self, field.name, value)
 
         for field in left_over:
-            self._datastore[field.name] = kwargs.pop(field.name, field.default)
+            setattr(self, field.name, kwargs.pop(field.name, field.default))
 
         self.__post_init__(**kwargs)
 
@@ -70,19 +69,6 @@ class Dataclass:
     @property
     def _dataclass_values(self) -> dict[str, t.Any]:
         return {field.name: getattr(self, field.name) for field in self._fields}
-
-
-# This is done so the type checking doesn't think theres a `__getattribute__` function.
-# That way the type checker doesn't return `t.Any` when you access a variable that
-# doesn't exist.
-def _getattribute(self: Dataclass, name: str) -> t.Any:
-    datastore = super(Dataclass, self).__getattribute__("_datastore")
-    if name in datastore:
-        return datastore[name]
-    return super(Dataclass, self).__getattribute__(name)
-
-
-Dataclass.__getattribute__ = _getattribute  # type: ignore
 
 
 # MIT License
