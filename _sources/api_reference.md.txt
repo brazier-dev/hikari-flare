@@ -6,7 +6,7 @@ If you think anything is missing, feel free to open an issue or pull request.
 
 ----
 
-### Index
+## Index
 
 ```{eval-rst}
 .. toctree::
@@ -15,6 +15,7 @@ If you think anything is missing, feel free to open an issue or pull request.
    api_references/component
    api_references/button
    api_references/select
+   api_references/modal
    api_references/context
    api_references/converters
    api_references/exceptions
