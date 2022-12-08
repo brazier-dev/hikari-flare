@@ -159,7 +159,7 @@ class TextInput(ModalComponent):
         self.min_length = min_length
         return self
 
-    def set_max_length(self, max_length: hikari.TextInputStyle) -> Self:
+    def set_max_length(self, max_length: int) -> Self:
         self.max_length = max_length
         return self
 
