@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import abc
-import typing as t
 import copy
+import typing as t
 
 import hikari
 from typing_extensions import Self
