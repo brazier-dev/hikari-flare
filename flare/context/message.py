@@ -11,10 +11,12 @@ __all__: t.Sequence[str] = ("Context",)
 class Context(PartialContext[hikari.ComponentInteraction]):
     @property
     def message(self) -> hikari.Message:
+        """The message this context is proxying."""
         return self._interaction.message
 
     @property
     def values(self) -> t.Sequence[str]:
+        """The values selected for a select menu."""
         return self.interaction.values
 
     async def get_components(self) -> t.MutableSequence[row.Row]:

@@ -10,10 +10,12 @@ __all__: t.Sequence[str] = ("ModalContext",)
 class ModalContext(PartialContext[hikari.ModalInteraction]):
     @property
     def components(self) -> t.Sequence[hikari.ModalActionRowComponent]:
+        """Returns the components for this modal."""
         return self.interaction.components
 
     @property
     def values(self) -> t.Sequence[str | None]:
+        """Return an array of all `flare.TextInput` selected values."""
         # This is type safe. Not sure why the type checker doesn't understand that.
         return [row[0].value for row in self.components if isinstance(row[0], hikari.TextInputComponent)]  # type: ignore
 
