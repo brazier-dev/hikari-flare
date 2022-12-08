@@ -42,6 +42,8 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
 
         self._components: list[ModalComponent] = []
 
+        # All components are copied so the user can't mutate by accident.
+        # This also makes implementing `TextInput.value` on our end easier.
         for attr, value in self._dataclass_values.items():
             if isinstance(value, ModalComponent):
                 clone = copy.copy(value)
