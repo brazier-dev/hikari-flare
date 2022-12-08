@@ -24,10 +24,10 @@ dependencies = [
   "colorama; platform_system=='Windows'",
 ]
 description = "Stateless component manager for hikari with type-safe API."
-license = {text = "MIT"}
+license = { text = "MIT" }
 maintainers = [
-  {name = "Lunarmagpie", email = "Bambolambo0@gmail.com"},
-  {name = "HyperGH", email = "46067571+HyperGH@users.noreply.github.com"},
+  { name = "Lunarmagpie", email = "Bambolambo0@gmail.com" },
+  { name = "HyperGH", email = "46067571+HyperGH@users.noreply.github.com" },
 ]
 name = "hikari-flare"
 readme = "README.md"
@@ -37,8 +37,8 @@ version = "0.1.0b1"
 [project.urls]
 Repository = "https://github.com/brazier-dev/hikari-flare/"
 
-[tool.setuptools]
-packages = ["flare"]
+[tool.setuptools.packages.find]
+include = ["flare*"]
 
 [tool.pyright]
 exclude = ["tests"]
