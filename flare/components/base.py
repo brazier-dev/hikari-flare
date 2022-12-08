@@ -65,7 +65,10 @@ def write_cookie(s: str) -> str:
 
 
 class CallbackComponent(
-    Component[hikari.api.MessageActionRowBuilder], SupportsCallback["MessageContext"], SupportsCookie, dataclass.Dataclass
+    Component[hikari.api.MessageActionRowBuilder],
+    SupportsCallback["MessageContext"],
+    SupportsCookie,
+    dataclass.Dataclass,
 ):
     """
     An abstract class that all components with callbacks are derive from.
