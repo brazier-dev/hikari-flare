@@ -131,7 +131,7 @@ class button(FunctionalComponent[Button]):
         }
 
 
-class LinkButton(Component):
+class LinkButton(Component[hikari.api.MessageActionRowBuilder]):
     """
     A button with a link.
 

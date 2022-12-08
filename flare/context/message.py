@@ -1,37 +1,27 @@
-import logging
+import typing as t
 
 import hikari
 
-from flare.context import MessageContext, ModalContext
-from flare.exceptions import SerializerError
-from flare.internal import bootstrap
+from flare import row
+from flare.context.base import PartialContext
 
-logger = logging.getLogger(__name__)
+__all__: t.Sequence[str] = ("MessageContext",)
 
 
-async def on_inter(event: hikari.InteractionCreateEvent) -> None:
-    """
-    Function called to respond to an interaction.
-    """
-    if not isinstance(event.interaction, (hikari.ComponentInteraction, hikari.ModalInteraction)):
-        return
+class MessageContext(PartialContext[hikari.ComponentInteraction]):
+    @property
+    def message(self) -> hikari.Message:
+        """The message this context is proxying."""
+        return self._interaction.message
 
-    try:
-        component, kwargs = await bootstrap.active_serde.deserialize(event.interaction.custom_id, bootstrap.components)
-    except SerializerError:  # If the custom_id is invalid, it was probably not created by flare.
-        logger.debug(
-            f"Flare received custom_id '{event.interaction.custom_id}' which it cannot deserialize.", exc_info=True
-        )
-        return
+    @property
+    def values(self) -> t.Sequence[str]:
+        """The values selected for a select menu."""
+        return self.interaction.values
 
-    if isinstance(event.interaction, hikari.ComponentInteraction):
-        ctx = MessageContext(
-            interaction=event.interaction,
-        )
-    else:
-        ctx = ModalContext(interaction=event.interaction)
-
-    await component(**kwargs, _ctx=ctx).callback(ctx)  # type: ignore
+    async def get_components(self) -> t.MutableSequence[row.Row]:
+        """Returns the flare components for the interaction this context is proxying"""
+        return await row.Row.from_message(self.message)
 
 
 # MIT License

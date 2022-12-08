@@ -14,5 +14,5 @@ If you think anything is missing, feel free to open an issue or pull request.
 
    guides/state
    guides/converters
-   guides/editing
+   guides/modal
 ```

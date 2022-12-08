@@ -6,7 +6,7 @@ in the function.
 ```python
 @flare.button(label="Button")
 async def button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     arg: int,
     kwarg: int = 0,
 ):
@@ -36,7 +36,7 @@ Required keyword arguments are also supported.
 ```python
 @flare.button(label="Button")
 async def button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     *,
     required_kwarg: int,
 ):
@@ -55,7 +55,7 @@ is to create all of them again.
 ```python
 @flare.button(label="Click Me!")
 async def button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     number: int,
 ) -> None: 
     await ctx.edit_response(
@@ -63,13 +63,13 @@ async def button(
     )
 ```
 
-There is also a shortcut to return all the components in the message `flare.Context`
+There is also a shortcut to return all the components in the message `flare.MessageContext`
 is proxying.
 
 ```python
 @flare.button(label="Click Me!")
 async def button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     number: int,
 ) -> None: 
     # Returns all the components that this `ctx` proxies as `typing.Sequence[flare.Row]`.
@@ -86,7 +86,7 @@ This list can be mutated to change modified to edit components.
 ```python
 @flare.button(label="Click me!")
 async def button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     number: int,
 ) -> None:
     number += 1
@@ -115,7 +115,7 @@ class Button(flare.Button, label="Label"):
     a: int
     b: int = 5
 
-    async def callback(self, ctx: flare.Context):
+    async def callback(self, ctx: flare.MessageContext):
         reveal_type(self.a)  # int
         reveal_type(self.b)  # int
 

@@ -1,5 +1,6 @@
 from .base import *
 from .button import *
+from .modal import *
 from .select import *
 
 # MIT License

@@ -1,37 +1,23 @@
-import logging
+import typing as t
 
 import hikari
 
-from flare.context import MessageContext, ModalContext
-from flare.exceptions import SerializerError
-from flare.internal import bootstrap
+from flare.context.base import PartialContext
 
-logger = logging.getLogger(__name__)
+__all__: t.Sequence[str] = ("ModalContext",)
 
 
-async def on_inter(event: hikari.InteractionCreateEvent) -> None:
-    """
-    Function called to respond to an interaction.
-    """
-    if not isinstance(event.interaction, (hikari.ComponentInteraction, hikari.ModalInteraction)):
-        return
+class ModalContext(PartialContext[hikari.ModalInteraction]):
+    @property
+    def components(self) -> t.Sequence[hikari.ModalActionRowComponent]:
+        """Returns the components for this modal."""
+        return self.interaction.components
 
-    try:
-        component, kwargs = await bootstrap.active_serde.deserialize(event.interaction.custom_id, bootstrap.components)
-    except SerializerError:  # If the custom_id is invalid, it was probably not created by flare.
-        logger.debug(
-            f"Flare received custom_id '{event.interaction.custom_id}' which it cannot deserialize.", exc_info=True
-        )
-        return
-
-    if isinstance(event.interaction, hikari.ComponentInteraction):
-        ctx = MessageContext(
-            interaction=event.interaction,
-        )
-    else:
-        ctx = ModalContext(interaction=event.interaction)
-
-    await component(**kwargs, _ctx=ctx).callback(ctx)  # type: ignore
+    @property
+    def values(self) -> t.Sequence[str | None]:
+        """Return an array of all `flare.TextInput` selected values."""
+        # This is type safe. Not sure why the type checker doesn't understand that.
+        return [row[0].value for row in self.components if isinstance(row[0], hikari.TextInputComponent)]  # type: ignore
 
 
 # MIT License

@@ -6,18 +6,18 @@ import typing as t
 import hikari
 from hikari.snowflakes import Snowflake
 
-from flare import row
-
-__all__: t.Sequence[str] = ("Context", "InteractionResponse")
+__all__: t.Sequence[str] = ("PartialContext", "InteractionResponse")
 
 logger = logging.getLogger("__name__")
+
+T = t.TypeVar("T", bound=hikari.ComponentInteraction | hikari.ModalInteraction)
 
 
 class InteractionResponse:
     """
     Represents a response to an interaction, allows for standardized handling
     of responses. This class is not meant to be directly instantiated, and is
-    instead returned by `flare.context.Context`.
+    instead returned by `flare.context.PartialContext`.
     """
 
     __slots__ = (
@@ -25,8 +25,8 @@ class InteractionResponse:
         "_message",
     )
 
-    def __init__(self, context: Context, message: t.Optional[hikari.Message] = None) -> None:
-        self._context: Context = context
+    def __init__(self, context: PartialContext[t.Any], message: t.Optional[hikari.Message] = None) -> None:
+        self._context: PartialContext[t.Any] = context
         self._message: t.Optional[hikari.Message] = message
 
     def __await__(self) -> t.Generator[t.Any, None, hikari.Message]:
@@ -132,18 +132,18 @@ class InteractionResponse:
         return self._context._create_response()
 
 
-class Context:
+class PartialContext(t.Generic[T]):
     """A context object proxying a Discord interaction."""
 
     __slots__ = ("_interaction", "_responses", "_issued_response")
 
-    def __init__(self, interaction: hikari.ComponentInteraction) -> None:
-        self._interaction: hikari.ComponentInteraction = interaction
+    def __init__(self, interaction: T) -> None:
+        self._interaction: T = interaction
         self._responses: t.MutableSequence[InteractionResponse] = []
         self._issued_response: bool = False
 
     @property
-    def interaction(self) -> hikari.ComponentInteraction:
+    def interaction(self) -> T:
         """The underlying interaction object."""
         return self._interaction
 
@@ -174,17 +174,13 @@ class Context:
 
     @property
     def author(self) -> hikari.User:
-        """Alias for Context.user"""
+        """Alias for PartialContext.user"""
         return self.user
 
     @property
     def member(self) -> t.Optional[hikari.InteractionMember]:
         """The member who triggered this interaction. Will be None in DMs."""
         return self._interaction.member
-
-    @property
-    def message(self) -> hikari.Message:
-        return self._interaction.message
 
     @property
     def locale(self) -> t.Union[str, hikari.Locale]:
@@ -214,10 +210,6 @@ class Context:
         """The ID of the guild the context represents. Will be None in DMs."""
         return self._interaction.guild_id
 
-    @property
-    def values(self) -> t.Sequence[str]:
-        return self.interaction.values
-
     def _create_response(self, message: t.Optional[hikari.Message] = None) -> InteractionResponse:
         """Create a new response and add it to the list of tracked responses."""
         if not message:
@@ -235,10 +227,6 @@ class Context:
     def get_channel(self) -> t.Optional[hikari.TextableGuildChannel]:
         """Gets the channel this context represents, None if in a DM. Requires application cache."""
         return self._interaction.get_channel()
-
-    async def get_components(self) -> t.MutableSequence[row.Row]:
-        """Returns the flare components for the interaction this context is proxying"""
-        return await row.Row.from_message(self.message)
 
     async def get_last_response(self) -> InteractionResponse:
         """Get the last response issued to the interaction this context is proxying.

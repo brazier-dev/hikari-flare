@@ -2,7 +2,7 @@ import importlib.metadata
 import typing
 
 from flare.components import *
-from flare.context import Context
+from flare.context import MessageContext, ModalContext
 from flare.converters import Converter, add_converter
 from flare.internal.bootstrap import install
 from flare.row import Row
@@ -12,9 +12,12 @@ __all__: typing.Sequence[str] = (
     "LinkButton",
     "button",
     "Button",
+    "Modal",
+    "TextInput",
     "select",
     "Select",
-    "Context",
+    "MessageContext",
+    "ModalContext",
     "Converter",
     "add_converter",
     "install",

@@ -28,7 +28,7 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
     # This function is a python moment.
     # Just trust that it works.
     def __call__(
-        self, callback_: t.Callable[typing_extensions.Concatenate[context.Context, P], t.Any]
+        self, callback_: t.Callable[typing_extensions.Concatenate[context.MessageContext, P], t.Any]
     ) -> t.Callable[P, T]:
         """
         Create and return proxy class for `callback`.
@@ -49,7 +49,7 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
 
         # This is a python moment.
         class Inner(self.component_type, _dataclass_fields=params, **kwargs):  # type: ignore
-            async def callback(self, ctx: context.Context):
+            async def callback(self, ctx: context.MessageContext):
                 kwargs = self._dataclass_values  # type: ignore
                 await callback_(ctx, **kwargs)  # type: ignore
 

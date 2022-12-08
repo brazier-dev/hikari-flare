@@ -12,20 +12,23 @@ from flare.exceptions import CustomIDNotSetError, SerializerError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
-    from flare import context, row
+    from flare import row
     from flare.components.button import Button
     from flare.components.select import Select
+    from flare.context import MessageContext, PartialContext
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
 
+ComponentBuilderT = t.TypeVar("ComponentBuilderT", bound=hikari.api.ComponentBuilder)
+PartialContextT = t.TypeVar("PartialContextT", bound="PartialContext[t.Any]", contravariant=True)
 P = t.ParamSpec("P")
 
 CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent")
 
 
-class Component(abc.ABC):
+class Component(abc.ABC, t.Generic[ComponentBuilderT]):
     @abc.abstractmethod
-    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+    def build(self, action_row: ComponentBuilderT) -> None:
         """Build and append a flare component to a hikari action row."""
         ...
 
@@ -52,8 +55,8 @@ class SupportsCookie(abc.ABC):
         ...
 
 
-class SupportsCallback(t.Protocol):
-    async def callback(self, ctx: context.Context) -> None:
+class SupportsCallback(t.Protocol[PartialContextT]):
+    async def callback(self, ctx: PartialContextT) -> None:
         raise NotImplementedError
 
 
@@ -61,7 +64,12 @@ def write_cookie(s: str) -> str:
     return hashlib.blake2s(s.encode("latin1"), digest_size=8).digest().decode("latin1")
 
 
-class CallbackComponent(Component, SupportsCallback, SupportsCookie, dataclass.Dataclass):
+class CallbackComponent(
+    Component[hikari.api.MessageActionRowBuilder],
+    SupportsCallback["MessageContext"],
+    SupportsCookie,
+    dataclass.Dataclass,
+):
     """
     An abstract class that all components with callbacks are derive from.
     """
