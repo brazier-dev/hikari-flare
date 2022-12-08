@@ -15,6 +15,7 @@ from flare.components.base import (
     write_cookie,
 )
 from flare.dataclass import Dataclass
+from flare.exceptions import TitleNotSetError
 from flare.internal import bootstrap
 
 if t.TYPE_CHECKING:
@@ -29,9 +30,9 @@ class ModalComponent(Component[hikari.api.ModalActionRowBuilder]):
 
 class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[ModalComponent], Dataclass):
     __cookie: t.ClassVar[str]
-    __title: t.ClassVar[str]
+    __title: t.ClassVar[str | None]
 
-    def __init_subclass__(cls, title: str, cookie: str | None = None) -> None:
+    def __init_subclass__(cls, title: str | None = None, cookie: str | None = None) -> None:
         cls.__title = title
         cls.__cookie = cookie or write_cookie(f"{cls.__name__}.{cls.__module__}")
         bootstrap.components[cls.__cookie] = cls
@@ -85,8 +86,9 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
     def cookie(self) -> str:
         return self.__cookie
 
-    def set_title(self, title: str) -> None:
+    def set_title(self, title: str) -> Self:
         self.title = title
+        return self
 
     def build(self) -> list[hikari.api.ModalActionRowBuilder]:
         out: list[hikari.api.ModalActionRowBuilder] = []
@@ -107,8 +109,15 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
         }
 
     async def send(self, inter: hikari.ModalResponseMixin):
+        """
+        Respond to an iteration with this modal.
+        """
+        if not self.title:
+            raise TitleNotSetError(f"Title for {self.__class__.__name__} not set.")
+
         custom_id = await bootstrap.active_serde.serialize(
             self.__cookie,
+            # `ModalComponent` shouldn't store state so that is removed.
             self._without_modal_component(self._dataclass_annotations),
             self._without_modal_component(self._dataclass_values),
         )

@@ -11,7 +11,7 @@ class ModalTest(flare.Modal, title="My Title"):
     a: int
     b: str = "1234"
 
-    # Your text inputs
+    # Your text inputs.
     text_input: flare.TextInput = flare.TextInput(label="Row 1")
     text_input_2: flare.TextInput = flare.TextInput(label="Row 2")
 

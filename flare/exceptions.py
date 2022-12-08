@@ -35,6 +35,14 @@ class CustomIDNotSetError(ComponentError):
     """Raised when a component's custom ID is not set because the row it is in was not awaited."""
 
 
+class ModalError(ComponentError):
+    """Raised when there is an error with a modal."""
+
+
+class TitleNotSetError(ModalError):
+    """Raised when a modal is sent before the title is set."""
+
+
 # MIT License
 #
 # Copyright (c) 2022-present Lunarmagpie
