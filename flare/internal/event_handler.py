@@ -2,6 +2,7 @@ import logging
 
 import hikari
 
+from flare.components import CallbackComponent, Modal
 from flare.context import MessageContext, ModalContext
 from flare.exceptions import SerializerError
 from flare.internal import bootstrap
@@ -28,10 +29,12 @@ async def on_inter(event: hikari.InteractionCreateEvent) -> None:
         ctx = MessageContext(
             interaction=event.interaction,
         )
+        assert issubclass(component, CallbackComponent)
+        await component(**kwargs).callback(ctx)
     else:
         ctx = ModalContext(interaction=event.interaction)
-
-    await component(**kwargs, _ctx=ctx).callback(ctx)  # type: ignore
+        assert issubclass(component, Modal)
+        await component(**kwargs, _ctx=ctx).callback(ctx)  # type: ignore
 
 
 # MIT License
