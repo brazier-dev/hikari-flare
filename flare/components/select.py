@@ -102,17 +102,14 @@ class Select(CallbackComponent):
                 if isinstance(option, str):
                     select.add_option(option, option).add_to_menu()
                 elif isinstance(option, hikari.SelectMenuOption):
-                    opt = None
                     opt = select.add_option(option.label, option.value)
                     if option.description:
                         opt.set_description(option.description)
-
                     if option.emoji:
                         opt.set_emoji(option.emoji)
                     if option.is_default:
                         opt.set_is_default(option.is_default)
                     opt.add_to_menu()
-
                 else:
                     select.add_option(*option).add_to_menu()
         else:
