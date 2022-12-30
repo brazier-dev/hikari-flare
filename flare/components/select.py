@@ -103,10 +103,9 @@ class Select(CallbackComponent):
                     select.add_option(option, option).add_to_menu()
                 elif isinstance(option, hikari.SelectMenuOption):
                     opt = None
+                    opt = select.add_option(option.label, option.value)
                     if option.description:
-                        opt = select.add_option(option.label, option.value).set_description(option.description)
-                    else:
-                        opt = select.add_option(option.label, option.value)
+                        opt.set_description(option.description)
 
                     if option.emoji:
                         opt.set_emoji(option.emoji)
