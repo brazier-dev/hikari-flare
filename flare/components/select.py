@@ -36,7 +36,7 @@ class Select(CallbackComponent):
             supplied so a shorter one is used in serializing and deserializing.
     """
 
-    __options: t.Sequence[tuple[str, str] | str] | None
+    __options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None
     __min_values: int | None
     __max_values: int | None
     __placeholder: hikari.UndefinedOr[str]
@@ -45,7 +45,7 @@ class Select(CallbackComponent):
     def __init_subclass__(
         cls,
         cookie: str | None,
-        options: t.Sequence[tuple[str, str] | str] | None,
+        options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None,
         min_values: int | None,
         max_values: int | None,
         placeholder: hikari.UndefinedOr[str],
@@ -71,7 +71,7 @@ class Select(CallbackComponent):
     def width(self) -> int:
         return 5
 
-    def set_options(self, *options: tuple[str, str] | str) -> Self:
+    def set_options(self, *options: tuple[str, str] | str | hikari.SelectMenuOption) -> Self:
         self.options = options
         return self
 
@@ -101,6 +101,15 @@ class Select(CallbackComponent):
             for option in self.options:
                 if isinstance(option, str):
                     select.add_option(option, option).add_to_menu()
+                elif isinstance(option, hikari.SelectMenuOption):
+                    opt = select.add_option(option.label, option.value)
+                    if option.description:
+                        opt.set_description(option.description)
+                    if option.emoji:
+                        opt.set_emoji(option.emoji)
+                    if option.is_default:
+                        opt.set_is_default(option.is_default)
+                    opt.add_to_menu()
                 else:
                     select.add_option(*option).add_to_menu()
         else:
@@ -138,7 +147,7 @@ class select(FunctionalComponent[Select]):
         self,
         *,
         cookie: str | None = None,
-        options: t.Sequence[tuple[str, str] | str] | None = None,
+        options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None = None,
         min_values: int | None = None,
         max_values: int | None = None,
         placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
