@@ -3,9 +3,8 @@
 A stateless component manager for hikari with type-safe API.
 
 ### Features:
-
-    - buttons, select menus, and modals
-    - saves information in button custon IDs, allowing data to be saved between bot restarts.
+- buttons, select menus, and modals
+- saves information in button custon IDs, allowing data to be saved between bot restarts.
 
 *If you want to create complex components [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
 
