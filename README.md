@@ -10,11 +10,15 @@ A stateless component manager for hikari with a type-safe API.
 *If you want to create complex component interactions [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
 
 
-## Installation
+### Installation
 
 ```sh
 pip install hikari-flare
 ```
+
+### Links
+> 🗃️ | [Docs](https://brazier-dev.github.io/hikari-flare)<br>
+> 📦 | [Pypi](https://pypi.org/project/hikari-flare/)
 
 ## Example
 
