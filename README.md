@@ -1,6 +1,11 @@
 # Flare
 
-Stateless component manager for hikari with type-safe API.
+Flare is a stateless component manager for hikari with type-safe API. Flare supports buttons, select menus, and modals.
+
+Flare saves data for components between bot restarts by storing information in the component's custom id.
+
+*If you want to create complex components [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
+
 
 ## Example
 
@@ -11,13 +16,13 @@ import hikari
 
 @flare.button(label="Test Button", style=hikari.ButtonStyle.PRIMARY)
 async def test_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
 ) -> None:
     await ctx.respond(content="Hello World!")
 
 @flare.button(label="State Button", style=hikari.ButtonStyle.PRIMARY)
 async def state_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     # Args and kwargs are used for state.
     number: int,
 ) -> None:
@@ -38,7 +43,7 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         # Set custom state for components that need it
-        row = await flare.Row(test_button(), state_button(5))
+        row = flare.Row(test_button(), state_button(5))
         message = await event.message.respond("Hello Flare!", component=row)
 
 bot.run()
