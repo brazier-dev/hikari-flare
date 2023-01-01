@@ -1,6 +1,6 @@
 # Flare
 
-A stateless component manager for hikari with type-safe API.
+A stateless component manager for hikari with a type-safe API.
 
 ### Features:
 - buttons, select menus, and modals
