@@ -10,6 +10,12 @@ A stateless component manager for hikari with a type-safe API.
 *If you want to create complex component interactions [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
 
 
+## Installation
+
+```sh
+pip install hikari-flare
+```
+
 ## Example
 
 ```python
