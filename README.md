@@ -7,7 +7,7 @@ A stateless component manager for hikari with a type-safe API.
 - easy and powerful API for simple interactions
 - saves data between bot restarts by utilizing the components custom id 
 
-*If you want to create complex components [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
+*If you want to create complex component interactions [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
 
 
 ## Example
