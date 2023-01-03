@@ -1,6 +1,24 @@
 # Flare
 
-Stateless component manager for hikari with type-safe API.
+A stateless component manager for hikari with a type-safe API.
+
+### Features:
+- buttons, select menus, and modals
+- easy and powerful API for simple interactions
+- saves data between bot restarts by utilizing the component's custom id 
+
+*If you want to create complex component interactions [hikari-miru](https://github.com/HyperGH/hikari-miru) may be a better choice.*
+
+
+### Installation
+
+```sh
+pip install hikari-flare
+```
+
+### Links
+> 🗃️ | [Docs](https://brazier-dev.github.io/hikari-flare)<br>
+> 📦 | [Pypi](https://pypi.org/project/hikari-flare/)
 
 ## Example
 
@@ -11,13 +29,13 @@ import hikari
 
 @flare.button(label="Test Button", style=hikari.ButtonStyle.PRIMARY)
 async def test_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
 ) -> None:
     await ctx.respond(content="Hello World!")
 
 @flare.button(label="State Button", style=hikari.ButtonStyle.PRIMARY)
 async def state_button(
-    ctx: flare.Context,
+    ctx: flare.MessageContext,
     # Args and kwargs are used for state.
     number: int,
 ) -> None:
@@ -38,7 +56,7 @@ async def buttons(event: hikari.GuildMessageCreateEvent) -> None:
     # If the bot is mentioned
     if me.id in event.message.user_mentions_ids:
         # Set custom state for components that need it
-        row = await flare.Row(test_button(), state_button(5))
+        row = flare.Row(test_button(), state_button(5))
         message = await event.message.respond("Hello Flare!", component=row)
 
 bot.run()

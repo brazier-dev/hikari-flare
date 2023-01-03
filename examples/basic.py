@@ -35,7 +35,7 @@ async def counter_button(
     options=[
         "Option 1",
         "Option 2",
-        "Option 3",
+        hikari.SelectMenuOption(label="Option 3", value="Option 3", description=None, emoji=None, is_default=False),
     ],
 )
 async def select_menu(ctx: flare.MessageContext, hidden_value: int):
