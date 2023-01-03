@@ -223,43 +223,43 @@
 
 
 <div class="viewcode-block" id="FlareException"><a class="viewcode-back" href="../../api_references/exceptions.html#flare.exceptions.FlareException">[docs]</a><span class="k">class</span> <span class="nc">FlareException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base exception class for all flare exceptions.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base exception class for all flare exceptions.&quot;&quot;&quot;</span></div>
 
 
 <span class="k">class</span> <span class="nc">SerializerError</span><span class="p">(</span><span class="n">FlareException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An exception raised when a serializer fails to serialize or deserialize.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An exception raised when a serializer fails to serialize or deserialize.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">SerializerVersionViolation</span><span class="p">(</span><span class="n">SerializerError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An exception raised when a serializer fails to deserialize a custom_id due to a version mismatch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An exception raised when a serializer fails to deserialize a custom_id due to a version mismatch.&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="ConverterError"><a class="viewcode-back" href="../../api_references/exceptions.html#flare.exceptions.ConverterError">[docs]</a><span class="k">class</span> <span class="nc">ConverterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised when there is a error with converters.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when there is a error with converters.&quot;&quot;&quot;</span></div>
 
 
 <span class="k">class</span> <span class="nc">ComponentError</span><span class="p">(</span><span class="n">FlareException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised when there is a error with components.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when there is a error with components.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">MissingRequiredParameterError</span><span class="p">(</span><span class="n">ComponentError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised when a required parameter (or parameters) for a component is missing.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a required parameter (or parameters) for a component is missing.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">RowMaxWidthError</span><span class="p">(</span><span class="n">ComponentError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised when a row exceeds the maximum width.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a row exceeds the maximum width.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">CustomIDNotSetError</span><span class="p">(</span><span class="n">ComponentError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when a component&#39;s custom ID is not set because the row it is in was not awaited.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a component&#39;s custom ID is not set because the row it is in was not awaited.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">ModalError</span><span class="p">(</span><span class="n">ComponentError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when there is an error with a modal.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when there is an error with a modal.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">TitleNotSetError</span><span class="p">(</span><span class="n">ModalError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when a modal is sent before the title is set.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a modal is sent before the title is set.&quot;&quot;&quot;</span>
 
 
 <span class="c1"># MIT License</span>

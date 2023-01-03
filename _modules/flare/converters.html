@@ -241,7 +241,7 @@
 
 
 <div class="viewcode-block" id="Converter"><a class="viewcode-back" href="../../api_references/converters.html#flare.converters.Converter">[docs]</a><span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converters are used to convert types between a python object and string.</span>
 
 <span class="sd">    .. code-block:: python</span>
@@ -293,7 +293,7 @@
 
 
 <div class="viewcode-block" id="add_converter"><a class="viewcode-back" href="../../api_references/converters.html#flare.converters.add_converter">[docs]</a><span class="k">def</span> <span class="nf">add_converter</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Converter</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">supports_subclass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set a converter to be used for a certain type hint and the subclasses of the</span>
 <span class="sd">    type hint.</span>
 
@@ -327,7 +327,7 @@
 
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_converter</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Converter</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the converter used for a certain type hint. If a Union is passed,</span>
 <span class="sd">    the left side of the Union will be used to find the converter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -344,7 +344,7 @@
             <span class="k">if</span> <span class="n">supports_subclass</span> <span class="ow">and</span> <span class="n">_any_issubclass</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">converter</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">ConverterError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find converter for type `</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="n">type_</span><span class="p">)</span><span class="si">}</span><span class="s2">`.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">ConverterError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find converter for type `</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;__name__&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">type_</span><span class="p">)</span><span class="si">}</span><span class="s2">`.&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="IntConverter"><a class="viewcode-back" href="../../api_references/converters.html#flare.converters.IntConverter">[docs]</a><span class="k">class</span> <span class="nc">IntConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
