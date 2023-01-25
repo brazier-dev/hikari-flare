@@ -29,7 +29,7 @@ Modals can be sent with the `flare.Modal.send` function.
 
 ```python
 modal = ModalTest(a=5, b="1234")
-modal.send(interaction)
+await modal.send(interaction)
 ```
 
 `flare.TextInput` objects can be added or removed from the modal before it sends. Note that
@@ -56,5 +56,5 @@ class MyModal(flare.Modal):
         ...
 
 modal = MyModal().set_title("Set after created!")
-modal.send(interaction)
+await modal.send(interaction)
 ```
