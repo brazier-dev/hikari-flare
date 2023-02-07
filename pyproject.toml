@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
   "hikari>=2.0.0.dev116",
-  "sigparse>=2.0.0",
+  "sigparse>=3.0.0",
   "typing-extensions>=4.4.0",
   "colorama; platform_system=='Windows'",
 ]
