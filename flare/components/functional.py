@@ -34,7 +34,8 @@ class FunctionalComponent(abc.ABC, t.Generic[T]):
         Create and return proxy class for `callback`.
         """
         params = [
-            dataclass.Field(param.name, param.default, param.annotation) for param in sigparse.sigparse(callback_)[1:]
+            dataclass.Field(param.name, param.default, param.annotation)
+            for param in sigparse.sigparse(callback_).parameters[1:]
         ]
 
         # If the user provides a cookie, use that cookie.

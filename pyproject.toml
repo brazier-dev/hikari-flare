@@ -18,8 +18,8 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "hikari>=2.0.0.dev113",
-  "sigparse>=2.0.0",
+  "hikari>=2.0.0.dev116",
+  "sigparse>=3.0.0",
   "typing-extensions>=4.4.0",
   "colorama; platform_system=='Windows'",
 ]

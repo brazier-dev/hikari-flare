@@ -6,6 +6,7 @@ import hashlib
 import typing as t
 
 import hikari
+import hikari.components
 
 from flare import dataclass
 from flare.exceptions import CustomIDNotSetError, SerializerError
@@ -124,7 +125,7 @@ class CallbackComponent(
         Raises:
             SerializerError: The component could not be deserialized.
         """
-        if not isinstance(component, (hikari.ButtonComponent, hikari.SelectMenuComponent)):
+        if not isinstance(component, (hikari.ButtonComponent, hikari.components.TextSelectMenuComponent)):
             raise SerializerError(f"Flare component type can not be {component.type}")
 
         assert component.custom_id
