@@ -137,6 +137,7 @@ class TextSelect(_AbstractSelect):
         max_values: int | None = None,
         placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
         disabled: bool | None = None,
+        _dataclass_fields: list[dataclass.Field] | None = None,
     ) -> None:
         super().__init_subclass__(
             cookie=cookie,
@@ -144,6 +145,7 @@ class TextSelect(_AbstractSelect):
             max_values=max_values,
             placeholder=placeholder,
             disabled=disabled,
+            _dataclass_fields=_dataclass_fields,
         )
         cls.__options = options
 
@@ -293,6 +295,7 @@ class ChannelSelect(_AbstractSelect):
         max_values: int | None = None,
         placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
         disabled: bool | None = None,
+        _dataclass_fields: list[dataclass.Field] | None = None,
     ) -> None:
         super().__init_subclass__(
             cookie=cookie,
@@ -300,6 +303,7 @@ class ChannelSelect(_AbstractSelect):
             max_values=max_values,
             placeholder=placeholder,
             disabled=disabled,
+            _dataclass_fields=_dataclass_fields,
         )
         cls.__channel_types = channel_types
 
