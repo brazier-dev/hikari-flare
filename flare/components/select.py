@@ -18,10 +18,12 @@ __all__: t.Final[t.Sequence[str]] = (
     "UserSelect",
     "RoleSelect",
     "MentionableSelect",
+    "ChannelSelect",
     "text_select",
     "user_select",
     "role_select",
     "mentionable_select",
+    "channel_select",
 )
 
 P = t.ParamSpec("P")
