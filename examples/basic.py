@@ -30,7 +30,7 @@ async def counter_button(
     await ctx.edit_response(components=await asyncio.gather(*components))
 
 
-@flare.select(
+@flare.text_select(
     placeholder="Select an Option",
     options=[
         "Option 1",
@@ -46,6 +46,38 @@ async def select_menu(ctx: flare.MessageContext, hidden_value: int):
         f"\nThe hidden number is: {hidden_value}"
         # fmt: on
     )
+
+
+# There are a few more select types that can be used.
+# Parameters can also be provided like the text slect menu type.
+@flare.user_select()
+async def user_select(ctx: flare.MessageContext):
+    # The users that the user selected.
+    ctx.users
+
+
+@flare.role_select()
+async def role_select(ctx: flare.MessageContext):
+    # The roles that the user selected.
+    ctx.roles
+
+
+@flare.mentionable_select()
+async def mentionable_select(ctx: flare.MessageContext):
+    # The users that the user selected.
+    ctx.users
+    # The roles that the user selected.
+    ctx.roles
+    # All mentionables that the user selected.
+    ctx.mentionables
+
+
+# Optionally channel types can be provided. In this example only `GUILD_TEXT`
+# channels will be selectable.
+@flare.channel_select(channel_types=[hikari.ChannelType.GUILD_TEXT])
+async def channel_select(ctx: flare.MessageContext):
+    # The channels that the user selected.
+    ctx.channels
 
 
 # On message command thats triggered by typing `@<BOT>`
