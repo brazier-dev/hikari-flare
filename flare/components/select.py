@@ -129,11 +129,20 @@ class TextSelect(_AbstractSelect):
 
     def __init_subclass__(
         cls,
+        cookie: str | None = None,
         options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None = None,
-        *args: t.Any,
-        **kwargs: t.Any,
+        min_values: int | None = None,
+        max_values: int | None = None,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool | None = None,
     ) -> None:
-        super().__init_subclass__(*args, **kwargs)
+        super().__init_subclass__(
+            cookie=cookie,
+            min_values=min_values,
+            max_values=max_values,
+            placeholder=placeholder,
+            disabled=disabled,
+        )
         cls.__options = options
 
     def __post_init__(self):
@@ -276,11 +285,20 @@ class ChannelSelect(_AbstractSelect):
 
     def __init_subclass__(
         cls,
+        cookie: str | None = None,
         channel_types: t.Sequence[hikari.ChannelType] | None = None,
-        *args: t.Any,
-        **kwargs: t.Any,
+        min_values: int | None = None,
+        max_values: int | None = None,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool | None = None,
     ) -> None:
-        super().__init_subclass__(*args, **kwargs)
+        super().__init_subclass__(
+            cookie=cookie,
+            min_values=min_values,
+            max_values=max_values,
+            placeholder=placeholder,
+            disabled=disabled,
+        )
         cls.__channel_types = channel_types
 
     def __post_init__(self):
@@ -347,11 +365,21 @@ class text_select(_AbstractSelectFunction[TextSelect]):
     def __init__(
         self,
         *,
+        cookie: str | None = None,
         options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None = None,
-        **kwargs: t.Any,
+        min_values: int | None = None,
+        max_values: int | None = None,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool | None = None,
     ) -> None:
         self.options = options
-        super().__init__(**kwargs)
+        super().__init__(
+            cookie=cookie,
+            min_values=min_values,
+            max_values=max_values,
+            placeholder=placeholder,
+            disabled=disabled,
+        )
 
     @property
     def component_type(self) -> type[TextSelect]:
@@ -386,11 +414,21 @@ class channel_select(_AbstractSelectFunction[ChannelSelect]):
     def __init__(
         self,
         *,
+        cookie: str | None = None,
         channel_types: t.Sequence[hikari.ChannelType] | None = None,
-        **kwargs: t.Any,
+        min_values: int | None = None,
+        max_values: int | None = None,
+        placeholder: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        disabled: bool | None = None,
     ) -> None:
         self.channel_types = channel_types
-        super().__init__(**kwargs)
+        super().__init__(
+            cookie=cookie,
+            min_values=min_values,
+            max_values=max_values,
+            placeholder=placeholder,
+            disabled=disabled,
+        )
 
     @property
     def component_type(self) -> type[ChannelSelect]:
