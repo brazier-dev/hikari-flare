@@ -5,7 +5,6 @@ from flare.components import *
 from flare.context import MessageContext, ModalContext
 from flare.converters import Converter, add_converter
 from flare.internal.bootstrap import install
-from flare.mentionable import Mentionable
 from flare.row import Row
 from flare.utils import gather_iter
 
@@ -30,7 +29,6 @@ __all__: typing.Sequence[str] = (
     "Converter",
     "add_converter",
     "install",
-    "Mentionable",
     "Row",
     "gather_iter",
 )
