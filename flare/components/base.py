@@ -143,7 +143,7 @@ class CallbackComponent(
         except SerializerError:
             raise
 
-        component_inst = flare_component(**kwargs)  # type: ignore
+        component_inst = flare_component(**kwargs)
 
         if isinstance(component, hikari.ButtonComponent):
             if t.TYPE_CHECKING:
@@ -170,7 +170,7 @@ class CallbackComponent(
                     *((option.label, option.value) for option in component.options)
                 ).set_min_values(component.min_values)
 
-        return component_inst  # type: ignore
+        return component_inst
 
     def _clone(self: CallbackComponentT) -> CallbackComponentT:
         return copy.copy(self)
