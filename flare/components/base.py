@@ -16,11 +16,11 @@ if t.TYPE_CHECKING:
     from flare import row
     from flare.components.button import Button
     from flare.components.select import (
+        ChannelSelect,
         MentionableSelect,
         RoleSelect,
         TextSelect,
         UserSelect,
-        ChannelSelect,
     )
     from flare.context import MessageContext, PartialContext
 

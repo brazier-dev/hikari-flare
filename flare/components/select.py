@@ -33,10 +33,10 @@ T = t.TypeVar("T", bound=t.Any)
 class _AbstractSelect(CallbackComponent, abc.ABC):
     """Abstract class for all select menu types."""
 
-    __min_values: int | None
-    __max_values: int | None
-    __placeholder: hikari.UndefinedOr[str]
-    __disabled: bool | None
+    __min_values: t.ClassVar[int | None]
+    __max_values: t.ClassVar[int | None]
+    __placeholder: t.ClassVar[hikari.UndefinedOr[str]]
+    __disabled: t.ClassVar[bool | None]
 
     def __init_subclass__(
         cls,
@@ -127,7 +127,7 @@ class TextSelect(_AbstractSelect):
             supplied so a shorter one is used in serializing and deserializing.
     """
 
-    __options: t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None
+    __options: t.ClassVar[t.Sequence[tuple[str, str] | str | hikari.SelectMenuOption] | None]
 
     def __init_subclass__(
         cls,
@@ -285,7 +285,7 @@ class ChannelSelect(_AbstractSelect):
             supplied so a shorter one is used in serializing and deserializing.
     """
 
-    __channel_types: t.Sequence[hikari.ChannelType] | None
+    __channel_types: t.ClassVar[t.Sequence[hikari.ChannelType] | None]
 
     def __init_subclass__(
         cls,
