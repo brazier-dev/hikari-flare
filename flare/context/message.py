@@ -1,3 +1,4 @@
+import itertools
 import typing as t
 
 import hikari
@@ -18,6 +19,43 @@ class MessageContext(PartialContext[hikari.ComponentInteraction]):
     def values(self) -> t.Sequence[str]:
         """The values selected for a select menu."""
         return self.interaction.values
+
+    @property
+    def users(self) -> t.Sequence[hikari.User]:
+        """The users selected for a user select menu."""
+        if not self.interaction.resolved:
+            return []
+
+        return list(self.interaction.resolved.users.values())
+
+    @property
+    def roles(self) -> t.Sequence[hikari.Role]:
+        """The values selected for a role select menu."""
+        if not self.interaction.resolved:
+            return []
+
+        return list(self.interaction.resolved.roles.values())
+
+    @property
+    def mentionables(self) -> t.Sequence[hikari.User | hikari.Role]:
+        """The values selected for a mentionable select menu."""
+        if not self.interaction.resolved:
+            return []
+
+        return list(
+            itertools.chain(
+                self.interaction.resolved.users.values(),
+                self.interaction.resolved.roles.values(),
+            )
+        )
+
+    @property
+    def channels(self) -> t.Sequence[hikari.PartialChannel]:
+        """The values selected for a channel select menu."""
+        if not self.interaction.resolved:
+            return []
+
+        return list(self.interaction.resolved.channels.values())
 
     async def get_components(self) -> t.MutableSequence[row.Row]:
         """Returns the flare components for the interaction this context is proxying"""

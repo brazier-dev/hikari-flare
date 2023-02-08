@@ -15,7 +15,13 @@ from flare.internal import bootstrap
 if t.TYPE_CHECKING:
     from flare import row
     from flare.components.button import Button
-    from flare.components.select import Select
+    from flare.components.select import (
+        ChannelSelect,
+        MentionableSelect,
+        RoleSelect,
+        TextSelect,
+        UserSelect,
+    )
     from flare.context import MessageContext, PartialContext
 
 __all__: t.Final[t.Sequence[str]] = ("Component", "SupportsCookie", "CallbackComponent")
@@ -29,7 +35,7 @@ CallbackComponentT = t.TypeVar("CallbackComponentT", bound="CallbackComponent")
 
 class Component(abc.ABC, t.Generic[ComponentBuilderT]):
     @abc.abstractmethod
-    def build(self, action_row: ComponentBuilderT) -> None:
+    def build(self, action_row: ComponentBuilderT) -> t.Any:
         """Build and append a flare component to a hikari action row."""
         ...
 
@@ -125,7 +131,7 @@ class CallbackComponent(
         Raises:
             SerializerError: The component could not be deserialized.
         """
-        if not isinstance(component, (hikari.ButtonComponent, hikari.components.TextSelectMenuComponent)):
+        if not isinstance(component, (hikari.ButtonComponent, hikari.components.SelectMenuComponent)):
             raise SerializerError(f"Flare component type can not be {component.type}")
 
         assert component.custom_id
@@ -137,7 +143,7 @@ class CallbackComponent(
         except SerializerError:
             raise
 
-        component_inst = flare_component(**kwargs)  # type: ignore
+        component_inst = flare_component(**kwargs)
 
         if isinstance(component, hikari.ButtonComponent):
             if t.TYPE_CHECKING:
@@ -148,15 +154,21 @@ class CallbackComponent(
             ).set_disabled(component.is_disabled)
         else:
             if t.TYPE_CHECKING:
-                assert isinstance(component_inst, Select)
+                assert isinstance(
+                    component_inst, TextSelect | RoleSelect | UserSelect | MentionableSelect | ChannelSelect
+                )
 
-            component_inst.set_options(*((option.label, option.value) for option in component.options)).set_min_values(
-                component.min_values
-            ).set_max_values(component.max_values).set_placeholder(
+            component_inst.set_max_values(component.max_values).set_placeholder(
                 component.placeholder or hikari.UNDEFINED
-            ).set_disabled(
-                component.is_disabled
-            )
+            ).set_disabled(component.is_disabled)
+
+            if isinstance(component, hikari.components.TextSelectMenuComponent):
+                if t.TYPE_CHECKING:
+                    assert isinstance(component_inst, TextSelect)
+
+                component_inst.set_options(
+                    *((option.label, option.value) for option in component.options)
+                ).set_min_values(component.min_values)
 
         return component_inst
 
