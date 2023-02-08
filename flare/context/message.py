@@ -4,6 +4,7 @@ import hikari
 
 from flare import row
 from flare.context.base import PartialContext
+from flare import mentionable
 
 __all__: t.Sequence[str] = ("MessageContext",)
 
@@ -18,6 +19,26 @@ class MessageContext(PartialContext[hikari.ComponentInteraction]):
     def values(self) -> t.Sequence[str]:
         """The values selected for a select menu."""
         return self.interaction.values
+
+    @property
+    def users(self) -> t.Sequence[hikari.User]:
+        """The users selected for a user select menu."""
+        ...
+
+    @property
+    def roles(self) -> t.Sequence[hikari.Role]:
+        """The values selected for a role select menu."""
+        ...
+
+    @property
+    def mentionables(self) -> t.Sequence[mentionable.Mentionable]:
+        """The values selected for a mentionable select menu."""
+        ...
+
+    @property
+    def channels(self) -> t.Sequence[hikari.PartialChannel]:
+        """The values selected for a channel select menu."""
+        ...
 
     async def get_components(self) -> t.MutableSequence[row.Row]:
         """Returns the flare components for the interaction this context is proxying"""
