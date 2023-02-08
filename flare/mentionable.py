@@ -1,39 +1,16 @@
-import importlib.metadata
-import typing
+import dataclasses
+import typing as t
 
-from flare.components import *
-from flare.context import MessageContext, ModalContext
-from flare.converters import Converter, add_converter
-from flare.internal.bootstrap import install
-from flare.mentionable import Mentionable
-from flare.row import Row
-from flare.utils import gather_iter
+import hikari
 
-__all__: typing.Sequence[str] = (
-    "LinkButton",
-    "button",
-    "Button",
-    "Modal",
-    "TextInput",
-    "text_select",
-    "user_select",
-    "role_select",
-    "mentionable_select",
-    "TextSelect",
-    "UserSelect",
-    "RoleSelect",
-    "MentionableSelect",
-    "MessageContext",
-    "ModalContext",
-    "Converter",
-    "add_converter",
-    "install",
-    "Mentionable",
-    "Row",
-    "gather_iter",
-)
+__all__: t.Sequence[str] = ("Mentionable",)
 
-__version__ = importlib.metadata.version("hikari-flare")
+
+@dataclasses.dataclass
+class Mentionable:
+    user: hikari.User | None
+    role: hikari.Role | None
+
 
 # MIT License
 #
