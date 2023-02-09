@@ -311,8 +311,8 @@ class ChannelSelect(_AbstractSelect):
         super().__post_init__()
         self.channel_types = self.__channel_types
 
-    def set_options(self, *options: tuple[str, str] | str | hikari.SelectMenuOption) -> Self:
-        self.options = options
+    def set_channels(self, *channel_types: hikari.ChannelType) -> Self:
+        self.channel_types = channel_types
         return self
 
     def build(
