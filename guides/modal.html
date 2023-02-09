@@ -244,7 +244,7 @@
 </div>
 <p>Modals can be sent with the <code class="docutils literal notranslate"><span class="pre">flare.Modal.send</span></code> function.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">modal</span> <span class="o">=</span> <span class="n">ModalTest</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;1234&quot;</span><span class="p">)</span>
-<span class="n">modal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">modal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">flare.TextInput</span></code> objects can be added or removed from the modal before it sends. Note that
@@ -267,7 +267,7 @@ accurate if you add or remove <code class="docutils literal notranslate"><span c
         <span class="o">...</span>
 
 <span class="n">modal</span> <span class="o">=</span> <span class="n">MyModal</span><span class="p">()</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Set after created!&quot;</span><span class="p">)</span>
-<span class="n">modal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">modal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

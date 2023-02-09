@@ -219,9 +219,12 @@
           <h1>Source code for flare.components.select</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">t</span>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
+<span class="kn">import</span> <span class="nn">hikari.api</span>
+<span class="kn">import</span> <span class="nn">hikari.api.special_endpoints</span>
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Self</span>
 
 <span class="kn">from</span> <span class="nn">flare</span> <span class="kn">import</span> <span class="n">dataclass</span>
@@ -229,14 +232,102 @@
 <span class="kn">from</span> <span class="nn">flare.components.functional</span> <span class="kn">import</span> <span class="n">FunctionalComponent</span>
 <span class="kn">from</span> <span class="nn">flare.exceptions</span> <span class="kn">import</span> <span class="n">ComponentError</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Select&quot;</span><span class="p">,</span> <span class="s2">&quot;select&quot;</span><span class="p">)</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;TextSelect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UserSelect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RoleSelect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MentionableSelect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ChannelSelect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;text_select&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;user_select&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;role_select&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mentionable_select&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;channel_select&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">P</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.Select">[docs]</a><span class="k">class</span> <span class="nc">Select</span><span class="p">(</span><span class="n">CallbackComponent</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_AbstractSelect</span><span class="p">(</span><span class="n">CallbackComponent</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract class for all select menu types.&quot;&quot;&quot;</span>
+
+    <span class="n">__min_values</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">__max_values</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">__placeholder</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">__disabled</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_dataclass_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">dataclass</span><span class="o">.</span><span class="n">Field</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">_dataclass_fields</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__min_values</span> <span class="o">=</span> <span class="n">min_values</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__max_values</span> <span class="o">=</span> <span class="n">max_values</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__disabled</span> <span class="o">=</span> <span class="n">disabled</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__min_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__max_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__placeholder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__disabled</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">set_min_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="n">min_values</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="n">max_values</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_placeholder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_disabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="n">disabled</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_row</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">MessageActionRowBuilder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">SelectMenuBuilder</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the select menu into the passed in action row.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">action_row</span><span class="o">.</span><span class="n">add_select_menu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Placeholder text must be shorter than 100 characters.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">:</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_min_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">:</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_max_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">:</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_is_disabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_placeholder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">add_to_container</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">select</span>
+
+
+<div class="viewcode-block" id="TextSelect"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.TextSelect">[docs]</a><span class="k">class</span> <span class="nc">TextSelect</span><span class="p">(</span><span class="n">_AbstractSelect</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator for a select menu message component.</span>
+<span class="sd">    Class for a select menu message component.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        options:</span>
@@ -255,68 +346,55 @@
 <span class="sd">            supplied so a shorter one is used in serializing and deserializing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__options</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SelectMenuOption</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">__min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">__max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">__placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">__disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">__options</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SelectMenuOption</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SelectMenuOption</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SelectMenuOption</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_dataclass_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">dataclass</span><span class="o">.</span><span class="n">Field</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">_dataclass_fields</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span>
+            <span class="n">cookie</span><span class="o">=</span><span class="n">cookie</span><span class="p">,</span>
+            <span class="n">min_values</span><span class="o">=</span><span class="n">min_values</span><span class="p">,</span>
+            <span class="n">max_values</span><span class="o">=</span><span class="n">max_values</span><span class="p">,</span>
+            <span class="n">placeholder</span><span class="o">=</span><span class="n">placeholder</span><span class="p">,</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+            <span class="n">_dataclass_fields</span><span class="o">=</span><span class="n">_dataclass_fields</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__min_values</span> <span class="o">=</span> <span class="n">min_values</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__max_values</span> <span class="o">=</span> <span class="n">max_values</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__disabled</span> <span class="o">=</span> <span class="n">disabled</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__min_values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__max_values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__placeholder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__disabled</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">5</span>
 
     <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SelectMenuOption</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_min_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="n">min_values</span>
-        <span class="k">return</span> <span class="bp">self</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">TEXT_SELECT_MENU</span>
 
-    <span class="k">def</span> <span class="nf">set_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="n">max_values</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">set_placeholder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">set_disabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="n">disabled</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-<div class="viewcode-block" id="Select.build"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.Select.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_row</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">MessageActionRowBuilder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build the select menu into the passed in action row.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">select</span> <span class="o">=</span> <span class="n">action_row</span><span class="o">.</span><span class="n">add_select_menu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_id</span><span class="p">)</span>
+<div class="viewcode-block" id="TextSelect.build"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.TextSelect.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">action_row</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">MessageActionRowBuilder</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">special_endpoints</span><span class="o">.</span><span class="n">TextSelectMenuBuilder</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">select</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">special_endpoints</span><span class="o">.</span><span class="n">TextSelectMenuBuilder</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">action_row</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with more than 25 options.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with greater min options than options.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with greater max options than options.&quot;</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="n">select</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span><span class="o">.</span><span class="n">add_to_menu</span><span class="p">()</span>
@@ -334,34 +412,181 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Expected one or more options for select menu. Got zero.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with more than 25 options.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Placeholder text must be shorter than 100 characters.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with greater min options than options.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ComponentError</span><span class="p">(</span><span class="s2">&quot;Cannot create a select menu with greater max options than options.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">:</span>
-            <span class="n">select</span><span class="o">.</span><span class="n">set_min_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">:</span>
-            <span class="n">select</span><span class="o">.</span><span class="n">set_max_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">:</span>
-            <span class="n">select</span><span class="o">.</span><span class="n">set_is_disabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_placeholder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">add_to_container</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">select</span></div></div>
 
 
-<div class="viewcode-block" id="select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.select">[docs]</a><span class="k">class</span> <span class="nc">select</span><span class="p">(</span><span class="n">FunctionalComponent</span><span class="p">[</span><span class="n">Select</span><span class="p">]):</span>
+<div class="viewcode-block" id="UserSelect"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.UserSelect">[docs]</a><span class="k">class</span> <span class="nc">UserSelect</span><span class="p">(</span><span class="n">_AbstractSelect</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for a user select menu message component.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        min_vales:</span>
+<span class="sd">            The minimum amount of values a user must select.</span>
+<span class="sd">        max_values:</span>
+<span class="sd">            The maximum amount of values a user must select.</span>
+<span class="sd">        placeholder:</span>
+<span class="sd">            Placeholder text when no option is selected.</span>
+<span class="sd">        disabled:</span>
+<span class="sd">            Whether the button is disabled.</span>
+<span class="sd">        cookie:</span>
+<span class="sd">            An identifier to use for the select menu. A custom cookie can be</span>
+<span class="sd">            supplied so a shorter one is used in serializing and deserializing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">USER_SELECT_MENU</span></div>
+
+
+<div class="viewcode-block" id="RoleSelect"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.RoleSelect">[docs]</a><span class="k">class</span> <span class="nc">RoleSelect</span><span class="p">(</span><span class="n">_AbstractSelect</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for a role select menu message component.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        min_vales:</span>
+<span class="sd">            The minimum amount of values a user must select.</span>
+<span class="sd">        max_values:</span>
+<span class="sd">            The maximum amount of values a user must select.</span>
+<span class="sd">        placeholder:</span>
+<span class="sd">            Placeholder text when no option is selected.</span>
+<span class="sd">        disabled:</span>
+<span class="sd">            Whether the button is disabled.</span>
+<span class="sd">        cookie:</span>
+<span class="sd">            An identifier to use for the select menu. A custom cookie can be</span>
+<span class="sd">            supplied so a shorter one is used in serializing and deserializing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">ROLE_SELECT_MENU</span></div>
+
+
+<div class="viewcode-block" id="MentionableSelect"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.MentionableSelect">[docs]</a><span class="k">class</span> <span class="nc">MentionableSelect</span><span class="p">(</span><span class="n">_AbstractSelect</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for a mentionable select menu message component.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        min_vales:</span>
+<span class="sd">            The minimum amount of values a user must select.</span>
+<span class="sd">        max_values:</span>
+<span class="sd">            The maximum amount of values a user must select.</span>
+<span class="sd">        placeholder:</span>
+<span class="sd">            Placeholder text when no option is selected.</span>
+<span class="sd">        disabled:</span>
+<span class="sd">            Whether the button is disabled.</span>
+<span class="sd">        cookie:</span>
+<span class="sd">            An identifier to use for the select menu. A custom cookie can be</span>
+<span class="sd">            supplied so a shorter one is used in serializing and deserializing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">MENTIONABLE_SELECT_MENU</span></div>
+
+
+<div class="viewcode-block" id="ChannelSelect"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.ChannelSelect">[docs]</a><span class="k">class</span> <span class="nc">ChannelSelect</span><span class="p">(</span><span class="n">_AbstractSelect</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for a channel select menu message component.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        channel_types:</span>
+<span class="sd">            The channel types that will appear in this select menu.</span>
+<span class="sd">        min_vales:</span>
+<span class="sd">            The minimum amount of values a user must select.</span>
+<span class="sd">        max_values:</span>
+<span class="sd">            The maximum amount of values a user must select.</span>
+<span class="sd">        placeholder:</span>
+<span class="sd">            Placeholder text when no option is selected.</span>
+<span class="sd">        disabled:</span>
+<span class="sd">            Whether the button is disabled.</span>
+<span class="sd">        cookie:</span>
+<span class="sd">            An identifier to use for the select menu. A custom cookie can be</span>
+<span class="sd">            supplied so a shorter one is used in serializing and deserializing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__channel_types</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">ClassVar</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">channel_types</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_dataclass_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">dataclass</span><span class="o">.</span><span class="n">Field</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span>
+            <span class="n">cookie</span><span class="o">=</span><span class="n">cookie</span><span class="p">,</span>
+            <span class="n">min_values</span><span class="o">=</span><span class="n">min_values</span><span class="p">,</span>
+            <span class="n">max_values</span><span class="o">=</span><span class="n">max_values</span><span class="p">,</span>
+            <span class="n">placeholder</span><span class="o">=</span><span class="n">placeholder</span><span class="p">,</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+            <span class="n">_dataclass_fields</span><span class="o">=</span><span class="n">_dataclass_fields</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__channel_types</span> <span class="o">=</span> <span class="n">channel_types</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__channel_types</span>
+
+    <span class="k">def</span> <span class="nf">set_channel_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">channel_types</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span> <span class="o">=</span> <span class="n">channel_types</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="ChannelSelect.build"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.ChannelSelect.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">action_row</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">MessageActionRowBuilder</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">special_endpoints</span><span class="o">.</span><span class="n">ChannelSelectMenuBuilder</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">select</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">special_endpoints</span><span class="o">.</span><span class="n">ChannelSelectMenuBuilder</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">action_row</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span><span class="p">:</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_channel_types</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">select</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">CHANNEL_SELECT_MENU</span></div>
+
+
+<span class="k">class</span> <span class="nc">_AbstractSelectFunction</span><span class="p">(</span><span class="n">FunctionalComponent</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A decorator to create a `flare.Select`. This is a shorthand for when type</span>
 <span class="sd">    safety is not needed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cookie</span> <span class="o">=</span> <span class="n">cookie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="n">min_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="n">max_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="n">disabled</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">TextSelect</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cookie</span><span class="p">,</span>
+            <span class="s2">&quot;min_values&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">,</span>
+            <span class="s2">&quot;max_values&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">,</span>
+            <span class="s2">&quot;placeholder&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">,</span>
+            <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<div class="viewcode-block" id="text_select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.text_select">[docs]</a><span class="k">class</span> <span class="nc">text_select</span><span class="p">(</span><span class="n">_AbstractSelectFunction</span><span class="p">[</span><span class="n">TextSelect</span><span class="p">]):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -372,27 +597,73 @@
         <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cookie</span> <span class="o">=</span> <span class="n">cookie</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span> <span class="o">=</span> <span class="n">min_values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span> <span class="o">=</span> <span class="n">max_values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="n">placeholder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="n">disabled</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">cookie</span><span class="o">=</span><span class="n">cookie</span><span class="p">,</span>
+            <span class="n">min_values</span><span class="o">=</span><span class="n">min_values</span><span class="p">,</span>
+            <span class="n">max_values</span><span class="o">=</span><span class="n">max_values</span><span class="p">,</span>
+            <span class="n">placeholder</span><span class="o">=</span><span class="n">placeholder</span><span class="p">,</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Select</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">Select</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">TextSelect</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">TextSelect</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cookie</span><span class="p">,</span>
-            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span>
-            <span class="s2">&quot;min_values&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_values</span><span class="p">,</span>
-            <span class="s2">&quot;max_values&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_values</span><span class="p">,</span>
-            <span class="s2">&quot;placeholder&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">placeholder</span><span class="p">,</span>
-            <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span><span class="p">,</span>
-        <span class="p">}</span></div>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">kwargs</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span>
+        <span class="k">return</span> <span class="n">kwargs</span></div>
+
+
+<div class="viewcode-block" id="user_select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.user_select">[docs]</a><span class="k">class</span> <span class="nc">user_select</span><span class="p">(</span><span class="n">_AbstractSelectFunction</span><span class="p">[</span><span class="n">UserSelect</span><span class="p">]):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UserSelect</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UserSelect</span></div>
+
+
+<div class="viewcode-block" id="role_select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.role_select">[docs]</a><span class="k">class</span> <span class="nc">role_select</span><span class="p">(</span><span class="n">_AbstractSelectFunction</span><span class="p">[</span><span class="n">RoleSelect</span><span class="p">]):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">RoleSelect</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">RoleSelect</span></div>
+
+
+<div class="viewcode-block" id="mentionable_select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.mentionable_select">[docs]</a><span class="k">class</span> <span class="nc">mentionable_select</span><span class="p">(</span><span class="n">_AbstractSelectFunction</span><span class="p">[</span><span class="n">MentionableSelect</span><span class="p">]):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">MentionableSelect</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">MentionableSelect</span></div>
+
+
+<div class="viewcode-block" id="channel_select"><a class="viewcode-back" href="../../../api_references/select.html#flare.components.select.channel_select">[docs]</a><span class="k">class</span> <span class="nc">channel_select</span><span class="p">(</span><span class="n">_AbstractSelectFunction</span><span class="p">[</span><span class="n">ChannelSelect</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">cookie</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">channel_types</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">placeholder</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span> <span class="o">=</span> <span class="n">channel_types</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">cookie</span><span class="o">=</span><span class="n">cookie</span><span class="p">,</span>
+            <span class="n">min_values</span><span class="o">=</span><span class="n">min_values</span><span class="p">,</span>
+            <span class="n">max_values</span><span class="o">=</span><span class="n">max_values</span><span class="p">,</span>
+            <span class="n">placeholder</span><span class="o">=</span><span class="n">placeholder</span><span class="p">,</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">ChannelSelect</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">ChannelSelect</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">kwargs</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;channel_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel_types</span>
+        <span class="k">return</span> <span class="n">kwargs</span></div>
 
 
 <span class="c1"># MIT License</span>
