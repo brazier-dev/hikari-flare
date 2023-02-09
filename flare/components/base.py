@@ -158,17 +158,24 @@ class CallbackComponent(
                     component_inst, TextSelect | RoleSelect | UserSelect | MentionableSelect | ChannelSelect
                 )
 
-            component_inst.set_max_values(component.max_values).set_placeholder(
-                component.placeholder or hikari.UNDEFINED
-            ).set_disabled(component.is_disabled)
+            (
+                component_inst.set_max_values(component.max_values)
+                .set_min_values(component.min_values)
+                .set_placeholder(component.placeholder or hikari.UNDEFINED)
+                .set_disabled(component.is_disabled)
+            )
 
             if isinstance(component, hikari.components.TextSelectMenuComponent):
                 if t.TYPE_CHECKING:
                     assert isinstance(component_inst, TextSelect)
 
-                component_inst.set_options(
-                    *((option.label, option.value) for option in component.options)
-                ).set_min_values(component.min_values)
+                component_inst.set_options(*((option.label, option.value) for option in component.options))
+
+            if isinstance(component, hikari.components.ChannelSelectMenuComponent):
+                if t.TYPE_CHECKING:
+                    assert isinstance(component_inst, ChannelSelect)
+
+                component_inst.set_channel_types(*(hikari.ChannelType(c) for c in component.channel_types))
 
         return component_inst
 
