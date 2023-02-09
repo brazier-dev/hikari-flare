@@ -311,7 +311,7 @@ class ChannelSelect(_AbstractSelect):
         super().__post_init__()
         self.channel_types = self.__channel_types
 
-    def set_channels(self, *channel_types: hikari.ChannelType) -> Self:
+    def set_channel_types(self, *channel_types: hikari.ChannelType) -> Self:
         self.channel_types = channel_types
         return self
 

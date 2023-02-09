@@ -175,7 +175,7 @@ class CallbackComponent(
                 if t.TYPE_CHECKING:
                     assert isinstance(component_inst, ChannelSelect)
 
-                component_inst.set_channels(*(hikari.ChannelType(c) for c in component.channel_types))
+                component_inst.set_channel_types(*(hikari.ChannelType(c) for c in component.channel_types))
 
         return component_inst
 
