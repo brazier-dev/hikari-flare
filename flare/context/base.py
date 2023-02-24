@@ -434,7 +434,7 @@ class PartialContext(t.Generic[T]):
         RuntimeError
             The interaction was already responded to.
         ValueError
-            response_type was not a deffered response type.
+            response_type was not a deferred response type.
         """
         if response_type not in [
             hikari.ResponseType.DEFERRED_MESSAGE_CREATE,
