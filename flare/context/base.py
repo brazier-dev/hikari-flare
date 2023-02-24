@@ -412,30 +412,19 @@ class PartialContext(t.Generic[T]):
             )
             return self._create_response()
 
-    @t.overload
     async def defer(
         self,
-        response_type: hikari.ResponseType,
+        response_type: t.Literal[
+            hikari.ResponseType.DEFERRED_MESSAGE_CREATE, hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+        ] = hikari.ResponseType.DEFERRED_MESSAGE_CREATE,
         *,
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
-    ) -> None:
-        ...
-
-    @t.overload
-    async def defer(self, *, flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED) -> None:
-        ...
-
-    async def defer(
-        self,
-        *args: t.Any,
-        flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
-        **kwargs: t.Any,
     ) -> None:
         """Short-hand method to defer an interaction response. Raises RuntimeError if the interaction was already responded to.
 
         Parameters
         ----------
-        response_type : hikari.ResponseType, optional
+        response_type : t.Literal[hikari.ResponseType.DEFERRED_MESSAGE_CREATE, hikari.ResponseType.DEFERRED_MESSAGE_UPDATE], optional
             The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
         flags : t.Union[int, hikari.MessageFlag, None], optional
             Message flags that should be included with this defer request, by default None
@@ -447,8 +436,6 @@ class PartialContext(t.Generic[T]):
         ValueError
             response_type was not a deffered response type.
         """
-        response_type = args[0] if args else hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
-
         if response_type not in [
             hikari.ResponseType.DEFERRED_MESSAGE_CREATE,
             hikari.ResponseType.DEFERRED_MESSAGE_UPDATE,
