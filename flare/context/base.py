@@ -415,15 +415,6 @@ class PartialContext(t.Generic[T]):
     @t.overload
     async def defer(
         self,
-        edit: bool,
-        *,
-        flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
-    ) -> None:
-        ...
-
-    @t.overload
-    async def defer(
-        self,
         response_type: hikari.ResponseType,
         *,
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
@@ -440,45 +431,36 @@ class PartialContext(t.Generic[T]):
         flags: hikari.UndefinedOr[t.Union[int, hikari.MessageFlag]] = hikari.UNDEFINED,
         **kwargs: t.Any,
     ) -> None:
-        """Short-hand method to defer an interaction response.
-        Raises RuntimeError if the interaction was already responded to.
+        """Short-hand method to defer an interaction response. Raises RuntimeError if the interaction was already responded to.
 
-        Args:
-            response_type:
-                The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
-            edit:
-                If True, the response will be deferred as an edit.
-            flags:
-                Message flags that should be included with this defer request, by default None
+        Parameters
+        ----------
+        response_type : hikari.ResponseType, optional
+            The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.
+        flags : t.Union[int, hikari.MessageFlag, None], optional
+            Message flags that should be included with this defer request, by default None
 
-        Raises:
-            RuntimeError: The interaction was already responded to.
-            ValueError: response_type was not a deferred response type.
+        Raises
+        ------
+        RuntimeError
+            The interaction was already responded to.
+        ValueError
+            response_type was not a deffered response type.
         """
-        response_type = hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
-        if args:
-            if isinstance(args[0], hikari.ResponseType):
-                response_type = args[0]
-            elif isinstance(args[0], bool):
-                response_type = (
-                    hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
-                    if args[0]
-                    else hikari.ResponseType.DEFERRED_MESSAGE_CREATE
-                )
+        response_type = args[0] if args else hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
 
         if response_type not in [
             hikari.ResponseType.DEFERRED_MESSAGE_CREATE,
             hikari.ResponseType.DEFERRED_MESSAGE_UPDATE,
         ]:
             raise ValueError(
-                "Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE"
-                " or ResponseType.DEFERRED_MESSAGE_UPDATE."
+                "Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE or ResponseType.DEFERRED_MESSAGE_UPDATE."
             )
 
         if self._issued_response:
             raise RuntimeError("Interaction was already responded to.")
 
-        await self.interaction.create_initial_response(hikari.ResponseType.DEFERRED_MESSAGE_UPDATE, flags=flags)
+        await self.interaction.create_initial_response(response_type, flags=flags)
         self._issued_response = True
 
 
