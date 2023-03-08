@@ -198,7 +198,7 @@ class Serde(SerdeABC):
 
     @staticmethod
     def tuple_list_to_string(string: list[tuple[str, bool]]) -> str:
-        """Conbine a list of tuples into a string, ignoring the second value."""
+        """Combine a list of tuples into a string, ignoring the second value."""
         out: list[str] = []
         for char, _ in string:
             out.append(char)

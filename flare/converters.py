@@ -96,7 +96,7 @@ def _any_issubclass(t: t.Any, cls: t.Any) -> bool:
 
 
 def _is_union(obj: t.Any) -> bool:
-    origin = t.get_origin(obj)
+    origin: t.Any = t.get_origin(obj)
     return origin is types.UnionType or origin is t.Union
 
 
@@ -114,7 +114,8 @@ def get_converter(type_: t.Any) -> Converter[t.Any]:
     """
     origin = _get_left(type_)
 
-    if origin_ := t.get_origin(origin):
+    origin_: t.Any = t.get_origin(origin)
+    if origin_:
         origin = origin_
 
     if origin in _converters:
