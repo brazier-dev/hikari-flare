@@ -28,7 +28,7 @@ options.sessions = ["format", "pyright", "pytest", "sphinx"]
 def format(session: nox.Session) -> None:
     session.run("black", *SCRIPT_DIRS)
     session.run("isort", *SCRIPT_DIRS)
-    session.run("codespell", *SCRIPT_DIRS, "-i", "2")
+    session.run("codespell", *SCRIPT_DIRS, "-i", "2", "-w")
 
 
 @pip_session("black", "isort", "codespell")
