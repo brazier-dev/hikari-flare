@@ -38,7 +38,7 @@ def lint(session: nox.Session) -> None:
     session.run("isort", "--check", *SCRIPT_DIRS)
 
 
-@pip_session(".", "pyright")
+@pip_session(".", "pyright==1.1.295")
 def pyright(session: nox.Session) -> None:
     session.run("pyright", *SCRIPT_DIRS)
 
