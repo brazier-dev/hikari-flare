@@ -98,6 +98,10 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[hikari.api.Me
 
         return row.build()
 
+    @property
+    def type(self) -> t.Literal[hikari.ComponentType.ACTION_ROW]:
+        return hikari.ComponentType.ACTION_ROW
+
     def insert(self, index: int, value: Component[hikari.api.MessageActionRowBuilder]) -> None:
         self.__check_width(value)
         self._components.insert(index, value)
