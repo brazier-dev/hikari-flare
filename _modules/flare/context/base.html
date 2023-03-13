@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>flare.context.base - hikari-flare documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
@@ -631,73 +631,42 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_response</span><span class="p">()</span></div>
 
-    <span class="nd">@t</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">edit</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">flags</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@t</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">response_type</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">flags</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@t</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="o">...</span>
-
 <div class="viewcode-block" id="PartialContext.defer"><a class="viewcode-back" href="../../../api_references/context.html#flare.context.base.PartialContext.defer">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">response_type</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_CREATE</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_UPDATE</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_CREATE</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">flags</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Short-hand method to defer an interaction response.</span>
-<span class="sd">        Raises RuntimeError if the interaction was already responded to.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Short-hand method to defer an interaction response. Raises RuntimeError if the interaction was already responded to.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            response_type:</span>
-<span class="sd">                The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.</span>
-<span class="sd">            edit:</span>
-<span class="sd">                If True, the response will be deferred as an edit.</span>
-<span class="sd">            flags:</span>
-<span class="sd">                Message flags that should be included with this defer request, by default None</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response_type : t.Literal[hikari.ResponseType.DEFERRED_MESSAGE_CREATE, hikari.ResponseType.DEFERRED_MESSAGE_UPDATE], optional</span>
+<span class="sd">            The response-type of this defer action. Defaults to DEFERRED_MESSAGE_UPDATE.</span>
+<span class="sd">        flags : t.Union[int, hikari.MessageFlag, None], optional</span>
+<span class="sd">            Message flags that should be included with this defer request, by default None</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            RuntimeError: The interaction was already responded to.</span>
-<span class="sd">            ValueError: response_type was not a deferred response type.</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            The interaction was already responded to.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            response_type was not a deferred response type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">response_type</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_UPDATE</span>
-        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="p">):</span>
-                <span class="n">response_type</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
-                <span class="n">response_type</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_UPDATE</span>
-                    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_CREATE</span>
-                <span class="p">)</span>
-
         <span class="k">if</span> <span class="n">response_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_CREATE</span><span class="p">,</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_UPDATE</span><span class="p">,</span>
         <span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE&quot;</span>
-                <span class="s2">&quot; or ResponseType.DEFERRED_MESSAGE_UPDATE.&quot;</span>
+                <span class="s2">&quot;Parameter response_type must be ResponseType.DEFERRED_MESSAGE_CREATE or ResponseType.DEFERRED_MESSAGE_UPDATE.&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_response</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Interaction was already responded to.&quot;</span><span class="p">)</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">DEFERRED_MESSAGE_UPDATE</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="n">response_type</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_issued_response</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 
 
@@ -755,9 +724,6 @@
     </aside>
   </div>
 </div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/scripts/furo.js"></script>
