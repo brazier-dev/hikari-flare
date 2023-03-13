@@ -2,6 +2,7 @@ name: docs
 
 on:
   release:
+    types: [published]
 
 jobs:
   publish-docs:
