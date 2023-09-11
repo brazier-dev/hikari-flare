@@ -17,4 +17,4 @@ jobs:
           pip install build
           python -m build
           pip install twine
-          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+          twine upload --skip-existing dist/* -u __token__ -p ${{ secrets.PYPI_TOKEN }}
