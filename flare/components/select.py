@@ -85,14 +85,15 @@ class _AbstractSelect(CallbackComponent, abc.ABC):
         self.disabled = disabled
         return self
 
+    def _verify_placeholder(self) -> None:
+        if self.placeholder and len(self.placeholder) > 100:
+            raise ComponentError("Placeholder text must be shorter than 100 characters.")
+
     @abc.abstractmethod
     def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
         """
         Build the select menu into the passed in action row.
         """
-
-        # if self.placeholder and len(self.placeholder) > 100:
-        #     raise ComponentError("Placeholder text must be shorter than 100 characters.")
 
 
 class BaseSelect(_AbstractSelect):
@@ -101,6 +102,7 @@ class BaseSelect(_AbstractSelect):
     """
 
     def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
         action_row.add_select_menu(
             self._component_type,
             self.custom_id,
@@ -167,6 +169,8 @@ class TextSelect(_AbstractSelect):
         return hikari.ComponentType.TEXT_SELECT_MENU
 
     def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
+
         if not self.options:
             raise ComponentError("Expected one or more options for select menu. Got zero.")
 
@@ -322,6 +326,7 @@ class ChannelSelect(_AbstractSelect):
         return self
 
     def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
         action_row.add_channel_menu(
             self.custom_id,
             channel_types=self.channel_types or (),  # default is ()
