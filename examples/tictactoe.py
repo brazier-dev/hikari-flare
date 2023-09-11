@@ -69,7 +69,7 @@ def disable_all(rows: t.MutableSequence[flare.Row]):
             component.disabled = True
 
 
-class TicTacToe(flare.Button, label=" "):
+class TicTacToe(flare.Button, label="_"):
     # The column of this component.
     x: int
     # The row of this component.
@@ -84,7 +84,6 @@ class TicTacToe(flare.Button, label=" "):
     turn: bool = False
 
     async def callback(self, ctx: flare.MessageContext):
-
         rows = await ctx.get_components()
 
         if ctx.author != (self.player_1 if self.turn else self.player_2):

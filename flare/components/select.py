@@ -85,25 +85,32 @@ class _AbstractSelect(CallbackComponent, abc.ABC):
         self.disabled = disabled
         return self
 
-    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> hikari.api.SelectMenuBuilder[t.Any]:
-        """
-        Build the select menu into the passed in action row.
-        """
-        select = action_row.add_select_menu(self._component_type, self.custom_id)
-
+    def _verify_placeholder(self) -> None:
         if self.placeholder and len(self.placeholder) > 100:
             raise ComponentError("Placeholder text must be shorter than 100 characters.")
 
-        if self.min_values:
-            select.set_min_values(self.min_values)
-        if self.max_values:
-            select.set_max_values(self.max_values)
-        if self.disabled:
-            select.set_is_disabled(self.disabled)
-        select.set_placeholder(self.placeholder)
-        select.add_to_container()
+    @abc.abstractmethod
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        """
+        Build the select menu into the passed in action row.
+        """
 
-        return select
+
+class BaseSelect(_AbstractSelect):
+    """
+    Class for select menus that don't have any special properties.
+    """
+
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
+        action_row.add_select_menu(
+            self._component_type,
+            self.custom_id,
+            placeholder=self.placeholder,
+            min_values=self.min_values or 0,  # default is 0
+            max_values=self.max_values or 1,  # default is 1
+            is_disabled=self.disabled or False,  # default is False
+        )
 
 
 class TextSelect(_AbstractSelect):
@@ -161,42 +168,45 @@ class TextSelect(_AbstractSelect):
     def _component_type(self) -> hikari.ComponentType:
         return hikari.ComponentType.TEXT_SELECT_MENU
 
-    def build(
-        self, action_row: hikari.api.MessageActionRowBuilder
-    ) -> hikari.api.special_endpoints.TextSelectMenuBuilder[t.Any]:
-        select: hikari.api.special_endpoints.TextSelectMenuBuilder[t.Any] = super().build(action_row)  # type: ignore
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
 
-        if self.options:
-            if len(self.options) > 25:
-                raise ComponentError("Cannot create a select menu with more than 25 options.")
-
-            if self.min_values and self.min_values > len(self.options):
-                raise ComponentError("Cannot create a select menu with greater min options than options.")
-
-            if self.max_values and self.max_values > len(self.options):
-                raise ComponentError("Cannot create a select menu with greater max options than options.")
-
-            for option in self.options:
-                if isinstance(option, str):
-                    select.add_option(option, option).add_to_menu()
-                elif isinstance(option, hikari.SelectMenuOption):
-                    opt = select.add_option(option.label, option.value)
-                    if option.description:
-                        opt.set_description(option.description)
-                    if option.emoji:
-                        opt.set_emoji(option.emoji)
-                    if option.is_default:
-                        opt.set_is_default(option.is_default)
-                    opt.add_to_menu()
-                else:
-                    select.add_option(*option).add_to_menu()
-        else:
+        if not self.options:
             raise ComponentError("Expected one or more options for select menu. Got zero.")
 
-        return select
+        if len(self.options) > 25:
+            raise ComponentError("Cannot create a select menu with more than 25 options.")
+
+        if self.min_values and self.min_values > len(self.options):
+            raise ComponentError("Cannot create a select menu with greater min options than options.")
+
+        if self.max_values and self.max_values > len(self.options):
+            raise ComponentError("Cannot create a select menu with greater max options than options.")
+
+        select = action_row.add_text_menu(
+            self.custom_id,
+            placeholder=self.placeholder,
+            min_values=self.min_values or 0,  # default is 0
+            max_values=self.max_values or 1,  # default is 1
+            is_disabled=self.disabled or False,  # default is False
+        )
+
+        for option in self.options:
+            if isinstance(option, str):
+                select.add_option(option, option)
+            elif isinstance(option, hikari.SelectMenuOption):
+                select.add_option(
+                    option.label,
+                    option.value,
+                    description=option.description or hikari.UNDEFINED,
+                    emoji=option.emoji or hikari.UNDEFINED,
+                    is_default=option.is_default,
+                )
+            else:
+                select.add_option(*option)
 
 
-class UserSelect(_AbstractSelect):
+class UserSelect(BaseSelect):
     """
     Class for a user select menu message component.
 
@@ -219,7 +229,7 @@ class UserSelect(_AbstractSelect):
         return hikari.ComponentType.USER_SELECT_MENU
 
 
-class RoleSelect(_AbstractSelect):
+class RoleSelect(BaseSelect):
     """
     Class for a role select menu message component.
 
@@ -242,7 +252,7 @@ class RoleSelect(_AbstractSelect):
         return hikari.ComponentType.ROLE_SELECT_MENU
 
 
-class MentionableSelect(_AbstractSelect):
+class MentionableSelect(BaseSelect):
     """
     Class for a mentionable select menu message component.
 
@@ -315,15 +325,16 @@ class ChannelSelect(_AbstractSelect):
         self.channel_types = channel_types
         return self
 
-    def build(
-        self, action_row: hikari.api.MessageActionRowBuilder
-    ) -> hikari.api.special_endpoints.ChannelSelectMenuBuilder[t.Any]:
-        select: hikari.api.special_endpoints.ChannelSelectMenuBuilder[t.Any] = super().build(action_row)  # type: ignore
-
-        if self.channel_types:
-            select.set_channel_types(self.channel_types)
-
-        return select
+    def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
+        self._verify_placeholder()
+        action_row.add_channel_menu(
+            self.custom_id,
+            channel_types=self.channel_types or (),  # default is ()
+            placeholder=self.placeholder or hikari.UNDEFINED,
+            min_values=self.min_values or 0,  # default is 0
+            max_values=self.max_values or 1,  # default is 1
+            is_disabled=self.disabled or False,
+        )
 
     @property
     def _component_type(self) -> hikari.ComponentType:

@@ -76,23 +76,16 @@ class Button(CallbackComponent):
         if not self.label and not self.emoji:
             raise ComponentError(f"Label and emoji cannot both be empty for button component {self.cookie}.")
 
-        button = action_row.add_button(self.style, self.custom_id)
-
-        if self.label:
-            button.set_label(self.label)
-
+        label = self.label or hikari.UNDEFINED
         emoji: hikari.Emoji | hikari.UndefinedType
         if isinstance(self.emoji, str):
             emoji = hikari.Emoji.parse(self.emoji)
         else:
             emoji = self.emoji or hikari.UNDEFINED
 
-        if self.emoji:
-            button.set_emoji(emoji)
-
-        button.set_is_disabled(self.disabled)
-
-        button.add_to_container()
+        action_row.add_interactive_button(
+            self.style, self.custom_id, emoji=emoji, label=label, is_disabled=self.disabled
+        )
 
 
 class button(FunctionalComponent[Button]):
@@ -192,15 +185,7 @@ class LinkButton(Component[hikari.api.MessageActionRowBuilder]):
         return self.url
 
     def build(self, action_row: hikari.api.MessageActionRowBuilder) -> None:
-        button = action_row.add_button(hikari.ButtonStyle.LINK, self.url)
-
-        if self.label:
-            button.set_label(self.label)
-
-        if self.emoji:
-            button.set_emoji(self.emoji)
-
-        button.add_to_container()
+        action_row.add_link_button(self.url, emoji=self.emoji or hikari.UNDEFINED, label=self.label or hikari.UNDEFINED)
 
 
 # MIT License

@@ -40,9 +40,21 @@ class Row(hikari.api.ComponentBuilder, t.MutableSequence[Component[hikari.api.Me
     def __len__(self) -> int:
         return len(self._components)
 
-    def __setitem__(self, key: int, value: Component[hikari.api.MessageActionRowBuilder]) -> None:
-        self.__check_width(value)
-        self._components[key] = value
+    def __setitem__(
+        self,
+        key: int | slice,
+        value: Component[hikari.api.MessageActionRowBuilder]
+        | t.Iterable[Component[hikari.api.MessageActionRowBuilder]],
+    ) -> None:
+        if isinstance(key, int):
+            value = t.cast("Component[hikari.api.MessageActionRowBuilder]", value)
+            self.__check_width(value)
+            self._components[key] = value
+        else:
+            value = t.cast("t.Iterable[Component[hikari.api.MessageActionRowBuilder]]", value)
+            for v in value:
+                self.__check_width(v)
+            self._components[key] = value
 
     def __delitem__(self, key: int) -> None:
         del self._components[key]

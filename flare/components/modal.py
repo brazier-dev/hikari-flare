@@ -73,8 +73,19 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
     def __len__(self) -> int:
         return len(self._components)
 
+    @t.overload
     def __setitem__(self, key: int, value: ModalComponent) -> None:
-        self._components[key] = value
+        ...
+
+    @t.overload
+    def __setitem__(self, key: slice, value: t.Iterable[ModalComponent]) -> None:
+        ...
+
+    def __setitem__(self, key: int | slice, value: ModalComponent | t.Iterable[ModalComponent]) -> None:
+        if isinstance(key, slice):
+            self._components[key] = t.cast("t.Iterable[ModalComponent]", value)
+        else:
+            self._components[key] = t.cast("ModalComponent", value)
 
     def __delitem__(self, key: int) -> None:
         del self._components[key]
@@ -186,27 +197,17 @@ class TextInput(ModalComponent):
 
     def build(self, action_row: hikari.api.ModalActionRowBuilder) -> None:
         """Build and append a flare component to a hikari action row."""
-        text_input = action_row.add_text_input(custom_id=self.custom_id, label=self.label)
 
-        if self.style:
-            text_input.set_style(self.style)
-
-        if self.min_length is not None:
-            text_input.set_min_length(self.min_length)
-
-        if self.max_length is not None:
-            text_input.set_max_length(self.max_length)
-
-        if self.required is not None:
-            text_input.set_required(self.required)
-
-        if self.value is not None:
-            text_input.set_value(self.value)
-
-        if self.placeholder is not None:
-            text_input.set_placeholder(self.placeholder)
-
-        text_input.add_to_container()
+        action_row.add_text_input(
+            self.custom_id,
+            self.label,
+            style=self.style,
+            placeholder=self.placeholder or hikari.UNDEFINED,
+            value=self.value or hikari.UNDEFINED,
+            required=self.required or True,  # default is True
+            min_length=self.min_length or 0,  # default is 0
+            max_length=self.max_length or 4000,  # default is 4000
+        )
 
 
 # MIT License
