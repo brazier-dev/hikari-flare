@@ -73,8 +73,19 @@ class Modal(SupportsCallback["ModalContext"], SupportsCookie, t.MutableSequence[
     def __len__(self) -> int:
         return len(self._components)
 
+    @t.overload
     def __setitem__(self, key: int, value: ModalComponent) -> None:
-        self._components[key] = value
+        ...
+
+    @t.overload
+    def __setitem__(self, key: slice, value: t.Iterable[ModalComponent]) -> None:
+        ...
+
+    def __setitem__(self, key: int | slice, value: ModalComponent | t.Iterable[ModalComponent]) -> None:
+        if isinstance(key, slice):
+            self._components[key] = t.cast("t.Iterable[ModalComponent]", value)
+        else:
+            self._components[key] = t.cast("ModalComponent", value)
 
     def __delitem__(self, key: int) -> None:
         del self._components[key]
