@@ -204,7 +204,7 @@ class TextInput(ModalComponent):
             style=self.style,
             placeholder=self.placeholder or hikari.UNDEFINED,
             value=self.value or hikari.UNDEFINED,
-            required=self.required or True,  # default is True
+            required=True if self.required is None else self.required,  # default is True
             min_length=self.min_length or 0,  # default is 0
             max_length=self.max_length or 4000,  # default is 4000
         )
