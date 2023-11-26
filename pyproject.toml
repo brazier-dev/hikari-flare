@@ -18,7 +18,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "hikari>=2.0.0.dev118",
+  "hikari==2.0.0.dev122",
   "sigparse>=3.0.0",
   "typing-extensions>=4.4.0",
   "colorama; platform_system=='Windows'",
@@ -31,7 +31,7 @@ maintainers = [
 ]
 name = "hikari-flare"
 readme = "README.md"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10,<3.13"
 version = "0.1.3"
 
 [project.urls]
